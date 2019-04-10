@@ -1,6 +1,6 @@
 //
-//  molecularFormula.hpp
-//  DTarray_pro
+//  molecularFormula.cpp
+//  utils
 // -----------------------------------------------------------------------------
 // Copyright 2018 Aaron maurais
 // -----------------------------------------------------------------------------
@@ -23,7 +23,9 @@
 // DEALINGS IN THE SOFTWARE.
 // -----------------------------------------------------------------------------
 //
-#pragma once
+
+#ifndef molecularFormula_hpp
+#define molecularFormula_hpp
 
 #include <iostream>
 #include <map>
@@ -167,3 +169,4 @@ namespace molFormula{
 
 /* molecularFormula_hpp */
 
+#endif
