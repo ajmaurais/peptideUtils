@@ -1,0 +1,11 @@
+.DS_Store
+a.out
+*~
+bin/*
+utils.xcodeproj/*
+obj/*
+lib/*
+helpFile.pdf
+include/config.hpp
+doc/doxygen/html/*
+
