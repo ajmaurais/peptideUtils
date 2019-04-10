@@ -37,13 +37,13 @@
 #include <utils.hpp>
 #include <bufferFile.hpp>
 
-namespace fastaFile {
+namespace utils {
 	class FastaFile;
 	
 	const std::string PROT_SEQ_NOT_FOUND = "PROT_SEQ_NOT_FOUND";
 	const std::string PEP_SEQ_NOT_FOUND = "PEP_SEQ_NOT_FOUND";
 	
-	class FastaFile : public base::BufferFile{
+	class FastaFile : public utils::BufferFile{
 	private:
 		typedef std::pair<size_t, size_t> IntPair;
 		typedef std::map<std::string, IntPair> IndexMapType;

@@ -30,7 +30,7 @@
  \brief constructor
  \param fname path of file to be read
  */
-base::BufferFile::BufferFile(std::string fname)
+utils::BufferFile::BufferFile(std::string fname)
 {
 	_fname = fname;
 	_size = 0;
@@ -41,7 +41,7 @@ base::BufferFile::BufferFile(std::string fname)
  \brief copy constructor
  \param rhs object to copy
  */
-base::BufferFile::BufferFile(const base::BufferFile& rhs)
+utils::BufferFile::BufferFile(const utils::BufferFile& rhs)
 {
 	//copy buffer
 	_buffer = new char[rhs._size];
@@ -56,7 +56,7 @@ base::BufferFile::BufferFile(const base::BufferFile& rhs)
  \brief copy assignment
  \param rhs object to copy
  */
-base::BufferFile& base::BufferFile::operator = (base::BufferFile rhs)
+utils::BufferFile& utils::BufferFile::operator = (utils::BufferFile rhs)
 {
 	std::swap(_buffer, rhs._buffer);
 	
@@ -71,7 +71,7 @@ base::BufferFile& base::BufferFile::operator = (base::BufferFile rhs)
  \param fname path of file to read
  \return true if successful
  */
-bool base::BufferFile::read(std::string fname)
+bool utils::BufferFile::read(std::string fname)
 {
 	_fname = fname;
 	return read();
@@ -82,7 +82,7 @@ bool base::BufferFile::read(std::string fname)
  \pre FileBuffer::_fname is not empty
  \return true if successful
  */
-bool base::BufferFile::read()
+bool utils::BufferFile::read()
 {
 	std::ifstream inF(_fname);
 	if(!inF) return false;

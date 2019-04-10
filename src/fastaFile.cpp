@@ -31,9 +31,9 @@
  \param proteinID uniprot ID of protein to search for.
  \param verbose Should detials of ids not found be printed to std::cerr?
  \return If found, parent protein sequence. If protein sequence is not found returns
- fastaFile::PROT_SEQ_NOT_FOUND.
+ utils::PROT_SEQ_NOT_FOUND.
  */
-std::string fastaFile::FastaFile::getSequence(std::string proteinID, bool verbose)
+std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose)
 {
 	//if proteinID has already been parsed, return the seq and exit
 	auto foundIt = _foundSequences.find(proteinID);
@@ -46,8 +46,8 @@ std::string fastaFile::FastaFile::getSequence(std::string proteinID, bool verbos
 		if(verbose){
 			std::cerr << "Warning! ID: " << proteinID << " not found in fastaFile.\n";
 		}
-		_foundSequences[proteinID] = fastaFile::PROT_SEQ_NOT_FOUND;
-		return fastaFile::PROT_SEQ_NOT_FOUND;
+		_foundSequences[proteinID] = utils::PROT_SEQ_NOT_FOUND;
+		return utils::PROT_SEQ_NOT_FOUND;
 	}
 	
 	std::string temp(_buffer + offsetIt->second.first, _buffer + offsetIt->second.second);
@@ -80,7 +80,7 @@ std::string fastaFile::FastaFile::getSequence(std::string proteinID, bool verbos
  \param modLoc location of modified residue in peptide
  (where 0 is the beginning of the peptide.)
  */
-std::string fastaFile::FastaFile::getModifiedResidue(std::string proteinID,
+std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
 													 std::string peptideSeq,
 													 int modLoc)
 {
@@ -98,7 +98,7 @@ std::string fastaFile::FastaFile::getModifiedResidue(std::string proteinID,
  \param verbose Should detials of ids not found be printed to std::cerr?
  \param found set to false if first instance of searching for protein and it not being found
  */
-std::string fastaFile::FastaFile::getModifiedResidue(std::string proteinID,
+std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
 													 std::string peptideSeq,
 													 int modLoc,
 													 bool verbose,
@@ -108,16 +108,16 @@ std::string fastaFile::FastaFile::getModifiedResidue(std::string proteinID,
 	std::string seq;
 	if(_foundSequences.find(proteinID) == _foundSequences.end()){
 		seq = getSequence(proteinID, verbose);
-		if(seq == fastaFile::PROT_SEQ_NOT_FOUND)
+		if(seq == utils::PROT_SEQ_NOT_FOUND)
 			found = false;
 	}
 	else seq = _foundSequences[proteinID];
-	if(seq == fastaFile::PROT_SEQ_NOT_FOUND)
-		return fastaFile::PROT_SEQ_NOT_FOUND;
+	if(seq == utils::PROT_SEQ_NOT_FOUND)
+		return utils::PROT_SEQ_NOT_FOUND;
 	
 	size_t begin = seq.find(peptideSeq);
 	if(begin == std::string::npos)
-		return fastaFile::PEP_SEQ_NOT_FOUND;
+		return utils::PEP_SEQ_NOT_FOUND;
 	size_t modNum = begin + modLoc;
 	std::string ret = std::string(1, peptideSeq[modLoc]) + std::to_string(modNum + 1);
 	
@@ -127,7 +127,7 @@ std::string fastaFile::FastaFile::getModifiedResidue(std::string proteinID,
 /**
  \brief iterate through _buffer to search for indecies of begining and end of all entries.
  */
-void fastaFile::FastaFile::_buildIndex()
+void utils::FastaFile::_buildIndex()
 {
 	//iterate through _buffer to search for where entries begin
 	std::vector<size_t> combined, trIdx;
@@ -159,14 +159,14 @@ void fastaFile::FastaFile::_buildIndex()
 }
 
 
-bool fastaFile::FastaFile::read()
+bool utils::FastaFile::read()
 {
 	if(!BufferFile::read()) return false;
 	_buildIndex();
 	return true;
 }
 
-bool fastaFile::FastaFile::read(std::string fname)
+bool utils::FastaFile::read(std::string fname)
 {
 	_fname = fname;
 	return FastaFile::read();

@@ -1,5 +1,5 @@
 //
-//  molecularFormula.cpp
+//  molecularFormula.hpp
 //  utils
 // -----------------------------------------------------------------------------
 // Copyright 2018 Aaron maurais
@@ -37,7 +37,7 @@
 
 #include <utils.hpp>
 
-namespace molFormula{
+namespace utils{
 	
 	class Species;
 	class Residue;
@@ -106,8 +106,8 @@ namespace molFormula{
 		Residue (AtomMassMapType* _atomMassMap){
 			atomMassMap = _atomMassMap;
 		}
-		Residue(molFormula::AtomMassMapType* _atomMassMap,
-				const molFormula::HeaderType& _header,
+		Residue(utils::AtomMassMapType* _atomMassMap,
+				const utils::HeaderType& _header,
 				const std::vector<std::string>& _elems){
 			initialize(_atomMassMap, _header, _elems);
 		}

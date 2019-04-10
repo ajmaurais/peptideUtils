@@ -5,7 +5,7 @@
 # 4. run 'make dirmake' before calling 'make'
 
 
-CC = g++
+CXX = g++
 OUT_FILE_NAME = utils.a
 
 CXXFLAGS= -fPIC -c -g -Wall -std=c++11

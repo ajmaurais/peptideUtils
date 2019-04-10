@@ -30,7 +30,7 @@
 #include <string>
 #include <utils.hpp>
 
-namespace base{
+namespace utils{
 	class BufferFile;
 	
 	//!Base class for reading and manipulating large file buffers.

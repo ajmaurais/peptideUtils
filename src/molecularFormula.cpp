@@ -26,9 +26,9 @@
 
 #include <molecularFormula.hpp>
 
-void molFormula::Residue::calcMasses()
+void utils::Residue::calcMasses()
 {
-	masses = molFormula::Species(0, 0);
+	masses = utils::Species(0, 0);
 	for(AtomCountMapType::const_iterator it = atomCountMap.begin(); it != atomCountMap.end(); ++it)
 	{
 		//check that query exists in atomMassMap
@@ -41,7 +41,7 @@ void molFormula::Residue::calcMasses()
 }
 
 //removes atoms from atomCountMap which have count of 0
-void molFormula::Residue::removeZeros()
+void utils::Residue::removeZeros()
 {
 	AtomCountMapType::iterator it = atomCountMap.begin();
 	while(it != atomCountMap.end())
@@ -54,8 +54,8 @@ void molFormula::Residue::removeZeros()
 	}
 }
 
-void molFormula::Residue::initialize(molFormula::AtomMassMapType* _atomMassMap,
-									const molFormula::HeaderType& _header,
+void utils::Residue::initialize(utils::AtomMassMapType* _atomMassMap,
+									const utils::HeaderType& _header,
 									const std::vector<std::string>& _elems)
 {
 	//check that atom count std::vector is same len as header
@@ -72,7 +72,7 @@ void molFormula::Residue::initialize(molFormula::AtomMassMapType* _atomMassMap,
 	removeZeros(); //remove 0 atom counts
 }
 
-double molFormula::Residue::getMass(char avg_mono) const{
+double utils::Residue::getMass(char avg_mono) const{
 	switch(avg_mono){
 		case 'a' :
 			return getAvg();
@@ -85,13 +85,13 @@ double molFormula::Residue::getMass(char avg_mono) const{
 	}
 }
 
-bool molFormula::Residues::readAtomCountTable(std::string _atomCountTableLoc)
+bool utils::Residues::readAtomCountTable(std::string _atomCountTableLoc)
 {
 	atomCountTableLoc = _atomCountTableLoc;
 	return readAtomCountTable();
 }
 
-bool molFormula::Residues::readAtomCountTable()
+bool utils::Residues::readAtomCountTable()
 {
 	if(atomCountTableLoc.empty())
 		throw std::runtime_error("atomCountTableLoc must be specified");
@@ -128,14 +128,14 @@ bool molFormula::Residues::readAtomCountTable()
 				if(atomCountHeader.size() != elems.size())
 					throw std::runtime_error("bad atom count table");
 				
-				residueMap[residue] = molFormula::Residue(&atomMassMap, atomCountHeader, elems);
+				residueMap[residue] = utils::Residue(&atomMassMap, atomCountHeader, elems);
 			}
 		}
 	}
 	return true;
 }
 
-void molFormula::Residue::combineAtomCountMap(AtomCountMapType& _add) const
+void utils::Residue::combineAtomCountMap(AtomCountMapType& _add) const
 {
 	for(AtomCountMapType::const_iterator it = atomCountMap.begin(); it != atomCountMap.end(); ++it)
 	{
@@ -145,13 +145,13 @@ void molFormula::Residue::combineAtomCountMap(AtomCountMapType& _add) const
 	}
 }
 
-bool molFormula::Residues::readAtomMassTable(std::string _massTableLoc)
+bool utils::Residues::readAtomMassTable(std::string _massTableLoc)
 {
 	massTableLoc = _massTableLoc;
 	return readAtomCountTable();
 }
 
-bool molFormula::Residues::readAtomMassTable()
+bool utils::Residues::readAtomMassTable()
 {
 	if(massTableLoc.empty())
 		throw std::runtime_error("atomCountTableLoc must be specified");
@@ -179,7 +179,7 @@ bool molFormula::Residues::readAtomMassTable()
 				continue;
 			}
 			else if(elems[0] == "A"){
-				atomMassMap[elems[1]] = molFormula::Species(std::stod(elems[2]),
+				atomMassMap[elems[1]] = utils::Species(std::stod(elems[2]),
 															std::stod(elems[3]));
 			}
 		}//end if
@@ -187,7 +187,7 @@ bool molFormula::Residues::readAtomMassTable()
 	return true;
 }//end fxn
 
-bool molFormula::Residues::initialize(std::string _atomCountTableLoc, std::string _massTableLoc)
+bool utils::Residues::initialize(std::string _atomCountTableLoc, std::string _massTableLoc)
 {
 	atomCountTableLoc = _atomCountTableLoc;
 	massTableLoc = _massTableLoc;
@@ -195,7 +195,7 @@ bool molFormula::Residues::initialize(std::string _atomCountTableLoc, std::strin
 	return initialize();
 }
 
-bool molFormula::Residues::initialize()
+bool utils::Residues::initialize()
 {
 	bool gootAtomMassTable = readAtomMassTable();
 	bool goodAtomCountTable = readAtomCountTable();
@@ -203,7 +203,7 @@ bool molFormula::Residues::initialize()
 	return gootAtomMassTable && goodAtomCountTable;
 }
 
-double molFormula::Residues::calcMass(std::string _seq, char avg_mono, bool _nterm, bool _cterm) const
+double utils::Residues::calcMass(std::string _seq, char avg_mono, bool _nterm, bool _cterm) const
 {
 	double mass = 0;
 	size_t len = _seq.length();
@@ -237,7 +237,7 @@ double molFormula::Residues::calcMass(std::string _seq, char avg_mono, bool _nte
 	return mass;
 }
 
-std::string molFormula::Residues::calcFormula(std::string _seq, bool unicode,
+std::string utils::Residues::calcFormula(std::string _seq, bool unicode,
 											  bool _nterm, bool _cterm) const
 {
 	std::string formula = "";
@@ -269,7 +269,7 @@ std::string molFormula::Residues::calcFormula(std::string _seq, bool unicode,
 	return getFormulaFromMap(atomCounts, unicode);
 }
 
-std::string molFormula::getFormulaFromMap(const molFormula::AtomCountMapType& atomCountMap, bool unicode)
+std::string utils::getFormulaFromMap(const utils::AtomCountMapType& atomCountMap, bool unicode)
 {
 	std::string formula;
 	
