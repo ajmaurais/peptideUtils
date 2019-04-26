@@ -1,9 +1,3 @@
-#  Makefile template for Static library. 
-# 1. Compile every *.cpp in the folder 
-# 2. All obj files under obj folder
-# 3. static library .a at lib folder
-# 4. run 'make dirmake' before calling 'make'
-
 
 CXX = g++
 OUT_FILE_NAME = utils.a
@@ -21,8 +15,6 @@ OUT_DIR=./lib
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 OBJS := $(subst $(SRC_DIR)/,$(OBJ_DIR)/,$(SRCS:.cpp=.o))
 CXXFLAGS += -I$(HEADER_DIR)
-
-#$(OUT_FILE_NAME): $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(wildcard *.cpp))
 
 $(OUT_FILE_NAME): $(OBJS)
 	mkdir -p $(OUT_DIR)
