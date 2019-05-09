@@ -460,7 +460,7 @@ void utils::removeEmptyStrings(std::vector<std::string>& elems)
  \param s string to add to
  \param delim deliminator to use
  */
-void addChar(std::string toAdd, std::string& s, std::string delim = "|")
+void utils::addChar(std::string toAdd, std::string& s, std::string delim)
 {
 	if(s.empty())
 		s = toAdd;
