@@ -58,7 +58,7 @@
 	#define OUT_DELIM '\t'
 #endif
 #ifndef NEW_LINE
-#define NEW_LINE '\n'
+	#define NEW_LINE '\n'
 #endif
 
 namespace utils{
@@ -122,6 +122,7 @@ namespace utils{
 	void removeEmptyStrings(std::vector<std::string>&);
 	void getIdxOfSubstr(char*, const char*, std::vector<size_t>&);
 	std::string toSubscript(int);
+	void addChar(std::string toAdd, std::string& s, std::string delim = "|");
 	
 	//other
 	bool isInteger(const std::string & s);
