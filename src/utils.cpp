@@ -453,6 +453,20 @@ void utils::removeEmptyStrings(std::vector<std::string>& elems)
 	}
 }
 
+/**
+ Add string to \s with each sucessive string seperated by \p delim
+ 
+ \param toAdd string to add
+ \param s string to add to
+ \param delim deliminator to use
+ */
+void addChar(std::string toAdd, std::string& s, std::string delim = "|")
+{
+	if(s.empty())
+		s = toAdd;
+	else s += delim + toAdd;
+}
+
 /*********/
 /* other */
 /*********/
