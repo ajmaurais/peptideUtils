@@ -134,6 +134,27 @@ namespace utils{
 	template <typename _Tp> int round(_Tp num){
 		return floor(num + 0.5);
 	}
+
+	/**
+	 \brief Concat elements between \p begin and \p end into a single string. <br>
+	 
+	 This function calls utils::addChar to combine the elements deference by the
+	 pointers. Using iterators which do not point to std::strings causes undefined
+	 behavior.
+	 
+	 \param begin where to begin
+	 \param end where to end
+	 \param delim how to seperate elements
+	 \return elements concated to a single string
+	 */
+	template <typename Iterator>
+	std::string concat(Iterator begin, Iterator end, std::string delim = "|")
+	{
+		std::string ret;
+		for(auto it = begin; it != end; ++it)
+			addChar(*it, ret, "|");
+		return ret;
+	}
 	
 	/**
 	 Get number of digits in an integer.
