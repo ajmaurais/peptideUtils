@@ -8,4 +8,4 @@ lib/*
 helpFile.pdf
 include/config.hpp
 doc/doxygen/html/*
-
+README.html

@@ -16,6 +16,8 @@ SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 OBJS := $(subst $(SRC_DIR)/,$(OBJ_DIR)/,$(SRCS:.cpp=.o))
 CXXFLAGS += -I$(HEADER_DIR)
 
+.PHONY: doc
+
 $(OUT_FILE_NAME): $(OBJS)
 	mkdir -p $(OUT_DIR)
 	ar rvs $(OUT_DIR)/$@ $^
@@ -24,7 +26,10 @@ $(OUT_FILE_NAME): $(OBJS)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADER_DIR)/%.hpp
 	mkdir -p $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) $< -o $@
-	
+
+doc:
+	doxygen doc/doxygen/Doxyfile
+
 clean:
 	rm -f $(OBJ_DIR)/*.o $(OUT_DIR)/$(OUT_FILE_NAME) Makefile.bak
 

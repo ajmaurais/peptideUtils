@@ -138,8 +138,8 @@ namespace utils{
 	/**
 	 \brief Concat elements between \p begin and \p end into a single string. <br>
 	 
-	 This function calls utils::addChar to combine the elements deference by the
-	 pointers. Using iterators which do not point to std::strings causes undefined
+	 This function calls utils::addChar to combine the elements deferenced by the
+	 pointers. Using iterators which do not point to strings causes undefined
 	 behavior.
 	 
 	 \param begin where to begin
