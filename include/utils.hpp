@@ -113,8 +113,9 @@ namespace utils{
 	std::string trim(const std::string&);
 	void trimAll(std::vector<std::string>&);
 	bool isCommentLine(std::string);
-	std::string removeSubstr(std::string,std::string);
-	std::string removeChars(char,std::string);
+	std::string removeSubstr(std::string findStr, std::string whithinStr);
+	std::string removeSubstrs(std::string findStr, std::string whithinStr, bool checkEmpty = true);
+	std::string removeChars(char findChar, std::string whithinStr);
 	std::string toLower(std::string);
 	std::string repeat(std::string, size_t);
 	size_t offset(const char* buf, size_t len, const char* str);
@@ -123,6 +124,7 @@ namespace utils{
 	void getIdxOfSubstr(char*, const char*, std::vector<size_t>&);
 	std::string toSubscript(int);
 	void addChar(std::string toAdd, std::string& s, std::string delim = "|");
+	void addChar(char toAdd, std::string& s, std::string delim = "|");
 	
 	//other
 	bool isInteger(const std::string & s);

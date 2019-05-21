@@ -394,6 +394,28 @@ std::string utils::removeSubstr(std::string findStr, std::string whithinStr)
 	return whithinStr;
 }
 
+/**
+ Remove every instance of \p findStr from \p whithinStr.
+
+ \param findStr string to remove
+ \param whithinStr string to search
+ \param checkEmpty Should an exception be thrown if either argument is an empty string?
+ \return \p whithinStr with substrings removed.
+*/
+std::string utils::removeSubstrs(std::string findStr, std::string whithinStr, bool checkEmpty)
+{
+	if(findStr.empty() || whithinStr.empty()){
+		if(checkEmpty)
+			throw std::runtime_error("Empty arguments!");
+		else return whithinStr;
+	}
+	size_t patternLen = findStr.length();
+	for(size_t i = whithinStr.find(findStr); i != std::string::npos; i = whithinStr.find(findStr)){
+		whithinStr.erase(i, patternLen);
+	}
+	return whithinStr;
+}
+
 std::string utils::removeChars(char findChar, std::string wStr)
 {
 	wStr.erase(remove(wStr.begin(), wStr.end(), findChar), wStr.end());
@@ -454,16 +476,30 @@ void utils::removeEmptyStrings(std::vector<std::string>& elems)
 }
 
 /**
- Add string to \s with each sucessive string seperated by \p delim
+ Add string to \s with each successive string separated by \p delim
  
  \param toAdd string to add
  \param s string to add to
- \param delim deliminator to use
+ \param delim delimiter to use
  */
 void utils::addChar(std::string toAdd, std::string& s, std::string delim)
 {
 	if(s.empty())
 		s = toAdd;
+	else s += delim + toAdd;
+}
+
+/**
+ Add string to \s with each successive string separated by \p delim
+ 
+ \param toAdd string to add
+ \param s string to add to
+ \param delim delimiter to use
+ */
+void utils::addChar(char toAdd, std::string& s, std::string delim)
+{
+	if(s.empty())
+		s = std::string(1, toAdd);
 	else s += delim + toAdd;
 }
 
