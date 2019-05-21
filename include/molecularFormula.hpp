@@ -98,8 +98,12 @@ namespace utils{
 		AtomMassMapType* atomMassMap;
 		
 		Species masses;
+		//!has atomMassMap been initialized
+		bool massesSupported;
+
 		void calcMasses();
 		void removeZeros();
+		void _checkIfMassesSupported() const;
 	public:
 		//!Constructor
 		Residue (){
@@ -111,27 +115,28 @@ namespace utils{
 				const std::vector<std::string>& _elems){
 			initialize(_atomMassMap, _header, _elems);
 		}
+		Residue(const utils::HeaderType& _header,
+				const std::vector<std::string>& _elems){
+			initialize(_header, _elems);
+		}
 		~Residue() {
-			delete atomMassMap;
+			//delete atomMassMap;
 		}
 		
-		//modifers
+		//modifiers
 		Residue& operator = (Residue rhs); //copy assignment
-		void initialize(AtomMassMapType* , const HeaderType&, const std::vector<std::string>&);
-		
+		void initialize(AtomMassMapType*, const HeaderType&, const std::vector<std::string>&);
+		void initialize(const HeaderType&, const std::vector<std::string>&);
+
 		//properties
 		void combineAtomCountMap(AtomCountMapType&) const;
 		int getCount(std::string) const;
 		std::string getFormula(bool unicode = UNICODE_AS_DEFAULT) const{
 			return getFormulaFromMap(atomCountMap, unicode);
 		}
-		double getMass(char) const;
-		double getMono() const{
-			return masses.getMono();
-		}
-		double getAvg() const{
-			return masses.getAvg();
-		}
+		double getMass(char, bool = true) const;
+		double getMono(bool = true) const;
+		double getAvg(bool = true) const;
 	};
 	
 	class Residues{
@@ -141,12 +146,19 @@ namespace utils{
 		std::string atomCountTableLoc, massTableLoc;
 		AtomMassMapType atomMassMap;
 		HeaderType atomCountHeader;
+
+		//!Has atom count table been read?
+		bool atomCountTableRead;
+		//!Has atom mass table been read?
+		bool atomMassTalbeRead;
 	public:
 		Residues(){
 			atomCountTableLoc = ""; massTableLoc = "";
+			atomCountTableRead = false; atomMassTalbeRead = false;
 		}
 		Residues(std::string _atomCountTableLoc, std::string _massTableLoc){
 			atomCountTableLoc = _atomCountTableLoc; massTableLoc = _massTableLoc;
+			atomCountTableRead = false; atomMassTalbeRead = false;
 		}
 		~Residues() {}
 		

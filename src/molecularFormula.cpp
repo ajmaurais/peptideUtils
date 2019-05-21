@@ -36,16 +36,18 @@ utils::Residue::Residue(const utils::Residue& rhs)
 	//copy other members
 	masses = rhs.masses;
 	atomCountMap = rhs.atomCountMap;
+	massesSupported = rhs.massesSupported;
 }
 
 //!Copy assignment
-utils::Residue& utils::Residue::operator =(utils::Residue rhs)
+utils::Residue& utils::Residue::operator = (utils::Residue rhs)
 {
 	std::swap(atomMassMap, rhs.atomMassMap);
 
 	//other vars
 	masses = rhs.masses;
 	atomCountMap = rhs.atomCountMap;
+	massesSupported = rhs.massesSupported;
 
 	return *this;
 }
@@ -78,37 +80,100 @@ void utils::Residue::removeZeros()
 	}
 }
 
-void utils::Residue::initialize(utils::AtomMassMapType* _atomMassMap,
-									const utils::HeaderType& _header,
-									const std::vector<std::string>& _elems)
+void utils::Residue::_checkIfMassesSupported() const
+{
+	if(!massesSupported)
+		throw std::runtime_error("Atom mass file has not been initialized.");
+}
+
+void utils::Residue::initialize(const utils::HeaderType& _header,
+								const std::vector<std::string>& _elems)
 {
 	//check that atom count std::vector is same len as header
 	assert(_header.size() == _elems.size());
-	
-	atomMassMap = _atomMassMap;
 	
 	//initialize atom count map
 	size_t len = _header.size();
 	for(size_t i = 0; i < len; i++)
 		atomCountMap[_header[i]] = std::stoi(_elems[i]);
-	
-	calcMasses(); //calculate residue mass
 	removeZeros(); //remove 0 atom counts
+	massesSupported = false;
 }
 
-double utils::Residue::getMass(char avg_mono) const{
+void utils::Residue::initialize(utils::AtomMassMapType* _atomMassMap,
+									const utils::HeaderType& _header,
+									const std::vector<std::string>& _elems)
+{
+	initialize(_header, _elems);
+	
+	atomMassMap = new AtomMassMapType;
+	atomMassMap = _atomMassMap;
+	
+	calcMasses(); //calculate residue mass
+	
+	massesSupported = true;
+}
+
+/**
+ Get mass of residue.
+
+ \param avg_mono 'a' for average mass, 'm' for monoisotopic mass
+ \param checkIfMassesSupported Should a check be performed to see
+ whether the atom mass table has been initialized?
+
+ \return residue mass
+*/
+double utils::Residue::getMass(char avg_mono,
+							   bool checkIfMassesSupported) const{
 	switch(avg_mono){
 		case 'a' :
-			return getAvg();
+			return getAvg(checkIfMassesSupported);
 			break;
 		case 'm' :
-			return getMono();
+			return getMono(checkIfMassesSupported);
 			break;
 		default :
 			throw std::runtime_error("only a or m are valid arguments!");
 	}
 }
 
+/**
+ Get monoisotopic mass for residue.
+
+ \param checkIfMassesSupported Should a check be performed to see
+ whether the atom mass table has been initialized?
+
+ \return monoisotopic mass
+*/
+double utils::Residue::getMono(bool checkIfMassesSupported) const
+{
+	if(checkIfMassesSupported) _checkIfMassesSupported();
+	return masses.getMono();
+}
+
+/**
+ Get average mass for residue.
+
+ \param checkIfMassesSupported Should a check be performed to see
+ whether the atom mass table has been initialized?
+
+ \return average mass
+*/
+double utils::Residue::getAvg(bool checkIfMassesSupported) const
+{
+	if(checkIfMassesSupported) _checkIfMassesSupported();
+	return masses.getAvg();
+}
+
+/**
+ Read atom count table. <br>
+
+ Call this function to initialize only the atom count table, 
+ when residue masses are not required.
+
+ \param _atomCountTableLoc path to atom count table file
+ \return true if IO was successful
+*/
 bool utils::Residues::readAtomCountTable(std::string _atomCountTableLoc)
 {
 	atomCountTableLoc = _atomCountTableLoc;
@@ -152,10 +217,13 @@ bool utils::Residues::readAtomCountTable()
 				if(atomCountHeader.size() != elems.size())
 					throw std::runtime_error("bad atom count table");
 				
-				residueMap[residue] = utils::Residue(&atomMassMap, atomCountHeader, elems);
+				if(atomMassTalbeRead)
+					residueMap[residue] = utils::Residue(&atomMassMap, atomCountHeader, elems);
+				else residueMap[residue] = utils::Residue(atomCountHeader, elems);
 			}
 		}
 	}
+	atomCountTableRead = true;
 	return true;
 }
 
@@ -208,6 +276,7 @@ bool utils::Residues::readAtomMassTable()
 			}
 		}//end if
 	}//end while
+	atomMassTalbeRead = true;
 	return true;
 }//end fxn
 
@@ -229,6 +298,12 @@ bool utils::Residues::initialize()
 
 double utils::Residues::calcMass(std::string _seq, char avg_mono, bool _nterm, bool _cterm) const
 {
+	//check that required files have been read
+	if(!atomCountTableRead)
+		throw std::runtime_error("Atom count table has not been read in!");
+	if(!atomMassTalbeRead)
+		throw std::runtime_error("Atom mass table has not been read in!");
+
 	double mass = 0;
 	size_t len = _seq.length();
 	ResidueMapType::const_iterator it;
@@ -264,6 +339,10 @@ double utils::Residues::calcMass(std::string _seq, char avg_mono, bool _nterm, b
 std::string utils::Residues::calcFormula(std::string _seq, bool unicode,
 											  bool _nterm, bool _cterm) const
 {
+	//check that required files have been read
+	if(!atomCountTableRead)
+		throw std::runtime_error("Atom count table has not been read in!");
+
 	std::string formula = "";
 	AtomCountMapType atomCounts;
 	ResidueMapType::const_iterator resMapIt;
@@ -347,9 +426,6 @@ std::string utils::getFormulaFromMap(const utils::AtomCountMapType& atomCountMap
 	
 	return formula;
 }
-
-
-
 
 
 
