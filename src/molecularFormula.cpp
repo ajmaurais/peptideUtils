@@ -26,6 +26,30 @@
 
 #include <molecularFormula.hpp>
 
+//!Copy constructor
+utils::Residue::Residue(const utils::Residue& rhs)
+{
+	//copy atomMassMap
+	atomMassMap = new AtomMassMapType;
+	*atomMassMap = *rhs.atomMassMap;
+	
+	//copy other members
+	masses = rhs.masses;
+	atomCountMap = rhs.atomCountMap;
+}
+
+//!Copy assignment
+utils::Residue& utils::Residue::operator =(utils::Residue rhs)
+{
+	std::swap(atomMassMap, rhs.atomMassMap);
+
+	//other vars
+	masses = rhs.masses;
+	atomCountMap = rhs.atomCountMap;
+
+	return *this;
+}
+
 void utils::Residue::calcMasses()
 {
 	masses = utils::Species(0, 0);

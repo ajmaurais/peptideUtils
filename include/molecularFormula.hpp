@@ -34,6 +34,7 @@
 #include <cassert>
 #include <utility>
 #include <string>
+#include <algorithm>
 
 #include <utils.hpp>
 
@@ -100,20 +101,22 @@ namespace utils{
 		void calcMasses();
 		void removeZeros();
 	public:
+		//!Constructor
 		Residue (){
 			atomMassMap = new AtomMassMapType;
 		}
-		Residue (AtomMassMapType* _atomMassMap){
-			atomMassMap = _atomMassMap;
-		}
+		Residue(const Residue& _atomMassMap); //copy constructor
 		Residue(utils::AtomMassMapType* _atomMassMap,
 				const utils::HeaderType& _header,
 				const std::vector<std::string>& _elems){
 			initialize(_atomMassMap, _header, _elems);
 		}
-		~Residue() {}
+		~Residue() {
+			delete atomMassMap;
+		}
 		
 		//modifers
+		Residue& operator = (Residue rhs); //copy assignment
 		void initialize(AtomMassMapType* , const HeaderType&, const std::vector<std::string>&);
 		
 		//properties
