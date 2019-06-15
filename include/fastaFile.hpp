@@ -50,7 +50,7 @@ namespace utils {
 		
 		//!All peptide sequences which were already found are stored internally
 		std::map<std::string, std::string> _foundSequences;
-		//!Stores begining and ending offset indecies of eacn protein ID
+		//!Stores beginning and ending offset indecies of eacn protein ID
 		IndexMapType _idIndex;
 		
 		void _buildIndex();

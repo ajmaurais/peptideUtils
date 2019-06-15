@@ -146,7 +146,7 @@ namespace utils{
 	 
 	 \param begin where to begin
 	 \param end where to end
-	 \param delim how to seperate elements
+	 \param delim how to separate elements
 	 \return elements concated to a single string
 	 */
 	template <typename Iterator>

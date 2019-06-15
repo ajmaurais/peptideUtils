@@ -80,8 +80,8 @@ namespace utils{
 		 \param caseSensitive Should column headers be case sensitive?
 		 \param hasHeaders Does the first row contain column headers?
 		 \param delim Column delimiter.
-		 \param quote Are colums surounded by quotes?
-		 \param blank What value should be stored for blank colums?
+		 \param quote Are columns surrounded by quotes?
+		 \param blank What value should be stored for blank columns?
 		 */
 		TsvFile(std::string fname, bool caseSensitive = false, bool hasHeaders = true,
 				char delim = IN_DELIM, bool quote = false, std::string blank = ""){

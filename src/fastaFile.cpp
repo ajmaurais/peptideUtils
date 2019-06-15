@@ -125,7 +125,7 @@ std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
 }
 
 /**
- \brief iterate through _buffer to search for indecies of begining and end of all entries.
+ \brief iterate through _buffer to search for indecies of beginning and end of all entries.
  */
 void utils::FastaFile::_buildIndex()
 {
