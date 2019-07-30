@@ -76,6 +76,7 @@ namespace utils {
 		std::string getModifiedResidue(std::string proteinID, std::string peptideSeq,
 									   int modLoc, bool verbose, bool& found);
 		int getMoodifiedResidueNumber(std::string peptideSeq, int modLoc) const;
+		bool empty() const;
 	};
 }
 

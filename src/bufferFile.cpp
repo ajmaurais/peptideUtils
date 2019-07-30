@@ -90,3 +90,14 @@ bool utils::BufferFile::read()
 	utils::readBuffer(_fname, &_buffer, _size);
 	return true;
 }
+
+/**
+\brief Determine if BufferFile::_buffer is empty. <br>
+
+Function simply returns true if BufferFile::_size == 0.
+At some point maybe I will implement a more rigorous test.
+\return true if BufferFile::_buffer is empty.
+*/
+bool utils::BufferFile::buffer_empty() const{
+	return _size == 0;
+}
