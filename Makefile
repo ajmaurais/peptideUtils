@@ -2,7 +2,10 @@
 CXX = g++
 OUT_FILE_NAME = utils.a
 
-CXXFLAGS= -fPIC -c -g -Wall -std=c++11
+PROG_DIR:=$(shell pwd)
+SHARE_DIR:=$(PROG_DIR)/share
+
+CXXFLAGS= -fPIC -c -g -Wall -std=c++11 -DSHARE_DIR="\"${SHARE_DIR}\""
 
 HEADER_DIR=./include
 
