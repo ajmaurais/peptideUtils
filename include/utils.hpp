@@ -46,6 +46,7 @@
 #include <string>
 #include <cctype>
 #include <type_traits>
+#include <set>
 
 #ifndef PATH_MAX
 	#define PATH_MAX 1024
@@ -206,6 +207,20 @@ namespace utils{
 	auto as_integer(Enumeration const value)-> typename std::underlying_type<Enumeration>::type
 	{
 		return static_cast<typename std::underlying_type<Enumeration>::type>(value);
+	}
+
+	/**
+	\brief Remove duplicate values from vector.
+
+	\param v Vector to remove duplicates from.
+	\oaram sort Should the values in \p v be sorted?
+	Sorting is performed using the default comparator for \p _Tp. 
+	If sort is set \p false, elements are returned in a random order.
+	*/
+	template<typename _Tp> void unique(std::vector<_Tp>& v, bool sort = true){
+		std::set<_Tp> s(v.begin(), v.end());
+		v.assign(s.begin(), s.end());
+		if(sort) std::sort(v.begin(), v.end());
 	}
 }
 
