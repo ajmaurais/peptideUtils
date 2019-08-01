@@ -47,6 +47,7 @@
 #include <cctype>
 #include <type_traits>
 #include <set>
+#include <tuple>
 
 #ifndef PATH_MAX
 	#define PATH_MAX 1024
@@ -225,10 +226,17 @@ namespace utils{
 		if(sort) std::sort(v.begin(), v.end());
 	}
 
-	//!Compare std::string by length.
+	/**
+	Compare std::string by length.
+	If lengths are the same, then compare alphabetically.
+	*/
 	struct strLenCompare {
-		bool operator()(const std::string& first, const std::string& second) {
-			return first.size() < second.size();
+		bool operator() (const std::string& lhs, const std::string& rhs) const{
+			if(lhs.length() < rhs.length())
+				return true;
+			else if(lhs.length() == rhs.length())
+				return lhs < rhs;
+			else return false;
 		}
 	};
 }
