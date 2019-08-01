@@ -436,7 +436,57 @@ std::string utils::getFormulaFromMap(const utils::AtomCountMapType& atomCountMap
 	return formula;
 }
 
+/**
+\brief Perform a virtual protease digest of a protein. <br>
 
+The function uses charge and m/z filters to remove peptides which would not be
+observable by MS. The m/z for peptides in charge states \p minCharge to \p maxCharge
+are calculated. If the m/z for any charge state is in between \p minMZ and \p maxMZ, the
+sequence will be appended to \p peptides.
+
+\param seq Protein sequence.
+\param peptides Populated with digested peptides which meet filter criteria.
+\param missedCleavages number of missed cleavages to allow.
+\param length_filter Should peptides with less than 6 amino acids be automatically excluded?
+\param cleavagePattern RegEx for protease cleavage pattern.
+\param minMz Minimum m/z to allow in \p peptides.
+\param maxMz Maximum m/z to allow in \p peptides. Set to 0 for no upper bound on m/z.
+\param minCharge Minimum charge to consider when calculating m/z.
+\param maxCharge Maximum charge to consider when calculating m/z.
+
+\pre (minMz >= 0 && maxMz >= 0)
+*/
+void utils::Residues::digest(std::string seq, std::vector<std::string>& peptides,
+		unsigned missedCleavages, bool length_filter, std::string cleavagePattern,
+		double minMz, double maxMz, int minCharge, int maxCharge) const
+{
+	//check precondition
+	assert(minMz >= 0 && maxMz >= 0);
+	peptides.clear();
+
+	//first get tryptic peptides
+	std::vector<std::string> peptides_temp;
+	utils::digest(seq, peptides_temp, missedCleavages, (length_filter ? 6 : 0), 
+		std::string::npos, cleavagePattern);
+
+	//iterate through peptides
+	for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it)
+	{
+		//calculate peptide mono masses
+		double mono_temp = calcMono(*it);
+
+		//iterate through charge range
+		for(unsigned z = minCharge; z <= maxCharge; z++)
+		{
+			double mz_temp = (mono_temp + z) / (z == 0 ? z : z); //calc mz
+			if(mz_temp >= minMz && mz_temp <= maxMz)
+				peptides.push_back(*it); //add peptides in mz range to peptides
+		}
+	}
+	
+	utils::unique(peptides);
+	std::sort(peptides.begin(), peptides.end(), utils::strLenCompare());
+}
 
 
 

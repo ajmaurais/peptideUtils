@@ -70,7 +70,8 @@ namespace utils{
 	
 	std::string const WHITESPACE = " \f\n\r\t\v";
 	std::string const COMMENT_SYMBOL = "#";
-	bool const IGNORE_HIDDEN_FILES = true; //ignore hidden files in utils::ls
+	//!ignore hidden files in utils::ls
+	bool const IGNORE_HIDDEN_FILES = true;
 	int const PROGRESS_BAR_WIDTH = 60;
 	std::string const SUBSCRIPT_MAP [] = {"\u2080", "\u2081", "\u2082", "\u2083",
 		"\u2084", "\u2085", "\u2086", "\u2087", "\u2088", "\u2089"};
@@ -212,16 +213,24 @@ namespace utils{
 	/**
 	\brief Remove duplicate values from vector.
 
-	\param v Vector to remove duplicates from.
+	\param v Vector to remove duplicates from. 
 	\oaram sort Should the values in \p v be sorted?
+	
 	Sorting is performed using the default comparator for \p _Tp. 
-	If sort is set \p false, elements are returned in a random order.
+	If sort is set to \p false, elements are returned in a random order.
 	*/
 	template<typename _Tp> void unique(std::vector<_Tp>& v, bool sort = true){
 		std::set<_Tp> s(v.begin(), v.end());
 		v.assign(s.begin(), s.end());
 		if(sort) std::sort(v.begin(), v.end());
 	}
+
+	//!Compare std::string by length.
+	struct strLenCompare {
+		bool operator()(const std::string& first, const std::string& second) {
+			return first.size() < second.size();
+		}
+	};
 }
 
 #endif /* utils_hpp */
