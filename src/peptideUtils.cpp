@@ -79,6 +79,48 @@ void utils::digest(std::string seq, std::vector<std::string>& peptides,
 }
 
 /**
+\brief Record indices of occurrences of utils::MOD_CHARS in seq.
+
+\param seq peptide sequence containing modifications
+\param modLocs vector populated with locations of modifications
+
+\return peptide sequence with mods removed
+*/
+std::string utils::getModLocs(std::string seq, std::vector<int>& modLocs)
+{
+	modLocs.clear();
+	std::string ret = "";
+	
+	//check that n term is not a diff mod
+	for(auto p = utils::MOD_CHARS.begin(); p != utils::MOD_CHARS.end(); p++)
+	  if(seq[0] == *p)
+	    throw std::runtime_error("Invalid peptide sequence: " + seq);
+	
+	for(size_t i = 0; i < seq.length(); i++)
+	{
+		for(auto p = utils::MOD_CHARS.begin(); p != utils::MOD_CHARS.end(); p++)
+		{
+			if(seq[i] == *p){
+				seq.erase(i, 1);
+				modLocs.push_back(int(ret.length() - 1));
+				break;
+			}
+		}
+		//exit loop if at end of sequence
+		if(i >= seq.length())
+			break;
+		
+		//Check that current char is letter
+		if(!isalpha(seq[i]))
+			throw std::runtime_error("Invalid peptide sequence: " + seq);
+		
+		//add new amino acid to ret
+		ret.push_back(seq[i]);
+	}
+	return ret;
+}
+
+/**
 \brief Convert from 1 letter amino acid codes to 3.
 
 \param seq peptide sequence
@@ -108,9 +150,9 @@ for(auto p = utils::MOD_CHARS.begin(); p != utils::MOD_CHARS.end(); p++)
 		for(auto p = utils::MOD_CHARS.begin(); p != utils::MOD_CHARS.end(); p++)
 		{
 			if(seq[i] == *p){
-			ret_temp += seq[i];
-			seq.erase(i, 1);
-			break;
+				ret_temp += seq[i];
+				seq.erase(i, 1);
+				break;
 			}
 		}
 		//exit loop if at end of sequence
