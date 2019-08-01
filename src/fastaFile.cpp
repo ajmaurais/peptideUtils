@@ -172,3 +172,10 @@ bool utils::FastaFile::read(std::string fname)
 	return FastaFile::read();
 }
 
+/**
+\return true if FastaFile::_buffer is empty.
+*/
+bool utils::FastaFile::empty() const{
+	return buffer_empty();
+}
+

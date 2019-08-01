@@ -288,8 +288,17 @@ bool utils::Residues::initialize(std::string _atomCountTableLoc, std::string _ma
 	return initialize();
 }
 
-bool utils::Residues::initialize()
+/**
+\brief Initialise Residues with atom and residue mass data.
+\param default Should the default residue mass files be used?
+*/
+bool utils::Residues::initialize(bool use_default)
 {
+	if(use_default){
+		atomCountTableLoc = std::string(SHARE_DIR) + "/" + ATOM_COUNT_NAME;
+		massTableLoc = std::string(SHARE_DIR) + "/" + MASS_TABLE_NAME;
+	}
+
 	bool gootAtomMassTable = readAtomMassTable();
 	bool goodAtomCountTable = readAtomCountTable();
 	

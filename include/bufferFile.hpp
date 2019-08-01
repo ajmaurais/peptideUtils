@@ -56,6 +56,9 @@ namespace utils{
 		BufferFile& operator = (BufferFile rhs);
 		bool read();
 		bool read(std::string);
+
+		//properties
+		bool buffer_empty() const;
 	};
 }
 
