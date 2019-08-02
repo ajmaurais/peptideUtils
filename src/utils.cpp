@@ -370,6 +370,19 @@ std::string utils::trim(const std::string& str)
 	return trimLeading(trimTraling(str));
 }
 
+/**
+\brief Remove all whitespace from \p s. <br>
+
+
+\param s string to clean
+\return cleaned string
+*/
+std::string utils::removeWhitespace(const std::string& s){
+	std::string ret = s;
+	ret.erase(std::remove_if(ret.begin(), ret.end(), ::isspace), ret.end());
+	return ret;
+}
+
 void utils::trimAll(std::vector<std::string>& elems)
 {
 	for(std::vector<std::string>::iterator it = elems.begin(); it != elems.end(); ++it)

@@ -114,6 +114,7 @@ namespace utils{
 	std::string trimTraling(const std::string&);
 	std::string trimLeading(const std::string&);
 	std::string trim(const std::string&);
+	std::string removeWhitespace(const std::string&);
 	void trimAll(std::vector<std::string>&);
 	bool isCommentLine(std::string);
 	std::string removeSubstr(std::string findStr, std::string whithinStr);
