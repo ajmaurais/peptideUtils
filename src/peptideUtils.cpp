@@ -62,7 +62,7 @@ void utils::digest(std::string seq, std::vector<std::string>& peptides,
 		{
 			size_t pLen;
 			if((i + j + 1) >= len)
-				pLen = len - index_matches[i];
+				pLen = seq.length() - index_matches[i];
 			else
 				pLen = index_matches.at(i+j+1) - index_matches.at(i);
 			
