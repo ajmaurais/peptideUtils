@@ -188,7 +188,7 @@ namespace utils{
 		}
 		void digest(std::string seq, std::vector<std::string>& peptides,
 			unsigned nMissedCleavages = 0, bool length_filter = true,
-			std::string cleavagePattern = "([RK])([^P])",
+			std::string cleavagePattern = "([RK])(?=[^P])",
 			double minMz = 400, double maxMz = 1800, int minCharge = 1, int maxCharge = 5) const;
 	};
 }

@@ -87,7 +87,7 @@ namespace utils{
 
 void digest(std::string seq, std::vector<std::string>& peptides,
 	unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
-	std::string cleavagePattern = "([RK])([^P])");
+	std::string cleavagePattern = "([RK])(?=[^P])");
 
 std::string getModLocs(std::string seq, std::vector<int>& modLocs);
 
