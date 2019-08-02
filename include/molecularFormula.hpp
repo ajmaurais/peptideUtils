@@ -2,7 +2,7 @@
 //  molecularFormula.hpp
 //  utils
 // -----------------------------------------------------------------------------
-// Copyright 2018 Aaron maurais
+// Copyright 2018 Aaron Maurais
 // -----------------------------------------------------------------------------
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,10 @@
 #ifndef molecularFormula_hpp
 #define molecularFormula_hpp
 
+#ifndef SHARE_DIR
+#define SHARE_DIR "UNKNOWN"
+#endif
+
 #include <iostream>
 #include <map>
 #include <vector>
@@ -36,6 +40,7 @@
 #include <string>
 #include <algorithm>
 
+#include <peptideUtils.hpp>
 #include <utils.hpp>
 
 namespace utils{
@@ -55,6 +60,8 @@ namespace utils{
 	const std::string N_TERM_STR = "N_term";
 	const std::string C_TERM_STR = "C_term";
 	const std::string BAD_AMINO_ACID = "BAD_AA_IN_SEQ";
+	const std::string MASS_TABLE_NAME = "atomMasses.txt";
+	const std::string ATOM_COUNT_NAME = "defaultResidueAtoms.txt";
 	
 	std::string getFormulaFromMap(const AtomCountMapType&, bool unicode);
 	
@@ -166,7 +173,7 @@ namespace utils{
 		bool readAtomCountTable();
 		bool readAtomMassTable(std::string);
 		bool readAtomMassTable();
-		bool initialize();
+		bool initialize(bool use_default = true);
 		bool initialize(std::string, std::string);
 		
 		std::string calcFormula(std::string, bool unicode = UNICODE_AS_DEFAULT,
@@ -179,6 +186,10 @@ namespace utils{
 		double calcMono(std::string _seq, bool _nterm = true, bool _cterm = true) const{
 			return calcMass(_seq, 'm', _nterm, _cterm);
 		}
+		void digest(std::string seq, std::vector<std::string>& peptides,
+			unsigned nMissedCleavages = 0, bool length_filter = true,
+			std::string cleavagePattern = "([RK])(?=[^P])",
+			double minMz = 400, double maxMz = 1800, int minCharge = 1, int maxCharge = 5) const;
 	};
 }
 

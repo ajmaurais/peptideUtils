@@ -2,7 +2,7 @@
 //  utils.hpp
 //  utils
 // -----------------------------------------------------------------------------
-// Copyright 2018 Aaron maurais
+// Copyright 2018 Aaron Maurais
 // -----------------------------------------------------------------------------
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -46,6 +46,8 @@
 #include <string>
 #include <cctype>
 #include <type_traits>
+#include <set>
+#include <tuple>
 
 #ifndef PATH_MAX
 	#define PATH_MAX 1024
@@ -69,7 +71,8 @@ namespace utils{
 	
 	std::string const WHITESPACE = " \f\n\r\t\v";
 	std::string const COMMENT_SYMBOL = "#";
-	bool const IGNORE_HIDDEN_FILES = true; //ignore hidden files in utils::ls
+	//!ignore hidden files in utils::ls
+	bool const IGNORE_HIDDEN_FILES = true;
 	int const PROGRESS_BAR_WIDTH = 60;
 	std::string const SUBSCRIPT_MAP [] = {"\u2080", "\u2081", "\u2082", "\u2083",
 		"\u2084", "\u2085", "\u2086", "\u2087", "\u2088", "\u2089"};
@@ -111,6 +114,7 @@ namespace utils{
 	std::string trimTraling(const std::string&);
 	std::string trimLeading(const std::string&);
 	std::string trim(const std::string&);
+	std::string removeWhitespace(const std::string&);
 	void trimAll(std::vector<std::string>&);
 	bool isCommentLine(std::string);
 	std::string removeSubstr(std::string findStr, std::string whithinStr);
@@ -207,6 +211,35 @@ namespace utils{
 	{
 		return static_cast<typename std::underlying_type<Enumeration>::type>(value);
 	}
+
+	/**
+	\brief Remove duplicate values from vector.
+
+	\param v Vector to remove duplicates from. 
+	\oaram sort Should the values in \p v be sorted?
+	
+	Sorting is performed using the default comparator for \p _Tp. 
+	If sort is set to \p false, elements are returned in a random order.
+	*/
+	template<typename _Tp> void unique(std::vector<_Tp>& v, bool sort = true){
+		std::set<_Tp> s(v.begin(), v.end());
+		v.assign(s.begin(), s.end());
+		if(sort) std::sort(v.begin(), v.end());
+	}
+
+	/**
+	Compare std::string by length.
+	If lengths are the same, then compare alphabetically.
+	*/
+	struct strLenCompare {
+		bool operator() (const std::string& lhs, const std::string& rhs) const{
+			if(lhs.length() < rhs.length())
+				return true;
+			else if(lhs.length() == rhs.length())
+				return lhs < rhs;
+			else return false;
+		}
+	};
 }
 
 #endif /* utils_hpp */

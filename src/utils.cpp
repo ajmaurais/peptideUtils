@@ -2,7 +2,7 @@
 //  utils.cpp
 //  utils
 // -----------------------------------------------------------------------------
-// Copyright 2018 Aaron maurais
+// Copyright 2018 Aaron Maurais
 // -----------------------------------------------------------------------------
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -368,6 +368,19 @@ std::string utils::trim(const std::string& str)
 	if(str.empty())
 	return "";
 	return trimLeading(trimTraling(str));
+}
+
+/**
+\brief Remove all whitespace from \p s. <br>
+
+
+\param s string to clean
+\return cleaned string
+*/
+std::string utils::removeWhitespace(const std::string& s){
+	std::string ret = s;
+	ret.erase(std::remove_if(ret.begin(), ret.end(), ::isspace), ret.end());
+	return ret;
 }
 
 void utils::trimAll(std::vector<std::string>& elems)
