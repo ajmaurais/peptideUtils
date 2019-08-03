@@ -224,3 +224,80 @@ std::string utils::threeLetterToOne(std::string seq,
 			ret_temp +
 			(c_term_out.empty() ? "" : sep_out + c_term_out));
 }
+
+/**
+\brief Align \p query to \p ref.
+
+\param query String to align.
+\param ref String to use as reference.
+\param beg Set to beginning index of \p query in \p ref.
+\param end Set to ending index of \p query in \p ref.
+
+\return false if \p query is not in \p ref, true otherwise.
+*/
+bool utils::allign(const std::string& query, const std::string& ref, size_t& beg, size_t& end)
+{
+	size_t match = ref.find(query);
+	if(match == std::string::npos) return false;
+	
+	beg = match;
+	end = match + query.length() - 1;
+	
+	return true;
+}
+
+/**
+\brief Get \p n residues before \p query in \p ref. <br>
+
+If \p n overruns \p ref, the maximum number of characters will be returned.
+
+\param query String to search for.
+\param ref String to search in.
+\param n Number of residues in output.
+\param noExcept Should an std::runtime_error be thrown if \p query is not in \p ref?
+
+\throw std::runtime_error if \p query is not in \p ref and \p noExcept is false.
+
+\return \p n residues before \p query.
+*/
+std::string utils::nBefore(const std::string& query, const std::string& ref, unsigned n, bool noExcept)
+{
+	size_t beg, end;
+	if(!utils::allign(query, ref, beg, end)){
+		if(noExcept) return "";
+		else throw std::runtime_error("query not in ref");
+	}
+	
+	if(beg < n) n = beg;
+
+	return ref.substr(beg - n, n);
+}
+
+/**
+\brief Get \p n residues after \p query in \p ref. <br>
+
+If \p n overruns \p ref, the maximum number of characters will be returned.
+
+\param query String to search for.
+\param ref String to search in.
+\param n Number of residues in output.
+\param noExcept Should an std::runtime_error be thrown if \p query is not in \p ref?
+
+\throw std::runtime_error if \p query is not in \p ref and \p noExcept is false.
+
+\return \p n residues after \p query.
+*/
+std::string utils::nAfter(const std::string& query, const std::string& ref, unsigned n, bool noExcept)
+{
+	size_t beg, end;
+	if(!utils::allign(query, ref, beg, end)){
+		if(noExcept) return "";
+		else throw std::runtime_error("query not in ref");
+	}
+	
+	end += 1;
+	if(end + n > ref.length())
+		n = ref.length() - end;
+	return ref.substr(end, n);
+}
+

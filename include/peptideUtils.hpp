@@ -85,23 +85,27 @@ namespace utils{
 																  {"Trp", 'W'},
 																  {"Tyr", 'Y'}};
 
-void digest(std::string seq, std::vector<std::string>& peptides,
-	unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
-	std::string cleavagePattern = "([RK])(?=[^P])");
+	void digest(std::string seq, std::vector<std::string>& peptides,
+		unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
+		std::string cleavagePattern = "([RK])(?=[^P])");
 
-std::string getModLocs(std::string seq, std::vector<int>& modLocs);
+	std::string getModLocs(std::string seq, std::vector<int>& modLocs);
 
-std::string oneLetterToThree(std::string seq,
-							 std::string sep_in = "",
-							 std::string sep_out = "",
-							 std::string n_term_out = "",
-							 std::string c_term_out = "");
+	std::string oneLetterToThree(std::string seq,
+								 std::string sep_in = "",
+								 std::string sep_out = "",
+								 std::string n_term_out = "",
+								 std::string c_term_out = "");
 
-std::string threeLetterToOne(std::string seq,
-							 std::string sep_in = "",
-							 std::string sep_out = "",
-							 std::string n_term_out = "",
-							 std::string c_term_out = "");
+	std::string threeLetterToOne(std::string seq,
+								 std::string sep_in = "",
+								 std::string sep_out = "",
+								 std::string n_term_out = "",
+								 std::string c_term_out = "");
+
+	bool allign(const std::string& query, const std::string& ref, size_t& beg, size_t& end);
+	std::string nBefore(const std::string& query, const std::string& ref, unsigned n, bool noExcept = false);
+	std::string nAfter(const std::string& query, const std::string& ref, unsigned n, bool noExcept = false);
 
 }//end namespace utils
 

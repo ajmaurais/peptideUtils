@@ -36,6 +36,7 @@
 
 #include <utils.hpp>
 #include <bufferFile.hpp>
+#include <peptideUtils.hpp>
 
 namespace utils {
 	class FastaFile;
@@ -50,7 +51,7 @@ namespace utils {
 		
 		//!All peptide sequences which were already found are stored internally
 		std::map<std::string, std::string> _foundSequences;
-		//!Stores beginning and ending offset indecies of eacn protein ID
+		//!Stores beginning and ending offset indices of each protein ID
 		IndexMapType _idIndex;
 		
 		void _buildIndex();
@@ -60,7 +61,7 @@ namespace utils {
 		FastaFile(const FastaFile& rhs) : BufferFile(rhs) {}
 		~FastaFile(){}
 		
-		//modifers
+		//modifiers
 		FastaFile& operator = (FastaFile rhs){
 			BufferFile::operator=(rhs);
 			_idIndex = rhs._idIndex;
@@ -77,6 +78,10 @@ namespace utils {
 									   int modLoc, bool verbose, bool& found);
 		int getMoodifiedResidueNumber(std::string peptideSeq, int modLoc) const;
 		bool empty() const;
+		std::string nBefore(const std::string& query, const std::string& ref_id,
+			unsigned n, bool noExcept = false);
+		std::string nAfter(const std::string& query, const std::string& ref_id,
+			unsigned n, bool noExcept = false);
 	};
 }
 

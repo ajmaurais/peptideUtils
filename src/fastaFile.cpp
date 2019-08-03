@@ -159,15 +159,13 @@ void utils::FastaFile::_buildIndex()
 }
 
 
-bool utils::FastaFile::read()
-{
+bool utils::FastaFile::read(){
 	if(!BufferFile::read()) return false;
-	_buildIndex();
+		_buildIndex();
 	return true;
 }
 
-bool utils::FastaFile::read(std::string fname)
-{
+bool utils::FastaFile::read(std::string fname){
 	_fname = fname;
 	return FastaFile::read();
 }
@@ -179,3 +177,42 @@ bool utils::FastaFile::empty() const{
 	return buffer_empty();
 }
 
+/**
+\brief Get \p n residues after \p query in protein \p ref_id. <br>
+
+If \p n overruns \p ref, the maximum number of characters will be returned.
+
+\param query String to search for.
+\param ref_id ID of protein in fasta file.
+\param n Number of residues in output.
+\param noExcept Should an std::runtime_error be thrown if \p query is not in \p ref?
+
+\throw std::runtime_error if \p query is not in \p ref and \p noExcept is false.
+
+\return \p n residues after \p query.
+*/
+std::string utils::FastaFile::nAfter(const std::string& query, const std::string& ref_id, unsigned n,
+	bool noExcept){
+	std::string ref = getSequence(ref_id);
+	return utils::nAfter(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
+}
+
+/**
+\brief Get \p n residues before \p query in protein \p ref_id. <br>
+
+If \p n overruns \p ref, the maximum number of characters will be returned.
+
+\param query String to search for.
+\param ref_id ID of protein in fasta file.
+\param n Number of residues in output.
+\param noExcept Should an std::runtime_error be thrown if \p query is not in \p ref?
+
+\throw std::runtime_error if \p query is not in \p ref and \p noExcept is false.
+
+\return \p n residues before \p query.
+*/
+std::string utils::FastaFile::nBefore(const std::string& query, const std::string& ref_id,
+	unsigned n, bool noExcept){
+	std::string ref = getSequence(ref_id);
+	return utils::nBefore(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
+}
