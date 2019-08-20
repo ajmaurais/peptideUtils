@@ -26,6 +26,33 @@
 
 #include <fastaFile.hpp>
 
+
+
+//!Copy FastaFile members from \p rhs. Should not be called directly.
+void utils::FastaFile::_copyValues(const FastaFile& rhs)
+{
+	_indexOffsets = rhs._indexOffsets;
+	_idIndex = rhs._idIndex;
+	_foundSequences = rhs._foundSequences;
+	_sequenceCount = rhs._sequenceCount;
+	_storeFound = rhs._storeFound;
+}
+
+/**
+ \brief Get integer index of \p proteinID in IndexMapType <br>
+
+ If \p proteinID is not found, utils::PROT_ID_NOT_FOUND is returned.
+ \param proteinID Protein identifier in fasta file to lookup.
+ \return Index of \p proteinID.
+*/
+size_t utils::FastaFile::getIdIndex(std::string proteinID) const
+{
+	auto it = _idIndex.find(proteinID);
+	if(it == _idIndex.end())
+		return PROT_ID_NOT_FOUND;
+	return it->second;
+}
+
 /**
  \brief Search for \p proteinID in FastaFile::_buffer and extract protein sequence.
  \param proteinID uniprot ID of protein to search for.
@@ -33,24 +60,20 @@
  \return If found, parent protein sequence. If protein sequence is not found returns
  utils::PROT_SEQ_NOT_FOUND.
  */
-std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose)
+std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose) const
 {
-	//if proteinID has already been parsed, return the seq and exit
-	auto foundIt = _foundSequences.find(proteinID);
-	if(foundIt != _foundSequences.end())
-		return foundIt->second;
-	
 	//get offset of proteinID
-	auto offsetIt = _idIndex.find(proteinID);
-	if(offsetIt == _idIndex.end()){
+	//auto offsetIt = _indexOffsets.find(proteinID);
+	size_t proteinIndex_temp = getIdIndex(proteinID);
+	if(proteinIndex_temp == utils::PROT_ID_NOT_FOUND){
 		if(verbose){
 			std::cerr << "Warning! ID: " << proteinID << " not found in fastaFile.\n";
 		}
-		_foundSequences[proteinID] = utils::PROT_SEQ_NOT_FOUND;
 		return utils::PROT_SEQ_NOT_FOUND;
 	}
 	
-	std::string temp(_buffer + offsetIt->second.first, _buffer + offsetIt->second.second);
+	std::string temp(_buffer + _indexOffsets[proteinIndex_temp].first,
+		_buffer + _indexOffsets[proteinIndex_temp].second);
 	std::stringstream ss(temp);
 	
 	std::string line;
@@ -68,8 +91,37 @@ std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose)
 		seq += line;
 	}
 	
+	return seq;
+}
+
+/**
+ \brief Search for \p proteinID in FastaFile::_buffer and extract protein sequence.
+ \param proteinID uniprot ID of protein to search for.
+ \param verbose Should detials of ids not found be printed to std::cerr?
+ \return If found, parent protein sequence. If protein sequence is not found returns
+ utils::PROT_SEQ_NOT_FOUND.
+ */
+std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose)
+{
+	if(_storeFound){
+		//if proteinID has already been parsed, return the seq and exit
+		auto foundIt = _foundSequences.find(proteinID);
+		if(foundIt != _foundSequences.end())
+			return foundIt->second;
+	}
+	
+	const std::string seq = getSequence(proteinID, verbose);
 	_foundSequences[proteinID] = seq;
 	return seq;
+}
+
+//! const overloaded version of FastaFile::getModifiedResidue
+std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
+												 std::string peptideSeq,
+												 int modLoc) const
+{
+	std::string seq = getSequence(proteinID);
+	return utils::getModifiedResidue(seq, peptideSeq, modLoc);	
 }
 
 /**
@@ -81,11 +133,11 @@ std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose)
  (where 0 is the beginning of the peptide.)
  */
 std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
-													 std::string peptideSeq,
-													 int modLoc)
+												 std::string peptideSeq,
+												 int modLoc)
 {
-	bool temp;
-	return getModifiedResidue(proteinID, peptideSeq, modLoc, false, temp);
+	std::string seq = getSequence(proteinID);
+	return utils::getModifiedResidue(seq, peptideSeq, modLoc);	
 }
 
 /**
@@ -97,31 +149,23 @@ std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
  (where 0 is the beginning of the peptide.)
  \param verbose Should detials of ids not found be printed to std::cerr?
  \param found set to false if first instance of searching for protein and it not being found
+ \return string representation of modified residue.
  */
 std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
-													 std::string peptideSeq,
-													 int modLoc,
-													 bool verbose,
-													 bool& found)
+												 std::string peptideSeq,
+												 int modLoc,
+												 bool verbose,
+												 bool& found)
 {
 	found = true;
-	std::string seq;
-	if(_foundSequences.find(proteinID) == _foundSequences.end()){
-		seq = getSequence(proteinID, verbose);
-		if(seq == utils::PROT_SEQ_NOT_FOUND)
-			found = false;
-	}
-	else seq = _foundSequences[proteinID];
+	std::string seq = getSequence(proteinID, verbose);
+	if(seq == utils::PROT_SEQ_NOT_FOUND)
+		found = false;
+	//else seq = _foundSequences[proteinID];
 	if(seq == utils::PROT_SEQ_NOT_FOUND)
 		return utils::PROT_SEQ_NOT_FOUND;
 	
-	size_t begin = seq.find(peptideSeq);
-	if(begin == std::string::npos)
-		return utils::PEP_SEQ_NOT_FOUND;
-	size_t modNum = begin + modLoc;
-	std::string ret = std::string(1, peptideSeq[modLoc]) + std::to_string(modNum + 1);
-	
-	return ret;
+	return utils::getModifiedResidue(seq, peptideSeq, modLoc);
 }
 
 /**
@@ -139,7 +183,8 @@ void utils::FastaFile::_buildIndex()
 	combined.push_back(_size); //add index to end of buffer
 	std::sort(combined.begin(), combined.end());
 	
-	//build _idIndex
+	//build _indexOffsets
+	_sequenceCount = 0;
 	int const scanLen = 20;
 	std::string newID;
 	size_t len = combined.size();
@@ -154,7 +199,11 @@ void utils::FastaFile::_buildIndex()
 			if(*c == '|')
 				break;
 		}
-		_idIndex[newID] = IntPair(combined[i], combined.at(i + 1));
+
+		//add sequence offset to class members
+		_idIndex[newID] = _sequenceCount;
+		_indexOffsets.push_back(IntPair(combined[i], combined.at(i + 1)));
+		_sequenceCount++;
 	}
 }
 
@@ -213,6 +262,20 @@ If \p n overruns \p ref, the maximum number of characters will be returned.
 */
 std::string utils::FastaFile::nBefore(const std::string& query, const std::string& ref_id,
 	unsigned n, bool noExcept){
+	std::string ref = getSequence(ref_id);
+	return utils::nBefore(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
+}
+
+//!const overloaded version of FastaFile::nAfter
+std::string utils::FastaFile::nAfter(const std::string& query, const std::string& ref_id, unsigned n,
+	bool noExcept) const{
+	std::string ref = getSequence(ref_id);
+	return utils::nAfter(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
+}
+
+//!const overloaded version of FastaFile::nBefore
+std::string utils::FastaFile::nBefore(const std::string& query, const std::string& ref_id,
+	unsigned n, bool noExcept) const{
 	std::string ref = getSequence(ref_id);
 	return utils::nBefore(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
 }

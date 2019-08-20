@@ -41,31 +41,52 @@
 namespace utils {
 	class FastaFile;
 	
-	const std::string PROT_SEQ_NOT_FOUND = "PROT_SEQ_NOT_FOUND";
-	const std::string PEP_SEQ_NOT_FOUND = "PEP_SEQ_NOT_FOUND";
+	const size_t PROT_ID_NOT_FOUND = std::string::npos;
 	
 	class FastaFile : public utils::BufferFile{
 	private:
 		typedef std::pair<size_t, size_t> IntPair;
-		typedef std::map<std::string, IntPair> IndexMapType;
+		typedef std::map<std::string, size_t> IdMapType;
+		typedef std::vector<IntPair> IndexMapType;
 		
 		//!All peptide sequences which were already found are stored internally
 		std::map<std::string, std::string> _foundSequences;
-		//!Stores beginning and ending offset indices of each protein ID
-		IndexMapType _idIndex;
+		//!Stores beginning and ending offset indices of each protein index
+		IndexMapType _indexOffsets;
+		//!Stores index values for each protein ID
+		IdMapType _idIndex;
+		//!Total number of entries in fasta file
+		size_t _sequenceCount;
 		
+		//! Should previously read sequences be stored internally?
+		bool _storeFound;
+
 		void _buildIndex();
-		
+		void _copyValues(const FastaFile&);
+
 	public:
-		FastaFile(std::string fname = "") : BufferFile(fname) {}
-		FastaFile(const FastaFile& rhs) : BufferFile(rhs) {}
+		/**
+		\brief Default constructor.
+
+		\param storeFound Should previously read sequences be stored internally?
+		This value should be set to false if object is used in multi-threaded environments.
+		\param fname Path to fasta file.
+		*/
+		FastaFile(bool storeFound = true, std::string fname = "") : BufferFile(fname) {
+			_sequenceCount = 0;
+			_storeFound = storeFound;
+
+		}
+		//!Copy constructor
+		FastaFile(const FastaFile& rhs) : BufferFile(rhs){
+			_copyValues(rhs);
+		}
 		~FastaFile(){}
 		
 		//modifiers
 		FastaFile& operator = (FastaFile rhs){
 			BufferFile::operator=(rhs);
-			_idIndex = rhs._idIndex;
-			_foundSequences = rhs._foundSequences;
+			_copyValues(rhs);
 			return *this;
 		}
 		bool read();
@@ -73,7 +94,9 @@ namespace utils {
 		
 		//properties
 		std::string getSequence(std::string proteinID, bool verbose = false);
+		std::string getSequence(std::string proteinID, bool verbose = false) const;
 		std::string getModifiedResidue(std::string proteinID, std::string peptideSeq, int modLoc);
+		std::string getModifiedResidue(std::string proteinID, std::string peptideSeq, int modLoc) const;
 		std::string getModifiedResidue(std::string proteinID, std::string peptideSeq,
 									   int modLoc, bool verbose, bool& found);
 		int getMoodifiedResidueNumber(std::string peptideSeq, int modLoc) const;
@@ -82,6 +105,10 @@ namespace utils {
 			unsigned n, bool noExcept = false);
 		std::string nAfter(const std::string& query, const std::string& ref_id,
 			unsigned n, bool noExcept = false);
+		std::string nBefore(const std::string& query, const std::string& ref_id,
+			unsigned n, bool noExcept = false) const;
+		std::string nAfter(const std::string& query, const std::string& ref_id,
+			unsigned n, bool noExcept = false) const;
 	};
 }
 
