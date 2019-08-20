@@ -26,7 +26,52 @@
 
 #include <fastaFile.hpp>
 
+/**
+\brief Return protein sequence at index \p i. <br>
 
+If i > _indexOffsets.size(), a blank string is returned.
+
+\return Protein sequence
+*/
+std::string utils::FastaFile::operator [](size_t i) const
+{
+	if(i >= _indexOffsets.size())
+		return "";
+
+	std::string temp(_buffer + _indexOffsets[i].first,
+		_buffer + _indexOffsets[i].second);
+	std::stringstream ss(temp);
+	
+	std::string line;
+	std::string seq = "";
+	int begin_count = 0;
+	while(utils::safeGetline(ss, line))
+	{
+		if(line[0] == '>')
+		{
+			if(begin_count > 0)
+				break;
+			begin_count ++;
+			continue;
+		}
+		seq += line;
+	}
+	return seq;
+}
+
+/**
+\brief Return protein sequence at index \p i.
+
+\raises std::out_of_range if \p i not in _indexOffsets.
+\return Protein sequence
+*/
+std::string utils::FastaFile::at(size_t i) const
+{
+	std::string ret = (*this)[i];
+	if(ret == "")
+		throw std::out_of_range("Protein index does not exist!");
+	return ret;
+}
 
 //!Copy FastaFile members from \p rhs. Should not be called directly.
 void utils::FastaFile::_copyValues(const FastaFile& rhs)
@@ -72,26 +117,7 @@ std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose) c
 		return utils::PROT_SEQ_NOT_FOUND;
 	}
 	
-	std::string temp(_buffer + _indexOffsets[proteinIndex_temp].first,
-		_buffer + _indexOffsets[proteinIndex_temp].second);
-	std::stringstream ss(temp);
-	
-	std::string line;
-	std::string seq = "";
-	int begin_count = 0;
-	while(utils::safeGetline(ss, line))
-	{
-		if(line[0] == '>')
-		{
-			if(begin_count > 0)
-				break;
-			begin_count ++;
-			continue;
-		}
-		seq += line;
-	}
-	
-	return seq;
+	return (*this)[proteinIndex_temp];
 }
 
 /**

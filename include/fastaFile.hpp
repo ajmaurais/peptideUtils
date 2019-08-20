@@ -93,6 +93,12 @@ namespace utils {
 		bool read(std::string);
 		
 		//properties
+		size_t getIdIndex(std::string proteinID) const;
+		bool empty() const;
+		size_t getSequenceCount() const;
+		std::string operator[] (size_t) const;
+		std::string at(size_t) const;
+
 		std::string getSequence(std::string proteinID, bool verbose = false);
 		std::string getSequence(std::string proteinID, bool verbose = false) const;
 		std::string getModifiedResidue(std::string proteinID, std::string peptideSeq, int modLoc);
@@ -100,7 +106,7 @@ namespace utils {
 		std::string getModifiedResidue(std::string proteinID, std::string peptideSeq,
 									   int modLoc, bool verbose, bool& found);
 		int getMoodifiedResidueNumber(std::string peptideSeq, int modLoc) const;
-		bool empty() const;
+		
 		std::string nBefore(const std::string& query, const std::string& ref_id,
 			unsigned n, bool noExcept = false);
 		std::string nAfter(const std::string& query, const std::string& ref_id,
