@@ -36,6 +36,9 @@
 
 namespace utils{
 
+	const std::string PROT_SEQ_NOT_FOUND = "PROT_SEQ_NOT_FOUND";
+	const std::string PEP_SEQ_NOT_FOUND = "PEP_SEQ_NOT_FOUND";
+
 	//!Characters representing dynamic modifications
 	const std::string MOD_CHARS = "*";
 
@@ -103,6 +106,7 @@ namespace utils{
 								 std::string n_term_out = "",
 								 std::string c_term_out = "");
 
+	std::string getModifiedResidue(const std::string& seq, const std::string& peptideSeq, int modLoc);
 	bool allign(const std::string& query, const std::string& ref, size_t& beg, size_t& end);
 	std::string nBefore(const std::string& query, const std::string& ref, unsigned n, bool noExcept = false);
 	std::string nAfter(const std::string& query, const std::string& ref, unsigned n, bool noExcept = false);

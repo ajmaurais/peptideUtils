@@ -226,6 +226,28 @@ std::string utils::threeLetterToOne(std::string seq,
 }
 
 /**
+ \brief Get position residue and position of \p modLoc in parent protein
+ of \p peptideSeq.
+ \param seq parent protein sequence of \p peptideSeq
+ \param peptideSeq unmodified peptide sequence.
+ \param modLoc location of modified residue in peptide
+ (where 0 is the beginning of the peptide.)
+ */
+std::string utils::getModifiedResidue(const std::string& seq, const std::string& peptideSeq, int modLoc)
+{
+	if(seq == utils::PROT_SEQ_NOT_FOUND)
+		return utils::PROT_SEQ_NOT_FOUND;
+	
+	size_t begin = seq.find(peptideSeq);
+	if(begin == std::string::npos)
+		return utils::PEP_SEQ_NOT_FOUND;
+	size_t modNum = begin + modLoc;
+	std::string ret = std::string(1, peptideSeq[modLoc]) + std::to_string(modNum + 1);
+	
+	return ret;
+}
+
+/**
 \brief Align \p query to \p ref.
 
 \param query String to align.
