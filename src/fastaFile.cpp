@@ -108,7 +108,6 @@ size_t utils::FastaFile::getIdIndex(std::string proteinID) const
 std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose) const
 {
 	//get offset of proteinID
-	//auto offsetIt = _indexOffsets.find(proteinID);
 	size_t proteinIndex_temp = getIdIndex(proteinID);
 	if(proteinIndex_temp == utils::PROT_ID_NOT_FOUND){
 		if(verbose){
@@ -136,7 +135,16 @@ std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose)
 			return foundIt->second;
 	}
 	
-	const std::string seq = getSequence(proteinID, verbose);
+	//get offset of proteinID
+	size_t proteinIndex_temp = getIdIndex(proteinID);
+	if(proteinIndex_temp == utils::PROT_ID_NOT_FOUND){
+		if(verbose){
+			std::cerr << "Warning! ID: " << proteinID << " not found in fastaFile.\n";
+		}
+		return utils::PROT_SEQ_NOT_FOUND;
+	}
+	
+	std::string seq = (*this)[proteinIndex_temp];
 	_foundSequences[proteinID] = seq;
 	return seq;
 }
