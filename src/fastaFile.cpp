@@ -29,7 +29,7 @@
 /**
 \brief Return protein sequence at index \p i. <br>
 
-If i > _indexOffsets.size(), a blank string is returned.
+If i > _indexOffsets.size(), an empty string is returned.
 
 \return Protein sequence
 */
@@ -68,7 +68,7 @@ std::string utils::FastaFile::operator [](size_t i) const
 std::string utils::FastaFile::at(size_t i) const
 {
 	std::string ret = (*this)[i];
-	if(ret == "")
+	if(ret.empty())
 		throw std::out_of_range("Protein index does not exist!");
 	return ret;
 }
