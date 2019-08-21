@@ -27,6 +27,34 @@
 #include <fastaFile.hpp>
 
 /**
+\brief Constructor.
+
+\param id Entry ID
+\param beg Begin offset.
+\param end End offset
+*/
+utils::FastaEntry::FastaEntry(std::string id, size_t beg, size_t end){
+	_id = id; _beg = beg; _end = end;
+}
+
+//!Copy constructor
+utils::FastaEntry::FastaEntry(const FastaEntry& rhs)
+{
+	_id = rhs._id;
+	_beg = rhs._beg;
+	_end = rhs._end;
+}
+
+//!Copy assignment
+utils::FastaEntry& utils::FastaEntry::operator = (const FastaEntry& rhs)
+{
+	_id = rhs._id;
+	_beg = rhs._beg;
+	_end = rhs._end;
+	return *this;
+}
+
+/**
 \brief Return protein sequence at index \p i. <br>
 
 If i > _indexOffsets.size(), an empty string is returned.
@@ -38,8 +66,8 @@ std::string utils::FastaFile::operator [](size_t i) const
 	if(i >= _indexOffsets.size())
 		return "";
 
-	std::string temp(_buffer + _indexOffsets[i].first,
-		_buffer + _indexOffsets[i].second);
+	std::string temp(_buffer + _indexOffsets[i].getBeg(),
+		_buffer + (_indexOffsets[i].getBeg() + (_indexOffsets[i].getEnd() - _indexOffsets[i].getBeg())));
 	std::stringstream ss(temp);
 	
 	std::string line;
@@ -96,6 +124,13 @@ size_t utils::FastaFile::getIdIndex(std::string proteinID) const
 	if(it == _idIndex.end())
 		return PROT_ID_NOT_FOUND;
 	return it->second;
+}
+
+std::string utils::FastaFile::getIndexID(size_t i) const
+{
+	if(i >= _indexOffsets.size())
+		return utils::PROT_SEQ_NOT_FOUND;
+	return _indexOffsets[i].getID();
 }
 
 /**
@@ -236,7 +271,7 @@ void utils::FastaFile::_buildIndex()
 
 		//add sequence offset to class members
 		_idIndex[newID] = _sequenceCount;
-		_indexOffsets.push_back(IntPair(combined[i], combined.at(i + 1)));
+		_indexOffsets.push_back(utils::FastaEntry(newID, combined[i], combined.at(i + 1)));
 		_sequenceCount++;
 	}
 }
@@ -258,6 +293,10 @@ bool utils::FastaFile::read(std::string fname){
 */
 bool utils::FastaFile::empty() const{
 	return buffer_empty();
+}
+
+size_t utils::FastaFile::getSequenceCount() const{
+	return _sequenceCount;
 }
 
 /**

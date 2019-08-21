@@ -40,14 +40,40 @@
 
 namespace utils {
 	class FastaFile;
-	
+	class FastaEntry;
+
 	const size_t PROT_ID_NOT_FOUND = std::string::npos;
+
+	class FastaEntry{
+	private:
+		size_t _beg, _end;
+		std::string _id;
+	public:
+		//!Default constructor
+		FastaEntry() : _beg(0), _end(0), _id(""){}
+		FastaEntry(std::string id, size_t beg, size_t end);
+		FastaEntry(const FastaEntry&);
+		~FastaEntry() {}
+
+		FastaEntry& operator = (const FastaEntry& rhs);
+		
+		//properties		
+		size_t getBeg() const{
+			return _beg;
+		}
+		size_t getEnd() const{
+			return _end;
+		}
+		std::string getID() const{
+			return _id;
+		}
+	};
 	
 	class FastaFile : public utils::BufferFile{
 	private:
-		typedef std::pair<size_t, size_t> IntPair;
+
 		typedef std::map<std::string, size_t> IdMapType;
-		typedef std::vector<IntPair> IndexMapType;
+		typedef std::vector<FastaEntry> IndexMapType;
 		
 		//!All peptide sequences which were already found are stored internally
 		std::map<std::string, std::string> _foundSequences;
@@ -94,6 +120,7 @@ namespace utils {
 		
 		//properties
 		size_t getIdIndex(std::string proteinID) const;
+		std::string getIndexID(size_t) const;
 		bool empty() const;
 		size_t getSequenceCount() const;
 		std::string operator[] (size_t) const;
