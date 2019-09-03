@@ -90,7 +90,7 @@ std::string utils::FastaFile::operator [](size_t i) const
 /**
 \brief Return protein sequence at index \p i.
 
-\raises std::out_of_range if \p i not in _indexOffsets.
+\throws std::out_of_range if \p i not in _indexOffsets.
 \return Protein sequence
 */
 std::string utils::FastaFile::at(size_t i) const
@@ -307,9 +307,9 @@ If \p n overruns \p ref, the maximum number of characters will be returned.
 \param query String to search for.
 \param ref_id ID of protein in fasta file.
 \param n Number of residues in output.
-\param noExcept Should an std::runtime_error be thrown if \p query is not in \p ref?
+\param noExcept Should an std::out_of_range be thrown if \p query is not in \p ref?
 
-\throw std::runtime_error if \p query is not in \p ref and \p noExcept is false.
+\throws std::out_of_range if \p query is not in \p ref and \p noExcept is false.
 
 \return \p n residues after \p query.
 */
@@ -327,9 +327,9 @@ If \p n overruns \p ref, the maximum number of characters will be returned.
 \param query String to search for.
 \param ref_id ID of protein in fasta file.
 \param n Number of residues in output.
-\param noExcept Should an std::runtime_error be thrown if \p query is not in \p ref?
+\param noExcept Should an std::out_of_range be thrown if \p query is not in \p ref?
 
-\throw std::runtime_error if \p query is not in \p ref and \p noExcept is false.
+\throws std::out_of_range if \p query is not in \p ref and \p noExcept is false.
 
 \return \p n residues before \p query.
 */

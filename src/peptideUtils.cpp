@@ -276,9 +276,9 @@ If \p n overruns \p ref, the maximum number of characters will be returned.
 \param query String to search for.
 \param ref String to search in.
 \param n Number of residues in output.
-\param noExcept Should an std::runtime_error be thrown if \p query is not in \p ref?
+\param noExcept Should an std::out_of_range be thrown if \p query is not in \p ref?
 
-\throw std::runtime_error if \p query is not in \p ref and \p noExcept is false.
+\throws std::out_of_range if \p query is not in \p ref and \p noExcept is false.
 
 \return \p n residues before \p query.
 */
@@ -287,7 +287,7 @@ std::string utils::nBefore(const std::string& query, const std::string& ref, uns
 	size_t beg, end;
 	if(!utils::allign(query, ref, beg, end)){
 		if(noExcept) return "";
-		else throw std::runtime_error("query not in ref");
+		else throw std::out_of_range("query not in ref");
 	}
 	
 	if(beg < n) n = beg;
@@ -303,9 +303,9 @@ If \p n overruns \p ref, the maximum number of characters will be returned.
 \param query String to search for.
 \param ref String to search in.
 \param n Number of residues in output.
-\param noExcept Should an std::runtime_error be thrown if \p query is not in \p ref?
+\param noExcept Should an std::out_of_range be thrown if \p query is not in \p ref?
 
-\throw std::runtime_error if \p query is not in \p ref and \p noExcept is false.
+\throws std::out_of_range if \p query is not in \p ref and \p noExcept is false.
 
 \return \p n residues after \p query.
 */
@@ -314,7 +314,7 @@ std::string utils::nAfter(const std::string& query, const std::string& ref, unsi
 	size_t beg, end;
 	if(!utils::allign(query, ref, beg, end)){
 		if(noExcept) return "";
-		else throw std::runtime_error("query not in ref");
+		else throw std::out_of_range("query not in ref");
 	}
 	
 	end += 1;
