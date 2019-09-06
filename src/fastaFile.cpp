@@ -352,3 +352,101 @@ std::string utils::FastaFile::nBefore(const std::string& query, const std::strin
 	std::string ref = getSequence(ref_id);
 	return utils::nBefore(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
 }
+
+/**
+ \brief Get position residue and position of \p modLoc in parent protein
+ of \p peptideSeq.
+ \param seq parent protein sequence of \p peptideSeq
+ \param peptideSeq unmodified peptide sequence.
+ \param modLoc location of modified residue in peptide
+ (where 0 is the beginning of the peptide.)
+ */
+std::string utils::getModifiedResidue(const std::string& seq, const std::string& peptideSeq, int modLoc)
+{
+	if(seq == utils::PROT_SEQ_NOT_FOUND)
+		return utils::PROT_SEQ_NOT_FOUND;
+	
+	size_t begin = seq.find(peptideSeq);
+	if(begin == std::string::npos)
+		return utils::PEP_SEQ_NOT_FOUND;
+	size_t modNum = begin + modLoc;
+	std::string ret = std::string(1, peptideSeq[modLoc]) + std::to_string(modNum + 1);
+	
+	return ret;
+}
+
+/**
+\brief Align \p query to \p ref.
+
+\param query String to align.
+\param ref String to use as reference.
+\param beg Set to beginning index of \p query in \p ref.
+\param end Set to ending index of \p query in \p ref.
+
+\return false if \p query is not in \p ref, true otherwise.
+*/
+bool utils::allign(const std::string& query, const std::string& ref, size_t& beg, size_t& end)
+{
+	size_t match = ref.find(query);
+	if(match == std::string::npos) return false;
+	
+	beg = match;
+	end = match + query.length() - 1;
+	
+	return true;
+}
+
+/**
+\brief Get \p n residues before \p query in \p ref. <br>
+
+If \p n overruns \p ref, the maximum possible number of characters will be returned.
+
+\param query String to search for.
+\param ref String to search in.
+\param n Number of residues in output.
+\param noExcept Should an std::out_of_range be thrown if \p query is not in \p ref?
+
+\throws std::out_of_range if \p query is not in \p ref and \p noExcept is false.
+
+\return \p n residues before \p query.
+*/
+std::string utils::nBefore(const std::string& query, const std::string& ref, unsigned n, bool noExcept)
+{
+	size_t beg, end;
+	if(!utils::allign(query, ref, beg, end)){
+		if(noExcept) return "";
+		else throw std::out_of_range("query not in ref");
+	}
+	
+	if(beg < n) n = beg;
+
+	return ref.substr(beg - n, n);
+}
+
+/**
+\brief Get \p n residues after \p query in \p ref. <br>
+
+If \p n overruns \p ref, the maximum possible number of characters will be returned.
+
+\param query String to search for.
+\param ref String to search in.
+\param n Number of residues in output.
+\param noExcept Should an std::out_of_range be thrown if \p query is not in \p ref?
+
+\throws std::out_of_range if \p query is not in \p ref and \p noExcept is false.
+
+\return \p n residues after \p query.
+*/
+std::string utils::nAfter(const std::string& query, const std::string& ref, unsigned n, bool noExcept)
+{
+	size_t beg, end;
+	if(!utils::allign(query, ref, beg, end)){
+		if(noExcept) return "";
+		else throw std::out_of_range("query not in ref");
+	}
+	
+	end += 1;
+	if(end + n > ref.length())
+		n = ref.length() - end;
+	return ref.substr(end, n);
+}

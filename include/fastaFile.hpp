@@ -36,11 +36,13 @@
 
 #include <utils.hpp>
 #include <bufferFile.hpp>
-#include <peptideUtils.hpp>
 
 namespace utils {
 	class FastaFile;
 	class FastaEntry;
+
+	const std::string PROT_SEQ_NOT_FOUND = "PROT_SEQ_NOT_FOUND";
+	const std::string PEP_SEQ_NOT_FOUND = "PEP_SEQ_NOT_FOUND";
 
 	const size_t PROT_ID_NOT_FOUND = std::string::npos;
 
@@ -143,6 +145,12 @@ namespace utils {
 		std::string nAfter(const std::string& query, const std::string& ref_id,
 			unsigned n, bool noExcept = false) const;
 	};
+
+	std::string getModifiedResidue(const std::string& seq, const std::string& peptideSeq, int modLoc);
+
+	bool allign(const std::string& query, const std::string& ref, size_t& beg, size_t& end);
+	std::string nBefore(const std::string& query, const std::string& ref, unsigned n, bool noExcept = false);
+	std::string nAfter(const std::string& query, const std::string& ref, unsigned n, bool noExcept = false);
 }
 
 #endif /* fastaFile_hpp */

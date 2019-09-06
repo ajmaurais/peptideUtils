@@ -437,6 +437,58 @@ std::string utils::getFormulaFromMap(const utils::AtomCountMapType& atomCountMap
 }
 
 /**
+\brief Perform a virtual protease digest of a protein.
+
+\param seq Protein sequence.
+\param peptides Populated with digested peptides.
+\param missedCleavages Number of missed cleavages to allow.
+\param minLen Minimum peptide length.
+\param maxLen Maximum peptide length. Set to std::string::npos for no upper bound on length.
+\param cleavagePattern RegEx for protease cleavage pattern.
+*/
+void utils::digest(std::string seq, std::vector<std::string>& peptides,
+				 unsigned nMissedCleavages, size_t minLen, size_t maxLen,
+				 std::string cleavagePattern)
+{
+	std::regex re(cleavagePattern);
+	std::smatch m;
+	std::vector<size_t> index_matches;
+	peptides.clear();
+		
+	//Get indices of cleavage sites
+	for(auto it = std::sregex_iterator(seq.begin(), seq.end(), re); it != std::sregex_iterator(); ++it){
+		index_matches.push_back(it->position() + 1);
+	}
+	index_matches.push_back(0); //add beginning of sequence
+	
+	//Get unique values and sort
+	utils::unique(index_matches);
+	std::sort(index_matches.begin(), index_matches.end());
+
+	size_t len = index_matches.size();
+	for(int i = 0; i < len; i++)
+	{
+		for(int j = 0; j <= nMissedCleavages; j++)
+		{
+			size_t pLen;
+			if((i + j + 1) >= len)
+				pLen = seq.length() - index_matches[i];
+			else
+				pLen = index_matches.at(i+j+1) - index_matches.at(i);
+			
+			std::string seq_temp = seq.substr(index_matches[i], pLen);
+			size_t len_temp = seq_temp.length();
+			if(len_temp >= minLen && (maxLen == std::string::npos ? true : len_temp <= maxLen))
+				peptides.push_back(seq_temp);
+		}
+	}
+	
+	//get unique values and sort by peptide length.
+	utils::unique(peptides);
+	std::sort(peptides.begin(), peptides.end(), utils::strLenCompare());
+}
+
+/**
 \brief Perform a virtual protease digest of a protein. <br>
 
 The function uses charge and m/z filters to remove peptides which would not be

@@ -28,11 +28,12 @@
 #define peptide_utils_hpp
 
 #include <iostream>
-#include <regex>
 #include <stdexcept>
 #include <map>
 
 #include <utils.hpp>
+#include <molecularFormula.hpp>
+#include <fastaFile.hpp>
 
 namespace utils{
 
@@ -105,11 +106,6 @@ namespace utils{
 								 std::string sep_out = "",
 								 std::string n_term_out = "",
 								 std::string c_term_out = "");
-
-	std::string getModifiedResidue(const std::string& seq, const std::string& peptideSeq, int modLoc);
-	bool allign(const std::string& query, const std::string& ref, size_t& beg, size_t& end);
-	std::string nBefore(const std::string& query, const std::string& ref, unsigned n, bool noExcept = false);
-	std::string nAfter(const std::string& query, const std::string& ref, unsigned n, bool noExcept = false);
 
 }//end namespace utils
 

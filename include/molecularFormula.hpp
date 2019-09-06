@@ -39,8 +39,8 @@
 #include <utility>
 #include <string>
 #include <algorithm>
+#include <regex>
 
-#include <peptideUtils.hpp>
 #include <utils.hpp>
 
 namespace utils{
@@ -191,6 +191,10 @@ namespace utils{
 			std::string cleavagePattern = "([RK])(?=[^P])",
 			double minMz = 400, double maxMz = 1800, int minCharge = 1, int maxCharge = 5) const;
 	};
+
+	void digest(std::string seq, std::vector<std::string>& peptides,
+		unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
+		std::string cleavagePattern = "([RK])(?=[^P])");
 }
 
 /* molecularFormula_hpp */
