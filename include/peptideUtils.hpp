@@ -30,6 +30,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <map>
+#include <thread>
 
 #include <utils.hpp>
 #include <molecularFormula.hpp>
@@ -37,8 +38,7 @@
 
 namespace utils{
 
-	const std::string PROT_SEQ_NOT_FOUND = "PROT_SEQ_NOT_FOUND";
-	const std::string PEP_SEQ_NOT_FOUND = "PEP_SEQ_NOT_FOUND";
+	typedef std::map<std::string, std::vector<std::string> > SeqListType;
 
 	//!Characters representing dynamic modifications
 	const std::string MOD_CHARS = "*";
@@ -89,7 +89,23 @@ namespace utils{
 																  {"Trp", 'W'},
 																  {"Tyr", 'Y'}};
 
-	void digest(std::string seq, std::vector<std::string>& peptides,
+	void _digest_all_len(unsigned int begin, unsigned int end,
+		const utils::FastaFile& fasta, SeqListType& seqs,
+		unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
+		std::string cleavagePattern = "([RK])(?=[^P])");
+
+	void _digest_all_res(unsigned int begin, unsigned int end,
+		const utils::FastaFile& fasta, const utils::Residues& residues, SeqListType& seqs,
+		unsigned nMissedCleavages = 0, bool length_filter = true,
+		std::string cleavagePattern = "([RK])(?=[^P])",
+		double minMz = 400, double maxMz = 1800, int minCharge = 1, int maxCharge = 5);
+
+	void digest_all(const utils::FastaFile& fasta, const utils::Residues& residues, SeqListType& peptides, unsigned int nThread = 0,
+		unsigned nMissedCleavages = 0, bool length_filter = true,
+		std::string cleavagePattern = "([RK])(?=[^P])",
+		double minMz = 400, double maxMz = 1800, int minCharge = 1, int maxCharge = 5);
+
+	void digest_all(const utils::FastaFile& fasta, SeqListType& peptides, unsigned int nThread = 0,
 		unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
 		std::string cleavagePattern = "([RK])(?=[^P])");
 
