@@ -94,8 +94,8 @@ namespace utils{
 	std::string absPath(const char*);
 	bool ls(const char*, std::vector<std::string>&);
 	bool ls(const char*, std::vector<std::string>&, std::string);
-	bool mkdir(std::string);
-	bool mkdir(const char*);
+	bool mkdir(std::string path, std::string options = "");
+	bool mkdir(const char* path, std::string options = "");
 	void systemCommand(std::string command);
 	std::string baseName(std::string path, const std::string& delims = "/\\");
 	std::string dirName(std::string path, const std::string& delims = "/\\");

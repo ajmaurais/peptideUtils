@@ -154,9 +154,12 @@ bool utils::ls(const char* path, std::vector<std::string>& files, std::string ex
 }
 
 //!executes \p command as system command
-void utils::systemCommand(std::string command)
-{
+void utils::systemCommand(std::string command){
 	system(command.c_str());
+}
+
+bool utils::mkdir(std::string path, std::string options){
+	return utils::mkdir(path.c_str(), options);
 }
 
 /**
@@ -164,7 +167,7 @@ void utils::systemCommand(std::string command)
  \param path path of new dir to create
  \return true if successful.
  */
-bool utils::mkdir(const char* path)
+bool utils::mkdir(const char* path, std::string options)
 {
 	//get abs path and make sure that it doesn't already exist
 	//return false if it does
@@ -181,7 +184,7 @@ bool utils::mkdir(const char* path)
 	return false;
 	
 	//make dir
-	systemCommand("mkdir " + rpath);
+	systemCommand("mkdir " + options + " " + rpath);
 	
 	//test that new dir exists
 	return dirExists(rpath);
