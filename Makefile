@@ -31,7 +31,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADER_DIR)/%.hpp
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 doc:
-	doxygen doc/doxygen/Doxyfile
+	doxygen doc/doxygen/Doxyfile.in
 
 clean:
 	rm -f $(OBJ_DIR)/*.o $(OUT_DIR)/$(OUT_FILE_NAME) Makefile.bak
