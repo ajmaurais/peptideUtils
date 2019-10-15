@@ -42,15 +42,15 @@
 #include <regex>
 
 #include <utils.hpp>
+#include <species.hpp>
+#include <atomMasses.hpp>
 
 namespace utils{
-	
-	class Species;
+
 	class Residue;
 	class Residues;
 	
 	typedef std::vector<std::string> HeaderType;
-	typedef std::map<std::string, Species> AtomMassMapType;
 	typedef std::map<std::string, int> AtomCountMapType;
 	
 	bool const UNICODE_AS_DEFAULT = true;
@@ -60,50 +60,15 @@ namespace utils{
 	const std::string N_TERM_STR = "N_term";
 	const std::string C_TERM_STR = "C_term";
 	const std::string BAD_AMINO_ACID = "BAD_AA_IN_SEQ";
-	const std::string MASS_TABLE_NAME = "atomMasses.txt";
 	const std::string ATOM_COUNT_NAME = "defaultResidueAtoms.txt";
 	
 	std::string getFormulaFromMap(const AtomCountMapType&, bool unicode);
-	
-	class Species{
-	private:
-		double mono;
-		double avg;
-	public:
-		Species(){
-			avg = 0; mono = 0;
-		}
-		Species(double _avg, double _mono){
-			avg = _avg; mono = _mono;
-		}
-		~Species() {}
-		
-		void operator += (const Species& _add){
-			avg += _add.avg; mono += _add.mono;
-		}
-		void operator = (const Species& _cp){
-			avg = _cp.avg; mono = _cp.mono;
-		}
-		template<class _Tp> Species operator * (_Tp mult){
-			Species ret;
-			ret.avg = avg * mult;
-			ret.mono = mono * mult;
-			return ret;
-		}
-		
-		double getAvg() const{
-			return avg;
-		}
-		double getMono() const{
-			return mono;
-		}
-	};
 	
 	class Residue{
 	private:
 		AtomCountMapType atomCountMap;
 		AtomMassMapType* atomMassMap;
-		
+
 		Species masses;
 		//!has atomMassMap been initialized
 		bool massesSupported;
@@ -156,25 +121,22 @@ namespace utils{
 
 		//!Has atom count table been read?
 		bool atomCountTableRead;
-		//!Has atom mass table been read?
-		bool atomMassTalbeRead;
+        void _init_atomMassMap();
 	public:
 		Residues(){
 			atomCountTableLoc = ""; massTableLoc = "";
-			atomCountTableRead = false; atomMassTalbeRead = false;
+			atomCountTableRead = false;
 		}
 		Residues(std::string _atomCountTableLoc, std::string _massTableLoc){
 			atomCountTableLoc = _atomCountTableLoc; massTableLoc = _massTableLoc;
-			atomCountTableRead = false; atomMassTalbeRead = false;
+			atomCountTableRead = false;
 		}
 		~Residues() {}
 		
 		bool readAtomCountTable(std::string);
 		bool readAtomCountTable();
-		bool readAtomMassTable(std::string);
-		bool readAtomMassTable();
 		bool initialize(bool use_default = true);
-		bool initialize(std::string, std::string);
+		bool initialize(std::string);
 		
 		std::string calcFormula(std::string, bool unicode = UNICODE_AS_DEFAULT,
 								bool _nterm = true, bool _cterm = true) const;

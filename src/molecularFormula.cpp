@@ -69,7 +69,7 @@ void utils::Residue::calcMasses()
 //removes atoms from atomCountMap which have count of 0
 void utils::Residue::removeZeros()
 {
-	AtomCountMapType::iterator it = atomCountMap.begin();
+	auto it = atomCountMap.begin();
 	while(it != atomCountMap.end())
 	{
 		if(it->second == 0){
@@ -216,10 +216,9 @@ bool utils::Residues::readAtomCountTable()
 				
 				if(atomCountHeader.size() != elems.size())
 					throw std::runtime_error("bad atom count table");
-				
-				if(atomMassTalbeRead)
-					residueMap[residue] = utils::Residue(&atomMassMap, atomCountHeader, elems);
-				else residueMap[residue] = utils::Residue(atomCountHeader, elems);
+
+				residueMap[residue] = utils::Residue(&atomMassMap, atomCountHeader, elems);
+				//else residueMap[residue] = utils::Residue(atomCountHeader, elems);
 			}
 		}
 	}
@@ -229,7 +228,7 @@ bool utils::Residues::readAtomCountTable()
 
 void utils::Residue::combineAtomCountMap(AtomCountMapType& _add) const
 {
-	for(AtomCountMapType::const_iterator it = atomCountMap.begin(); it != atomCountMap.end(); ++it)
+	for(auto it = atomCountMap.begin(); it != atomCountMap.end(); ++it)
 	{
 		if(_add.find(it->first) == _add.end())
 			_add[it->first] = it->second;
@@ -237,53 +236,13 @@ void utils::Residue::combineAtomCountMap(AtomCountMapType& _add) const
 	}
 }
 
-bool utils::Residues::readAtomMassTable(std::string _massTableLoc)
-{
-	massTableLoc = _massTableLoc;
-	return readAtomCountTable();
-}
-
-bool utils::Residues::readAtomMassTable()
-{
-	if(massTableLoc.empty())
-		throw std::runtime_error("atomCountTableLoc must be specified");
-	
-	std::ifstream inF(massTableLoc);
-	if(!inF) return false;
-	
-	std::string line;
-	std::vector<std::string> elems;
-	while(utils::safeGetline(inF, line))
-	{
-		line = utils::trim(line);
-		if(line.empty() || utils::isCommentLine(line))
-			continue;		
-		
-		utils::split(line, IN_DELIM, elems);
-		utils::trimAll(elems);
-		
-		if(elems[0] == "H" || elems[0] == "A")
-		{
-			if(elems.size() != 4)
-				throw std::runtime_error("Bad atom mass ");
-		
-			if(elems[0] == "H"){
-				continue;
-			}
-			else if(elems[0] == "A"){
-				atomMassMap[elems[1]] = utils::Species(std::stod(elems[2]),
-															std::stod(elems[3]));
-			}
-		}//end if
-	}//end while
-	atomMassTalbeRead = true;
-	return true;
+void utils::Residues::_init_atomMassMap(){
+	atomMassMap = utils::ATOM_MASSES;
 }//end fxn
 
-bool utils::Residues::initialize(std::string _atomCountTableLoc, std::string _massTableLoc)
+bool utils::Residues::initialize(std::string _atomCountTableLoc)
 {
 	atomCountTableLoc = _atomCountTableLoc;
-	massTableLoc = _massTableLoc;
 	
 	return initialize();
 }
@@ -296,13 +255,11 @@ bool utils::Residues::initialize(bool use_default)
 {
 	if(use_default){
 		atomCountTableLoc = std::string(SHARE_DIR) + "/" + ATOM_COUNT_NAME;
-		massTableLoc = std::string(SHARE_DIR) + "/" + MASS_TABLE_NAME;
 	}
 
-	bool gootAtomMassTable = readAtomMassTable();
 	bool goodAtomCountTable = readAtomCountTable();
 	
-	return gootAtomMassTable && goodAtomCountTable;
+	return goodAtomCountTable;
 }
 
 double utils::Residues::calcMass(std::string _seq, char avg_mono, bool _nterm, bool _cterm) const
@@ -310,8 +267,6 @@ double utils::Residues::calcMass(std::string _seq, char avg_mono, bool _nterm, b
 	//check that required files have been read
 	if(!atomCountTableRead)
 		throw std::runtime_error("Atom count table has not been read in!");
-	if(!atomMassTalbeRead)
-		throw std::runtime_error("Atom mass table has not been read in!");
 
 	double mass = 0;
 	size_t len = _seq.length();
@@ -362,9 +317,9 @@ std::string utils::Residues::calcFormula(std::string _seq, bool unicode,
 			throw std::runtime_error(N_TERM_STR + " not found in residueMap");
 		resMapIt->second.combineAtomCountMap(atomCounts);
 	}
-	for(std::string::iterator it = _seq.begin(); it != _seq.end(); ++it)
+	for(char & it : _seq)
 	{
-		std::string aaTemp = std::string(1, *it);
+		std::string aaTemp = std::string(1, it);
 		resMapIt = residueMap.find(aaTemp);
 		if(resMapIt == residueMap.end())
 			return BAD_AMINO_ACID;
@@ -389,48 +344,47 @@ std::string utils::getFormulaFromMap(const utils::AtomCountMapType& atomCountMap
 	typedef std::pair<int, bool> PairType;
 	typedef std::map<std::string, PairType> AtomCountGraphType;
 	AtomCountGraphType atomCountGraph;
-	for(AtomCountMapType::const_iterator it = atomCountMap.begin(); it != atomCountMap.end(); ++it)
-		atomCountGraph[it->first] =  PairType(it->second, false);
+	for(const auto & it : atomCountMap)
+		atomCountGraph[it.first] =  PairType(it.second, false);
 	
 	//first print atoms in FORMULA_RESIDUE_ORDER
-	for(size_t i = 0; i < FORMULA_RESIDUE_ORDER_LEN; i++)
+	for(const auto & i : FORMULA_RESIDUE_ORDER)
 	{
-		if(atomCountGraph[FORMULA_RESIDUE_ORDER[i]].first == 0)
+		if(atomCountGraph[i].first == 0)
 		{
-			atomCountGraph[FORMULA_RESIDUE_ORDER[i]].second = true;
+			atomCountGraph[i].second = true;
 			continue;
 		}
-		else if(atomCountGraph[FORMULA_RESIDUE_ORDER[i]].first == 1) {
-			formula += FORMULA_RESIDUE_ORDER[i];
+		else if(atomCountGraph[i].first == 1) {
+			formula += i;
 		}
 		else {
 			if(unicode){
 				//formula += molFormula::symbolToUnicode(FORMULA_RESIDUE_ORDER[i]);
-				formula += FORMULA_RESIDUE_ORDER[i];
-				formula += utils::toSubscript(atomCountGraph[FORMULA_RESIDUE_ORDER[i]].first);
+				formula += i;
+				formula += utils::toSubscript(atomCountGraph[i].first);
 			}
 			else {
-				formula += FORMULA_RESIDUE_ORDER[i];
-				formula += std::to_string(atomCountGraph[FORMULA_RESIDUE_ORDER[i]].first);
+				formula += i;
+				formula += std::to_string(atomCountGraph[i].first);
 			}
 		}
-		atomCountGraph[FORMULA_RESIDUE_ORDER[i]].second = true;
+		atomCountGraph[i].second = true;
 	}
 	
 	//next itterate through atomCountGraph and print atoms not added to formula
-	for(AtomCountGraphType::iterator it = atomCountGraph.begin();
-		it != atomCountGraph.end(); ++it)
+	for(auto & it : atomCountGraph)
 	{
-		if(it->second.second) //check if atom has already been added to formula
+		if(it.second.second) //check if atom has already been added to formula
 			continue;
 		
-		formula += it->first;
-		if(it->second.first > 1) {
+		formula += it.first;
+		if(it.second.first > 1) {
 			if(unicode)
-				formula += utils::toSubscript(it->second.first);
-			else formula += std::to_string(it->second.first);
+				formula += utils::toSubscript(it.second.first);
+			else formula += std::to_string(it.second.first);
 		}
-		it->second.second = true;
+		it.second.second = true;
 	}
 	
 	return formula;
@@ -522,17 +476,18 @@ void utils::Residues::digest(std::string seq, std::vector<std::string>& peptides
 		std::string::npos, cleavagePattern);
 
 	//iterate through peptides
-	for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it)
+	for(auto & it : peptides_temp)
 	{
 		//calculate peptide mono masses
-		double mono_temp = calcMono(*it);
+		double mono_temp = calcMono(it);
 
 		//iterate through charge range
 		for(unsigned z = minCharge; z <= maxCharge; z++)
 		{
-			double mz_temp = (mono_temp + z) / (z == 0 ? z : z); //calc mz
+			//double mz_temp = (mono_temp + z) / (z == 0 ? z : z); //calc mz
+            double mz_temp = (mono_temp + z) / z; //calc mz
 			if(mz_temp >= minMz && mz_temp <= maxMz)
-				peptides.push_back(*it); //add peptides in mz range to peptides
+				peptides.push_back(it); //add peptides in mz range to peptides
 		}
 	}
 	
