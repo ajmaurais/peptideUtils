@@ -42,14 +42,14 @@
 #include <regex>
 
 #include <utils.hpp>
-#include <species.hpp>
-#include <atomMasses.hpp>
 
 namespace utils{
 
+    class Species;
 	class Residue;
 	class Residues;
-	
+
+    typedef std::map<std::string, Species> AtomMassMapType;
 	typedef std::vector<std::string> HeaderType;
 	typedef std::map<std::string, int> AtomCountMapType;
 	
@@ -63,7 +63,41 @@ namespace utils{
 	const std::string ATOM_COUNT_NAME = "defaultResidueAtoms.txt";
 	
 	std::string getFormulaFromMap(const AtomCountMapType&, bool unicode);
-	
+
+    class Species{
+    private:
+        double mono;
+        double avg;
+    public:
+        Species(){
+            avg = 0; mono = 0;
+        }
+        Species(double _avg, double _mono){
+            avg = _avg; mono = _mono;
+        }
+        ~Species() = default;
+
+        void operator += (const Species& _add){
+            avg += _add.avg; mono += _add.mono;
+        }
+        void operator = (const Species& _cp){
+            avg = _cp.avg; mono = _cp.mono;
+        }
+        template<class _Tp> Species operator * (_Tp mult){
+            Species ret;
+            ret.avg = avg * mult;
+            ret.mono = mono * mult;
+            return ret;
+        }
+
+        double getAvg() const{
+            return avg;
+        }
+        double getMono() const{
+            return mono;
+        }
+    };
+
 	class Residue{
 	private:
 		AtomCountMapType atomCountMap;
@@ -108,12 +142,13 @@ namespace utils{
 		typedef std::map<std::string, Residue> ResidueMapType;
 		ResidueMapType residueMap;
 		std::string atomCountTableLoc;
-		AtomMassMapType atomMassMap;
 		HeaderType atomCountHeader;
+
+		//!Stores atom mono and avg masses
+        static AtomMassMapType _atomMassMap;
 
 		//!Has atom count table been read?
 		bool atomCountTableRead;
-        void _init_atomMassMap();
 	public:
 		Residues(){
 			atomCountTableLoc = "";
