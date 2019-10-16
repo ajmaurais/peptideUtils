@@ -11,6 +11,8 @@ set(SHARE_DIR "${PROJECT_SOURCE_DIR}/share" CACHE STRING "Path to directory with
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSHARE_DIR=\\\"${SHARE_DIR}\\\"")
 
+SET(CMAKE_BUILD_TYPE Debug)
+
 add_library(utils STATIC ${SOURCES})
 
 #set_target_properties(utils PROPERTIES
@@ -41,5 +43,15 @@ if (DOXYGEN_FOUND)
 else (DOXYGEN_FOUND)
   message("Doxygen need to be installed to generate the doxygen documentation")
 endif (DOXYGEN_FOUND)
+endif()
+
+option(BUILD_TEST "Build test executable" OFF)
+if(BUILD_TEST MATCHES ON)
+    #find_library(UTILS_LIB utils)
+
+    add_executable(test test/main.cpp ${SOURCES})
+
+    target_include_directories(test PUBLIC ${UTILS_INCLUDE_DIR})
+   #target_link_libraries(test LINK_PUBLIC ${UTILS_LIB})
 endif()
 
