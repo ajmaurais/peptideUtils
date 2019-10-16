@@ -36,7 +36,6 @@ utils::Residue::Residue(const utils::Residue& rhs)
 	//copy other members
 	masses = rhs.masses;
 	atomCountMap = rhs.atomCountMap;
-	massesSupported = rhs.massesSupported;
 }
 
 //!Copy assignment
@@ -47,7 +46,6 @@ utils::Residue& utils::Residue::operator = (utils::Residue rhs)
 	//other vars
 	masses = rhs.masses;
 	atomCountMap = rhs.atomCountMap;
-	massesSupported = rhs.massesSupported;
 
 	return *this;
 }
@@ -80,38 +78,23 @@ void utils::Residue::removeZeros()
 	}
 }
 
-void utils::Residue::_checkIfMassesSupported() const
-{
-	if(!massesSupported)
-		throw std::runtime_error("Atom mass file has not been initialized.");
-}
-
-void utils::Residue::initialize(const utils::HeaderType& _header,
-								const std::vector<std::string>& _elems)
+void utils::Residue::initialize(utils::AtomMassMapType* _atomMassMap,
+									const utils::HeaderType& _header,
+									const std::vector<std::string>& _elems)
 {
 	//check that atom count std::vector is same len as header
 	assert(_header.size() == _elems.size());
-	
+
 	//initialize atom count map
 	size_t len = _header.size();
 	for(size_t i = 0; i < len; i++)
 		atomCountMap[_header[i]] = std::stoi(_elems[i]);
 	removeZeros(); //remove 0 atom counts
-	massesSupported = false;
-}
-
-void utils::Residue::initialize(utils::AtomMassMapType* _atomMassMap,
-									const utils::HeaderType& _header,
-									const std::vector<std::string>& _elems)
-{
-	initialize(_header, _elems);
 	
 	atomMassMap = new AtomMassMapType;
 	atomMassMap = _atomMassMap;
 	
 	calcMasses(); //calculate residue mass
-	
-	massesSupported = true;
 }
 
 /**
@@ -123,14 +106,13 @@ void utils::Residue::initialize(utils::AtomMassMapType* _atomMassMap,
 
  \return residue mass
 */
-double utils::Residue::getMass(char avg_mono,
-							   bool checkIfMassesSupported) const{
+double utils::Residue::getMass(char avg_mono) const{
 	switch(avg_mono){
 		case 'a' :
-			return getAvg(checkIfMassesSupported);
+			return getAvg();
 			break;
 		case 'm' :
-			return getMono(checkIfMassesSupported);
+			return getMono();
 			break;
 		default :
 			throw std::runtime_error("only a or m are valid arguments!");
@@ -145,9 +127,7 @@ double utils::Residue::getMass(char avg_mono,
 
  \return monoisotopic mass
 */
-double utils::Residue::getMono(bool checkIfMassesSupported) const
-{
-	if(checkIfMassesSupported) _checkIfMassesSupported();
+double utils::Residue::getMono() const{
 	return masses.getMono();
 }
 
@@ -159,9 +139,7 @@ double utils::Residue::getMono(bool checkIfMassesSupported) const
 
  \return average mass
 */
-double utils::Residue::getAvg(bool checkIfMassesSupported) const
-{
-	if(checkIfMassesSupported) _checkIfMassesSupported();
+double utils::Residue::getAvg() const{
 	return masses.getAvg();
 }
 
@@ -257,6 +235,7 @@ bool utils::Residues::initialize(bool use_default)
 		atomCountTableLoc = std::string(SHARE_DIR) + "/" + ATOM_COUNT_NAME;
 	}
 
+	_init_atomMassMap();
 	bool goodAtomCountTable = readAtomCountTable();
 	
 	return goodAtomCountTable;
