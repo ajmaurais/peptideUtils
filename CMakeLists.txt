@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.15)
 project(utils)
 
@@ -45,13 +46,12 @@ else (DOXYGEN_FOUND)
 endif (DOXYGEN_FOUND)
 endif()
 
+#build test file (for debugging purposes)
 option(BUILD_TEST "Build test executable" OFF)
 if(BUILD_TEST MATCHES ON)
-    #find_library(UTILS_LIB utils)
 
     add_executable(test test/main.cpp ${SOURCES})
 
     target_include_directories(test PUBLIC ${UTILS_INCLUDE_DIR})
-   #target_link_libraries(test LINK_PUBLIC ${UTILS_LIB})
 endif()
 

@@ -26,6 +26,21 @@
 
 #include <molecularFormula.hpp>
 
+utils::AtomMassMapType utils::Residues::_atomMassMap{
+    {"C", {12.011, 12} },
+    {"H", {1.008, 1.00783}},
+    {"O", {15.999, 15.99491}},
+    {"N", {14.007, 14.00307}},
+    {"S", {32.06, 31.97207}},
+    {"P", {30.97376, 30.97376}},
+    {"(15)N", {15.00011, 15.00011}},
+    {"D", {2.0141, 2.0141}},
+    {"(13)C", {13.00335, 13.00335}},
+    {"Se", {78.96, 79.91652}},
+    {"Cl", {35.45, 34.96885}},
+    {"Br", {79.904, 78.91834}}
+};
+
 //!Copy constructor
 utils::Residue::Residue(const utils::Residue& rhs)
 {
@@ -195,7 +210,7 @@ bool utils::Residues::readAtomCountTable()
 				if(atomCountHeader.size() != elems.size())
 					throw std::runtime_error("bad atom count table");
 
-				residueMap[residue] = utils::Residue(&atomMassMap, atomCountHeader, elems);
+				residueMap[residue] = utils::Residue(&_atomMassMap, atomCountHeader, elems);
 				//else residueMap[residue] = utils::Residue(atomCountHeader, elems);
 			}
 		}
@@ -214,10 +229,6 @@ void utils::Residue::combineAtomCountMap(AtomCountMapType& _add) const
 	}
 }
 
-void utils::Residues::_init_atomMassMap(){
-	atomMassMap = utils::ATOM_MASSES;
-}//end fxn
-
 bool utils::Residues::initialize(std::string _atomCountTableLoc)
 {
 	atomCountTableLoc = _atomCountTableLoc;
@@ -235,7 +246,6 @@ bool utils::Residues::initialize(bool use_default)
 		atomCountTableLoc = std::string(SHARE_DIR) + "/" + ATOM_COUNT_NAME;
 	}
 
-	_init_atomMassMap();
 	bool goodAtomCountTable = readAtomCountTable();
 	
 	return goodAtomCountTable;
