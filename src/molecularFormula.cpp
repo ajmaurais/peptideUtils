@@ -235,10 +235,7 @@ bool utils::Residues::initialize(bool use_default)
 		atomCountTableLoc = std::string(SHARE_DIR) + "/" + ATOM_COUNT_NAME;
 	}
 
-<<<<<<< HEAD
-=======
 	_init_atomMassMap();
->>>>>>> master
 	bool goodAtomCountTable = readAtomCountTable();
 	
 	return goodAtomCountTable;
