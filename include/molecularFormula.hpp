@@ -70,12 +70,9 @@ namespace utils{
 		AtomMassMapType* atomMassMap;
 
 		Species masses;
-		//!has atomMassMap been initialized
-		bool massesSupported;
 
 		void calcMasses();
 		void removeZeros();
-		void _checkIfMassesSupported() const;
 	public:
 		//!Constructor
 		Residue (){
@@ -87,10 +84,6 @@ namespace utils{
 				const std::vector<std::string>& _elems){
 			initialize(_atomMassMap, _header, _elems);
 		}
-		Residue(const utils::HeaderType& _header,
-				const std::vector<std::string>& _elems){
-			initialize(_header, _elems);
-		}
 		~Residue() {
 			//delete atomMassMap;
 		}
@@ -98,7 +91,6 @@ namespace utils{
 		//modifiers
 		Residue& operator = (Residue rhs); //copy assignment
 		void initialize(AtomMassMapType*, const HeaderType&, const std::vector<std::string>&);
-		void initialize(const HeaderType&, const std::vector<std::string>&);
 
 		//properties
 		void combineAtomCountMap(AtomCountMapType&) const;
@@ -106,16 +98,16 @@ namespace utils{
 		std::string getFormula(bool unicode = UNICODE_AS_DEFAULT) const{
 			return getFormulaFromMap(atomCountMap, unicode);
 		}
-		double getMass(char, bool = true) const;
-		double getMono(bool = true) const;
-		double getAvg(bool = true) const;
+		double getMass(char) const;
+		double getMono() const;
+		double getAvg() const;
 	};
 	
 	class Residues{
 	private:
 		typedef std::map<std::string, Residue> ResidueMapType;
 		ResidueMapType residueMap;
-		std::string atomCountTableLoc, massTableLoc;
+		std::string atomCountTableLoc;
 		AtomMassMapType atomMassMap;
 		HeaderType atomCountHeader;
 
@@ -124,11 +116,11 @@ namespace utils{
         void _init_atomMassMap();
 	public:
 		Residues(){
-			atomCountTableLoc = ""; massTableLoc = "";
+			atomCountTableLoc = "";
 			atomCountTableRead = false;
 		}
-		Residues(std::string _atomCountTableLoc, std::string _massTableLoc){
-			atomCountTableLoc = _atomCountTableLoc; massTableLoc = _massTableLoc;
+		Residues(std::string _atomCountTableLoc){
+			atomCountTableLoc = _atomCountTableLoc;
 			atomCountTableRead = false;
 		}
 		~Residues() {}
