@@ -216,7 +216,7 @@ namespace utils{
 	\brief Remove duplicate values from vector.
 
 	\param v Vector to remove duplicates from. 
-	\oaram sort Should the values in \p v be sorted?
+	\param sort Should the values in \p v be sorted?
 	
 	Sorting is performed using the default comparator for \p _Tp. 
 	If sort is set to \p false, elements are returned in a random order.
