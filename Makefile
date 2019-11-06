@@ -1,6 +1,6 @@
 
 CXX = g++
-OUT_FILE_NAME = utils.a
+OUT_FILE_NAME = libutils.a
 
 PROG_DIR:=$(shell pwd)
 SHARE_DIR:=$(PROG_DIR)/share
