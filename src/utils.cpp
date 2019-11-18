@@ -241,7 +241,7 @@ std::string utils::getExtension(const std::string& filename)
 /**
  \brief Get next line from \p is and store it in \p t.
  
- std::getline only handels \\n. safeGetLine handels \\n \\r \\r\\n.
+ std::getline only handles \\n. safeGetLine handles \\n \\r \\r\\n.
  \param is stream to read from
  \param s string to store next line in \p t is cleared prior to adding new string.
  \param oldPos stores state of stream before reading new line
@@ -255,7 +255,7 @@ std::istream& utils::safeGetline(std::istream& is, std::string& s, std::streampo
 /**
  \brief Get next line from \p is and store it in \p t.
  
- std::getline only handels \\n. safeGetLine handels \\n \\r \\r\\n.
+ std::getline only handles \\n. safeGetLine handles \\n \\r \\r\\n.
  \param is stream to read from
  \param s string to store next line in \p t is cleared prior to adding new string.
  \return ref to \p is after reaing next line.
@@ -304,7 +304,7 @@ bool utils::strContains(std::string findTxt, std::string whithinTxt)
 	return whithinTxt.find(findTxt) != std::string::npos;
 }
 
-//!overloaded version of strContains, handels \p findTxt as char
+//!overloaded version of strContains, handles \p findTxt as char
 bool utils::strContains(char findTxt, std::string whithinTxt)
 {
 	return strContains(std::string(1, findTxt), whithinTxt);

@@ -385,7 +385,7 @@ std::string utils::getModifiedResidue(const std::string& seq, const std::string&
 
 \return false if \p query is not in \p ref, true otherwise.
 */
-bool utils::allign(const std::string& query, const std::string& ref, size_t& beg, size_t& end)
+bool utils::align(const std::string& query, const std::string& ref, size_t& beg, size_t& end)
 {
 	size_t match = ref.find(query);
 	if(match == std::string::npos) return false;
@@ -413,7 +413,7 @@ If \p n overruns \p ref, the maximum possible number of characters will be retur
 std::string utils::nBefore(const std::string& query, const std::string& ref, unsigned n, bool noExcept)
 {
 	size_t beg, end;
-	if(!utils::allign(query, ref, beg, end)){
+	if(!utils::align(query, ref, beg, end)){
 		if(noExcept) return "";
 		else throw std::out_of_range("query not in ref");
 	}
@@ -440,7 +440,7 @@ If \p n overruns \p ref, the maximum possible number of characters will be retur
 std::string utils::nAfter(const std::string& query, const std::string& ref, unsigned n, bool noExcept)
 {
 	size_t beg, end;
-	if(!utils::allign(query, ref, beg, end)){
+	if(!utils::align(query, ref, beg, end)){
 		if(noExcept) return "";
 		else throw std::out_of_range("query not in ref");
 	}

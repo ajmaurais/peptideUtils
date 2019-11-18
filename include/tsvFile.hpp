@@ -94,7 +94,7 @@ namespace utils{
 			_blank = blank;
 		}
 		
-		//modifers
+		//modifiers
 		bool read(std::string fname){
 			_fname = fname;
 			return read();

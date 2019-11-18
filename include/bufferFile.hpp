@@ -52,7 +52,7 @@ namespace utils{
 			delete [] _buffer;
 		}
 		
-		//modifers
+		//modifiers
 		BufferFile& operator = (BufferFile rhs);
 		bool read();
 		bool read(std::string);

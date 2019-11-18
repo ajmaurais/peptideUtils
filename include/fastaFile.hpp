@@ -148,7 +148,7 @@ namespace utils {
 
 	std::string getModifiedResidue(const std::string& seq, const std::string& peptideSeq, int modLoc);
 
-	bool allign(const std::string& query, const std::string& ref, size_t& beg, size_t& end);
+	bool align(const std::string& query, const std::string& ref, size_t& beg, size_t& end);
 	std::string nBefore(const std::string& query, const std::string& ref, unsigned n, bool noExcept = false);
 	std::string nAfter(const std::string& query, const std::string& ref, unsigned n, bool noExcept = false);
 }

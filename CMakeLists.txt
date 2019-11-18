@@ -20,7 +20,7 @@ file(GLOB SOURCES "src/*.cpp")
 
 set(SHARE_DIR "${PROJECT_SOURCE_DIR}/share" CACHE STRING "Path to directory with defaultResidueAtoms.txt")
 
-#TODO Make config.h.in file. Right now I don't want to make the master and cmake branches incompatable.
+#TODO Make config.h.in file. Right now I don't want to make the master and cmake branches incompatible.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSHARE_DIR=\\\"${SHARE_DIR}\\\"")
 
 SET(CMAKE_BUILD_TYPE Debug)
