@@ -370,6 +370,8 @@ std::string utils::getModifiedResidue(const std::string& seq, const std::string&
 	if(begin == std::string::npos)
 		return utils::PEP_SEQ_NOT_FOUND;
 	size_t modNum = begin + modLoc;
+	if(modLoc > peptideSeq.length())
+		throw std::runtime_error("modLoc is out of bounds!");
 	std::string ret = std::string(1, peptideSeq[modLoc]) + std::to_string(modNum + 1);
 	
 	return ret;
