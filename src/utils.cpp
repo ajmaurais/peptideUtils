@@ -567,7 +567,7 @@ bool utils::isInteger(const std::string & s)
  \param max maximum valid value
  \return int between min and max
  */
-int utils::getInt(int min, int max)
+int utils::readInt(int min, int max)
 {
 	std::string choice;
 	int ret = min - 1;
