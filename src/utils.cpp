@@ -596,6 +596,16 @@ int utils::readInt(int min, int max)
 	return ret;
 }//end of fxn
 
+//! Return true if a and b are within FLT_EPSILON
+bool utils::almostEqual(float a, float b){
+	return fabs(a - b) <= FLT_EPSILON;
+}
+
+//! Return true if a and b are within FLT_EPSILON
+bool utils::almostEqual(double a, double b){
+	return fabs(a - b) <= DBL_EPSILON;
+}
+
 /**
  Prints progress bar to std::out
  \pre \p progress <= 1

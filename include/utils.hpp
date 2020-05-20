@@ -48,6 +48,7 @@
 #include <type_traits>
 #include <set>
 #include <tuple>
+#include <cfloat>
 
 #ifndef PATH_MAX
 	#define PATH_MAX 1024
@@ -138,6 +139,8 @@ namespace utils{
 	void printProgress(float progress, int barWidth = PROGRESS_BAR_WIDTH);
 	std::string ascTime();
 	int readInt(int min, int max);
+	bool almostEqual(float a, float b);
+	bool almostEqual(double a, double b);
 	template <typename _Tp> int round(_Tp num){
 		return floor(num + 0.5);
 	}
