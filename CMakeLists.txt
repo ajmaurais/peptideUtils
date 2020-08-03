@@ -29,6 +29,7 @@ add_library(utils STATIC ${SOURCES})
 
 target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+install(TARGETS utils DESTINATION lib)
 #set_target_properties(utils PROPERTIES
 #    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 #)
