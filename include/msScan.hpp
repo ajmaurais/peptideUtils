@@ -41,6 +41,7 @@ namespace utils {
     class Scan;
     class PrecursorScan;
     template<typename MZ_T, typename INTENSITY_T> class Ion;
+    typedef Ion<ScanMZ, ScanIntensity> ScanIon;
 
     template<typename MZ_T, typename INTENSITY_T>
     class Ion {
@@ -159,17 +160,17 @@ namespace utils {
     };
 
     class Scan {
-
     private:
-        typedef std::vector<Ion<ScanMZ, ScanIntensity> > IonsType;
+        ScanMZ _minMZ;
+        ScanMZ _maxMZ;
+    protected:
+        typedef std::vector<ScanIon> IonsType;
         size_t _scanNum;
         PrecursorScan precursorScan;
 
         //dynamic metadata
         ScanIntensity _maxInt;
         ScanIntensity _minInt;
-        ScanMZ _minMZ;
-        ScanMZ _maxMZ;
         ScanMZ _mzRange;
 
         //! vector of Ion(s)
