@@ -1,5 +1,5 @@
 //
-// ms2.hpp
+// utils.hpp
 // ionFinder
 // -----------------------------------------------------------------------------
 // MIT License
@@ -25,28 +25,17 @@
 // -----------------------------------------------------------------------------
 //
 
-
 #include <ms2.hpp>
-
-void ms2::PrecursorScan::clear()
-{
-    _mz.clear();
-    _scan.clear();
-    _rt = 0;
-    _file.clear();
-    _charge = 0;
-    _intensity = 0;
-}
 
 /**
  \brief Get index for scan in Ms2File::_offsetIndex. <br>
  
- If \p scan is not found, ms2::SCAN_INDEX_NOT_FOUND is returned.
+ If \p scan is not found, utils::SCAN_INDEX_NOT_FOUND is returned.
  
  \param scan Scan number to search for.
  \return Index for \p scan.
  */
-size_t ms2::Ms2File::_getScanIndex(size_t scan) const{
+size_t utils::Ms2File::_getScanIndex(size_t scan) const{
 	auto it = _scanMap.find(scan);
 	if(it == _scanMap.end())
 		return SCAN_INDEX_NOT_FOUND;
@@ -56,7 +45,7 @@ size_t ms2::Ms2File::_getScanIndex(size_t scan) const{
 /**
  \brief Copy metadata values from rhs to *this
  */
-void ms2::Ms2File::copyMetadata(const Ms2File& rhs)
+void utils::Ms2File::copyMetadata(const Ms2File& rhs)
 {
     _parentMs2FileBase = rhs._parentMs2FileBase;
 	firstScan = rhs.firstScan;
@@ -71,7 +60,7 @@ void ms2::Ms2File::copyMetadata(const Ms2File& rhs)
 /**
  \brief Initialize metadata values to empty variables
  */
-void ms2::Ms2File::initMetadata()
+void utils::Ms2File::initMetadata()
 {
     _parentMs2FileBase = "";
 	firstScan = 0;
@@ -81,13 +70,13 @@ void ms2::Ms2File::initMetadata()
 	_scanCount = 0;
 }
 
-bool ms2::Ms2File::read(std::string fname)
+bool utils::Ms2File::read(std::string fname)
 {
 	_fname = fname;
 	return Ms2File::read();
 }
 
-bool ms2::Ms2File::read()
+bool utils::Ms2File::read()
 {
 	calcParentMs2(_fname);
 	if(!BufferFile::read(_fname)) return false;
@@ -95,7 +84,7 @@ bool ms2::Ms2File::read()
 	return getMetaData();
 }
 
-void ms2::Ms2File::_buildIndex()
+void utils::Ms2File::_buildIndex()
 {
 	std::vector<size_t> scanIndecies;
 	utils::getIdxOfSubstr(_buffer, "S\t", scanIndecies);
@@ -122,7 +111,7 @@ void ms2::Ms2File::_buildIndex()
 	}
 }
 
-bool ms2::Ms2File::getMetaData()
+bool utils::Ms2File::getMetaData()
 {
 	//find header in buffer and put it into ss
 	std::stringstream ss;
@@ -164,31 +153,31 @@ bool ms2::Ms2File::getMetaData()
 /**
  \brief Overloaded function with \p queryScan as string
  */
-bool ms2::Ms2File::getScan(std::string queryScan, Scan& scan) const{
+bool utils::Ms2File::getScan(std::string queryScan, Scan& scan) const{
 	return getScan(std::stoi(queryScan), scan);
 }
 
 /**
- \brief Get parsed ms2::Spectrum from ms2 file.
+ \brief Get parsed utils::Spectrum from utils file.
  
  \param queryScan scan number to search for
- \param scan empty ms2::Spectrum to load scan into
+ \param scan empty utils::Spectrum to load scan into
  \return false if \p queryScan not found, true if successful
+ \throws utils::FileIOError if the format of the .ms2 file is invalid.
  */
-bool ms2::Ms2File::getScan(size_t queryScan, Scan& scan) const
+bool utils::Ms2File::getScan(size_t queryScan, Scan& scan) const
 {
 	scan.clear();
-	scan._parentMs2 = _parentMs2FileBase;
-	if(!((queryScan >= firstScan) && (queryScan <= lastScan)))
-	{
+	scan.getPrecursor().setSample(_parentMs2FileBase);
+	scan.getPrecursor().setFile(_fname);
+	if(!((queryScan >= firstScan) && (queryScan <= lastScan))){
 		std::cerr << "queryScan not in file scan range!" << NEW_LINE;
 		return false;
 	}
 	
 	size_t scanOffset, endOfScan;
 	size_t scanIndex = _getScanIndex(queryScan);
-	if(scanIndex == SCAN_INDEX_NOT_FOUND)
-	{
+	if(scanIndex == SCAN_INDEX_NOT_FOUND){
 		std::cerr << "queryScan: " << queryScan << ", could not be found in: " << _fname << NEW_LINE;
 		return false;
 	}
@@ -212,13 +201,14 @@ bool ms2::Ms2File::getScan(size_t queryScan, Scan& scan) const
 		
 		if(elems[0] == "S")
 		{
-			assert(elems.size() == 4);
-			scan._scanNum = std::stoi(elems[2]);
+			if(elems.size() != 4)
+			    throw utils::FileIOError();
+			scan.setScanNum(std::stoi(elems[2]));
 			scan.getPrecursor().setMZ(elems[3]);
 		}
 		else if(elems[0] == "I")
 		{
-			assert(elems.size() == 3);
+			if(elems.size() != 3) throw utils::FileIOError();
 			if(elems[1] == "RetTime")
 				scan.getPrecursor().setRT(std::stod(elems[2]));
 			else if(elems[1] == "PrecursorInt")
@@ -230,7 +220,7 @@ bool ms2::Ms2File::getScan(size_t queryScan, Scan& scan) const
 		}
 		else if(elems[0] == "Z"){
 			if(!z_found){
-				assert(elems.size() == 3);
+				if(elems.size() != 3) throw utils::FileIOError();
 				scan.getPrecursor().setCharge(std::stoi(elems[1]));
 				z_found = true;
 			}
@@ -243,32 +233,13 @@ bool ms2::Ms2File::getScan(size_t queryScan, Scan& scan) const
 				if(line.empty()) continue;
 				
 				utils::split(line, ' ', elems);
-				assert(elems.size() >= 2);
-				ms2::DataPoint tempIon (std::stod(elems[0]), std::stod(elems[1]));
-				
-				if(numIons == 0)
-				{
-					scan.minMZ = tempIon.getMZ();
-					scan.minInt = tempIon.getIntensity();
-				}
-				
-				scan.ions.push_back(tempIon);
+				if(elems.size() < 2) throw utils::FileIOError();
+				scan.getIons().emplace_back(std::stod(elems[0]), std::stod(elems[1]));
 				numIons++;
-				
-				//get min and max vals
-				if(tempIon.getIntensity() > scan.maxInt)
-					scan.maxInt = tempIon.getIntensity();
-				if(tempIon.getIntensity() < scan.minInt)
-					scan.minInt = tempIon.getIntensity();
-				if(tempIon.getMZ() > scan.maxMZ)
-					scan.maxMZ = tempIon.getMZ();
-				if(tempIon.getMZ() < scan.minMZ)
-					scan.minMZ = tempIon.getMZ();
 			}//end of while
 		}//end of else
 	}//end of while
-	
-	scan.mzRange = scan.maxMZ - scan.minMZ;
+	scan.updateRanges();
 	
 	return true;
 }

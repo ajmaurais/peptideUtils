@@ -1,5 +1,5 @@
 //
-// ms2.hpp
+// utils.hpp
 // ionFinder
 // -----------------------------------------------------------------------------
 // MIT License
@@ -33,138 +33,25 @@
 #include <stdexcept>
 #include <cstring>
 #include <cassert>
-// #include <list>
 #include <vector>
 #include <string>
 #include <map>
 
 #include <utils.hpp>
 #include <bufferFile.hpp>
+#include <msScan.hpp>
 
-namespace ms2 {
+namespace utils {
 	
 	int const MD_NUM = 4;
 	size_t const SCAN_INDEX_NOT_FOUND = std::string::npos;
 
-	class Scan;
-	class Ms2File;
-    class PrecursorScan;
-    template <typename MZ_T, typename INTENSITY_T> class Ion;
-
-    template <typename MZ_T, typename INTENSITY_T>
-    class Ion {
-    protected:
-        MZ_T _mz;
-        INTENSITY_T _intensity;
-    public:
-        Ion(){_mz = 0; _intensity = 0;}
-        Ion(MZ_T mz, INTENSITY_T intensity){_mz = mz; _intensity = intensity;}
-
-        Ion(const Ion<MZ_T, INTENSITY_T>& rhs) {
-            _mz = rhs._mz;
-            _intensity = rhs._intensity;
-        }
-        Ion<MZ_T, INTENSITY_T>& operator = (const Ion<MZ_T, INTENSITY_T>& rhs) {
-            _mz = rhs._mz;
-            _intensity = rhs._intensity;
-            return *this;
-        }
-
-        void setIntensity(INTENSITY_T intensity) {
-            _intensity = intensity;
-        }
-        void setMZ(MZ_T mz) {
-            _mz = mz;
-        }
-
-        MZ_T getMZ() const {
-            return _mz;
-        }
-        INTENSITY_T getIntensity() const {
-            return _intensity;
-        }
-    };
-
-    class PrecursorScan: protected Ion<std::string, double>{
-    private:
-        std::string _scan;
-        double _rt;
-        std::string _file;
-        int _charge;
-
-    public:
-        PrecursorScan(): Ion("", 0){
-            _scan = "";
-            _rt = 0;
-            _file = "";
-            _charge = 0;
-        }
-        PrecursorScan(const PrecursorScan& rhs): Ion(rhs){
-            _scan = rhs._scan;
-            _rt = rhs._rt;
-            _file = rhs._file;
-            _charge = rhs._charge;
-        }
-
-        PrecursorScan& operator = (const PrecursorScan& rhs){
-            Ion::operator=(rhs);
-            _scan = rhs._scan;
-            _rt = rhs._rt;
-            _file = rhs._file;
-            _charge = rhs._charge;
-            return *this;
-        }
-
-        //modifiers
-        void setScan(const std::string &scan){
-            _scan = scan;
-        }
-        void setRT(double rt){
-            _rt = rt;
-        }
-        void setFile(const std::string &file){
-            _file = file;
-        }
-        void setCharge(int charge){
-            _charge = charge;
-        }
-        void clear();
-
-        //properties
-        const std::string &getScan() const{
-            return _scan;
-        }
-        double getRT() const{
-            return _rt;
-        }
-        const std::string &getFile() const{
-            return _file;
-        }
-        int getCharge() const{
-            return _charge;
-        }
-    };
-
-    class Scan {
-
-	private:
-	    std::string _parentFileBase;
-	    size_t _scanNum;
-	    PrecursorScan precursorScan;
-	public:
-
-	    void clear();
-
-	    PrecursorScan& getPrecursor();
-        const PrecursorScan& getPrecursor() const;
-
-    };
-	
+    class Ms2File;
 	class Ms2File : public utils::BufferFile{
 	private:
 		typedef std::pair<size_t, size_t> IntPair;
 		typedef std::vector<IntPair> OffsetIndexType;
-		
+
 		//!Stores pairs of offset values for scans
 		OffsetIndexType _offsetIndex;
 		//!Maps scan numbers to indecies in _offsetIndex
