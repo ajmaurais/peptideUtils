@@ -85,6 +85,27 @@ namespace utils {
         INTENSITY_T getIntensity() const {
             return _intensity;
         }
+
+        //for utils::insertSorted()
+        inline bool insertCompare(const Ion& comp) const{
+            return _intensity > comp._intensity;
+        }
+
+        struct MZComparison {
+            bool operator()(const Ion& lhs, const Ion& rhs) const{
+                return lhs.getMZ() < rhs.getMZ();
+            }
+
+            bool operator()(const Ion& lhs, double rhs) const{
+                return lhs.getMZ() < rhs;
+            }
+        };
+
+        struct IntComparison {
+            bool operator()(Ion *lhs, Ion *rhs) const{
+                return lhs->insertCompare(*rhs);
+            }
+        };
     };
 
     class PrecursorScan : public Ion<std::string, ScanIntensity> {
@@ -148,6 +169,9 @@ namespace utils {
         const std::string &getScan() const {
             return _scan;
         }
+        std::string getSample() const {
+            return _sample;
+        }
         double getRT() const {
             return _rt;
         }
@@ -188,6 +212,8 @@ namespace utils {
             _ions = IonsType();
             _scanNum = std::string::npos;
         }
+        Scan(const Scan&);
+        Scan& operator = (const Scan&);
 
         void clear();
 
@@ -200,8 +226,32 @@ namespace utils {
         IonsType& getIons() {
             return _ions;
         }
+        utils::ScanIon& operator [] (size_t i) {
+            return _ions[i];
+        }
+        const utils::ScanIon& at(size_t i) const {
+            return _ions.at(i);
+        }
+        utils::ScanIon& at(size_t i){
+            return _ions.at(i);
+         }
         const IonsType& getIons() const {
             return _ions;
+        }
+        IonsType::iterator begin() {
+            return _ions.begin();
+        }
+        IonsType::iterator end() {
+            return _ions.end();
+        }
+        IonsType::const_iterator begin() const {
+            return _ions.begin();
+        }
+        IonsType::const_iterator end() const{
+            return _ions.end();
+        }
+        size_t size() {
+            return _ions.size();
         }
         ScanIntensity getMaxInt() const {
             return _maxInt;
@@ -217,6 +267,9 @@ namespace utils {
         }
         ScanMZ getMzRange() const{
             return _mzRange;
+        }
+        size_t getScanNum() const {
+            return _scanNum;
         }
 
         void setScanNum(size_t scanNum){

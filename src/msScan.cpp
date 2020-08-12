@@ -27,6 +27,31 @@
 
 #include <msScan.hpp>
 
+utils::Scan& utils::Scan::operator=(const utils::Scan& rhs)\
+{
+    _maxInt = rhs._maxInt;
+    _minInt = rhs._minInt;
+    _minMZ = rhs._minMZ;
+    _maxMZ = rhs._maxMZ;
+    _mzRange = rhs._mzRange;
+    precursorScan = rhs.precursorScan;
+    _ions = rhs._ions;
+    _scanNum = rhs._scanNum;
+    return *this;
+}
+
+utils::Scan::Scan(const utils::Scan& rhs)
+{
+    _maxInt = rhs._maxInt;
+    _minInt = rhs._minInt;
+    _minMZ = rhs._minMZ;
+    _maxMZ = rhs._maxMZ;
+    _mzRange = rhs._mzRange;
+    precursorScan = rhs.precursorScan;
+    _ions = rhs._ions;
+    _scanNum = rhs._scanNum;
+}
+
 void utils::PrecursorScan::clear()
 {
     _mz.clear();
