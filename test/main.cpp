@@ -1,70 +1,101 @@
 
 #include <iostream>
 #include <vector>
+#include <stdexcept>
 
-#include <molecularFormula.hpp>
+#include <fastaFile.hpp>
 
 namespace Rcpp{
     typedef std::vector<double> NumericVector;
     typedef std::vector<std::string> StringVector;
+    typedef std::vector<const char*> CharacterVector;
+    typedef std::vector<int> IntegerVector;
 }
 
-Rcpp::NumericVector calcMass(const Rcpp::StringVector& sequences,
-                             bool monoMass,
-                             std::string residueAtoms)
+void readFasta(std::string fastaPath = "", long n_entries = 0)
 {
-    //get data file paths
-    //std::string residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
-    std::string residueAtomsPath = residueAtoms;
-    char avg_mono = monoMass ? 'm' : 'a';
+    //std::string _fastaPath = fastaPath.empty() ?
+    //                         _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
 
-    //init residues
-    utils::Residues residues(residueAtomsPath);
-    if(!residues.initialize(false)) throw std::runtime_error("Error reading required files for calcMass!");
+    std::string _fastaPath = fastaPath;
 
-    size_t len = sequences.size();
-    Rcpp::NumericVector ret(len);
-    for(size_t i = 0; i < len; i++){
-        ret[i] = residues.calcMass(std::string(sequences[i]), avg_mono);
+    //init FastaFile
+    utils::FastaFile fasta(true, _fastaPath);
+    if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
+
+    Rcpp::CharacterVector ids, seqs;
+
+    size_t len = fasta.getSequenceCount();
+    if(n_entries > len)
+        throw std::runtime_error("n_entries more than the number of entries in file!");
+    len = n_entries == 0 ? len : n_entries;
+
+    for(size_t i = 0; i < len; i++)
+    {
+        ids.push_back(fasta.getIndexID(i).c_str());
+        seqs.push_back(fasta.at(i).c_str());
     }
 
-    return ret;
+    std::cout << "Read " << seqs.size() << " sequences!\n";
+
+    // return Rcpp::DataFrame::create(Rcpp::Named("id") = ids,
+    //                                Rcpp::Named("sequence") = seqs,
+    //                                Rcpp::Named("stringsAsFactors") = false);
 }
 
+void transpose_sequence(const Rcpp::StringVector& peptide_sequences,
+                        const Rcpp::NumericVector& quantification,
+                        const std::string& protein_seq)
+{
+    if(peptide_sequences.size() != quantification.size())
+        throw std::runtime_error("peptide_sequences and quantification must be the same length!");
+
+    std::vector<char> residues;
+    Rcpp::IntegerVector numbers;
+    Rcpp::NumericVector quantifications;
+
+    size_t n_seq = peptide_sequences.size();
+    size_t begin, end;
+    for(size_t i = 0; i < n_seq; i++)
+    {
+        if(!utils::align(peptide_sequences[i], protein_seq, begin, end))
+            throw std::runtime_error("Peptide sequence '" + peptide_sequences[i] + "' does not exist in protein_seq!");
+
+        size_t pep_len = peptide_sequences[i].size();
+        for(size_t pep_begin = 0; pep_begin < pep_len; pep_begin++) {
+            residues.push_back(peptide_sequences[i][pep_begin]);
+            numbers.push_back(pep_begin + begin);
+            quantifications.push_back(quantification[i]);
+        }
+    }
+
+    // return Rcpp::DataFrame::create(Rcpp::Named("residue") = residues,
+    //                                Rcpp::Named("number") = numbers,
+    //                                Rcpp::Named("quant") = quantifications);
+}
 
 int main() {
 
-    Rcpp::StringVector sequences;
-    const char* seqs[] = {"SSGIHYGVITCEGCKGFFR*", "GFFR*R*SQQCNVAYSCTR", "R*SQQCNVAYSCTR*",
-                           "QQNCPIDR*TSR", "QQNCPIDR*TSR*NR", "CLALGMSR*DAVK", "KQR*DSLHAEVQK",
-                           "KQR*DSLHAEVQKQLQQQQQQEQVAK", "QR*DSLHAEVQK", "QR*DSLHAEVQKQLQQQQQQEQVAK",
-                           "TPPAGSR*GADTLTYTLGLSDGQLPLGASPDLPEASACPPGLLR*", "TEVQGASCHLEYSPER*",
-                           "TEVQGASCHLEYSPER*GK", "TEVQGASCHLEYSPER*GKAEGR", "TEVQGASCHLEYSPER*GKAEGR*DSIYSTDGQLTLGR",
-                           "TEVQGASCHLEYSPER*GKAEGR*DSIYSTDGQLTLGR*", "GKAEGR*DSIYSTDGQLTLGR",
-                           "GKAEGR*DSIYSTDGQLTLGR", "GKAEGR*DSIYSTDGQLTLGR*", "AEGR*DSIYSTDGQLTLGR",
-                           "AEGR*DSIYSTDGQLTLGR", "AEGR*DSIYSTDGQLTLGR*", "AEGR*DSIYSTDGQLTLGR*CGLR",
-                           "DSIYSTDGQLTLGR*", "DSIYSTDGQLTLGR*CGLR", "FEETR*HPELGEPEQGPDSH",
-                           "SFR*ETCQLRLEDLLR", "LEDLLR*QR", "LEDLLR*QR*TNLFSR", "LEDLLR*QR*TNLFSR",
-                           "LEDLLR*QR*TNLFSR*EEVTSYQR", "LEDLLR*QR*TNLFSR*EEVTSYQR", "LEDLLR*QR*TNLFSR*EEVTSYQR*",
-                           "QRTNLFSR*EEVTSYQR", "QR*TNLFSR*EEVTSYQR", "QR*TNLFSR*EEVTSYQR",
-                           "QR*TNLFSR*EEVTSYQR*", "QR*TNLFSR*EEVTSYQR*K", "QR*TNLFSR*EEVTSYQR*K",
-                           "TNLFSREEVTSYQR*", "TNLFSR*EEVTSYQR", "TNLFSR*EEVTSYQR", "TNLFSR*EEVTSYQR*",
-                           "TNLFSREEVTSYQR*K", "TNLFSR*EEVTSYQR*K", "TNLFSR*EEVTSYQR*K",
-                           "KSMWEMWER*", "SMWEMWER*", "YGGVELFR*", "R*RVEHLQYNLELAFHHHLCK",
-                           "R*R*VEHLQYNLELAFHHHLCK", "R*R*VEHLQYNLELAFHHHLCK", "R*RVEHLQYNLELAFHHHLCKTHR",
-                           "RRVEHLQYNLELAFHHHLCKTHR*", "R*VEHLQYNLELAFHHHLCK", "R*VEHLQYNLELAFHHHLCKTHR*",
-                           "R*VEHLQYNLELAFHHHLCKTHR*QGLLAK", "VEHLQYNLELAFHHHLCKTHR*", "LPPKGKLR*SLCSQHVEKLQIFQHLHPIVVQAAFPPLYK",
-                           "LPPKGKLR*SLCSQHVEKLQIFQHLHPIVVQAAFPPLYK", "LR*SLCSQHVEKLQIFQHLHPIVVQAAFPPLYK",
-                           "LR*SLCSQHVEKLQIFQHLHPIVVQAAFPPLYK", "KASWTWGPEGQGAILLVNCDR*",
-                           "VYSKQDLQDMSQMILR*", "ILIGSSFPLSGGR*", "FLGEVHCGTNVR*R", "WELLQQVNTSTR*",
-                           "LAILGYR*R*", "LAILGYR*R*"};
+    utils::FastaFile fastaFile;
+    std::string fname = "/Users/Aaron/Documents/School_Work/analysis/chatterjee_lab_PW_incorporation/percent_W_Y_in_proteome/data/human_proteome.fasta";
+    fastaFile.read(fname);
+    // std::string pfkl_seq = fastaFile.getSequence("P17858");
 
-    for(auto s:seqs)
-        sequences.push_back(s);
+    readFasta(fname);
 
-    Rcpp::NumericVector formulas = calcMass(sequences, true, "/Users/Aaron/local/envFinder/testFiles/cit_residue_atoms.txt");
-    for(auto m: formulas)
-        std::cout << m << std::endl;
+    // const std::string seqs [] = {"AAAYNLVQHGITNLCVIGGDGSLTGANIFR",
+    //     "AAAYNLVQHGITNLCVIGGDGSLTGANIFR", "AAAYNLVQHGITNLCVIGGDGSLTGANIFR",
+    //     "AIGVLTSGGDAQGMNAAVR", "AIGVLTSGGDAQGMNAAVR", "AIGVLTSGGDAQGMNAAVR",
+    //     "AIGVLTSGGDAQGMNAAVR", "AMDDKRFDEATQLR", "AMDDKRFDEATQLR", "AMDDKRFDEATQLR"};
+
+    // const double ratios [] = {0.05, 0.05, 0.05, 0.997914597815293, 1.96910994764398,
+    //     0.997914597815293, 1.9673647469459, 1.57885220125786,
+    //     0.402500267122556, 1.61120882635114};
+
+    // std::vector <std::string> seqs_v(seqs, seqs + 10);
+    // std::vector <double> ratios_v(ratios, ratios + 10);
+
+    // transpose_sequence(seqs_v, ratios_v, pfkl_seq);
 
     return 0;
 }
