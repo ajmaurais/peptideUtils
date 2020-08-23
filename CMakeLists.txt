@@ -64,7 +64,8 @@ endif()
 option(BUILD_TEST "Build test executable" OFF)
 if(BUILD_TEST MATCHES ON)
 
-    add_executable(test test/main.cpp ${SOURCES})
+    add_executable(test test/main.cpp)
     target_include_directories(test PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    target_link_libraries(test utils)
 endif()
 

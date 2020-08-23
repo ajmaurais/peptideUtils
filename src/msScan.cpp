@@ -84,31 +84,28 @@ void utils::Scan::setMaxMZ(ScanMZ maxMZ) {
 //! Updates minimum and maximum mz and intensity.
 void utils::Scan::updateRanges()
 {
-    ScanMZ minMZ = 0;
-    ScanMZ maxMZ = 0;
-    ScanIntensity minInt = 0;
-    ScanIntensity maxInt = 0;
+    if(!_ions.empty()) {
+        _minMZ = _ions.begin()->getMZ();
+        _minInt = _ions.begin()->getIntensity();
 
-    for(auto it = _ions.begin(); it != _ions.end(); ++it)
-    {
-        if(it == _ions.begin()){
-            minMZ = it->getMZ();
-            minInt = it->getIntensity();
+        for (auto it = _ions.begin(); it != _ions.end(); ++it) {
+            if (it->getMZ() < _minMZ)
+                _minMZ = it->getMZ();
+            if (it->getMZ() > _maxMZ)
+                _maxMZ = it->getMZ();
+            if (it->getIntensity() < _minInt)
+                _minInt = it->getIntensity();
+            if (it->getIntensity() > _maxInt)
+                _maxInt = it->getIntensity();
         }
-
-        if(it->getMZ() < minMZ)
-            minMZ = it->getMZ();
-        if(it->getMZ() > maxMZ)
-            maxMZ = it->getMZ();
-        if(it->getIntensity() < minInt)
-            minInt = it->getIntensity();
-        if(it->getIntensity() > maxInt)
-            maxInt = it->getIntensity();
+        _mzRange = (_maxMZ - _minMZ);
     }
+}
 
-    _maxInt = maxInt;
-    _minInt = minInt;
-    _minMZ = minMZ;
-    _maxMZ = maxMZ;
-    _mzRange = (maxMZ - minMZ);
+void utils::Scan::add(const ScanIon& ion) {
+    _ions.push_back(ion);
+}
+
+void utils::Scan::add(ScanMZ mz, ScanIntensity intensity) {
+    _ions.emplace_back(mz, intensity);
 }

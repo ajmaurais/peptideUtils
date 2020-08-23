@@ -281,6 +281,8 @@ namespace utils {
         void setMinInt(ScanIntensity minInt){
             _minInt = minInt;
         }
+        void add(const ScanIon&);
+        void add(ScanMZ, ScanIntensity);
         void setMinMZ(ScanMZ);
         void setMaxMZ(ScanMZ);
         void updateRanges();

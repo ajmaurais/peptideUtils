@@ -235,7 +235,7 @@ std::string utils::removeExtension(const std::string& filename)
 std::string utils::getExtension(const std::string& filename)
 {
 	typename std::string::size_type const p(filename.find_last_of('.'));
-	return p > 0 && p != std::string::npos ? filename.substr(p) : filename;
+	return p > 0 && p != std::string::npos ? filename.substr(p + 1) : filename;
 }
 
 /**
@@ -636,19 +636,19 @@ void utils::printProgress(float progress, std::ostream& out, int barWidth)
 }
 
 /**
- \brief Find indecies of all instances of substrings in string.
+ \brief Find indices of all instances of substrings in string.
  
  \param searchStr Buffer to search.
  \param findStr String to find.
- \param indecies set contain all indecies
+ \param indices populated with all indices.
  */
 void utils::getIdxOfSubstr(char* searchStr, const char* findStr,
-						   std::vector<size_t>& indecies)
+						   std::vector<size_t>& indices)
 {
 	char* tmp = searchStr;
 	size_t incrementAmt = strlen(findStr);
 	while((tmp = strstr(tmp, findStr)) != nullptr){
-		indecies.push_back((size_t)(tmp - searchStr));
+		indices.push_back((size_t)(tmp - searchStr));
 		tmp += incrementAmt;
 	}
 }
