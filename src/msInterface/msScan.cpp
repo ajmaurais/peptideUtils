@@ -25,7 +25,7 @@
 // -----------------------------------------------------------------------------
 //
 
-#include <msScan.hpp>
+#include <msInterface/msScan.hpp>
 
 utils::Scan& utils::Scan::operator=(const utils::Scan& rhs)\
 {

@@ -39,7 +39,7 @@
 
 #include <utils.hpp>
 #include <bufferFile.hpp>
-#include <msScan.hpp>
+#include <msInterface/msScan.hpp>
 
 namespace utils {
 	

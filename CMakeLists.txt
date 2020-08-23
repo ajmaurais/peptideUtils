@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 3.9)
-project(utils VERSION 1.3.0)
+project(utils VERSION 2.0.0)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -16,8 +16,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
 endif()
 
-file(GLOB SOURCES "src/*.cpp")
-
 set(SHARE_DIR "${PROJECT_SOURCE_DIR}/share" CACHE STRING "Path to directory with defaultResidueAtoms.txt")
 
 #TODO Make config.h.in file. Right now I don't want to make the master and cmake branches incompatible.
@@ -25,7 +23,18 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSHARE_DIR=\\\"${SHARE_DIR}\\\"")
 
 SET(CMAKE_BUILD_TYPE Debug)
 
-add_library(utils STATIC ${SOURCES})
+add_library(utils STATIC
+        src/utils.cpp
+        src/tsvFile.cpp
+        src/msInterface/ms2File.cpp
+        src/msInterface/mzMLFile.cpp
+        src/msInterface/msScan.cpp
+        src/msInterface/mzXMLFile.cpp
+        src/msInterface/msFileBase.cpp
+        src/fastaFile.cpp
+        src/bufferFile.cpp
+        src/molecularFormula.cpp
+        src/peptideUtils.cpp)
 
 target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

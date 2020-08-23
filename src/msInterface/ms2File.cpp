@@ -25,7 +25,7 @@
 // -----------------------------------------------------------------------------
 //
 
-#include <ms2.hpp>
+#include <msInterface/ms2File.hpp>
 
 /**
  \brief Get index for scan in Ms2File::_offsetIndex. <br>

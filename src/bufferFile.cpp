@@ -101,3 +101,8 @@ At some point maybe I will implement a more rigorous test.
 bool utils::BufferFile::buffer_empty() const{
 	return _size == 0;
 }
+
+//! Test if file exists.
+bool utils::BufferFile::exists() const {
+    return utils::fileExists(_fname);
+}
