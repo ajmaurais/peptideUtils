@@ -1,5 +1,5 @@
 //
-// utils.hpp
+// ms2File.cpp
 // utils
 // -----------------------------------------------------------------------------
 // MIT License
@@ -26,21 +26,6 @@
 //
 
 #include <msInterface/ms2File.hpp>
-
-/**
- \brief Get index for scan in Ms2File::_offsetIndex. <br>
- 
- If \p scan is not found, utils::SCAN_INDEX_NOT_FOUND is returned.
- 
- \param scan Scan number to search for.
- \return Index for \p scan.
- */
-size_t utils::Ms2File::_getScanIndex(size_t scan) const{
-	auto it = _scanMap.find(scan);
-	if(it == _scanMap.end())
-		return SCAN_INDEX_NOT_FOUND;
-	return it->second;
-}
 
 void utils::Ms2File::_buildIndex()
 {
@@ -103,13 +88,6 @@ bool utils::Ms2File::getMetaData()
 }
 
 /**
- \brief Overloaded function with \p queryScan as string
- */
-bool utils::Ms2File::getScan(std::string queryScan, Scan& scan) const{
-	return getScan(std::stoi(queryScan), scan);
-}
-
-/**
  \brief Get parsed utils::Spectrum from utils file.
  
  \param queryScan scan number to search for
@@ -122,6 +100,7 @@ bool utils::Ms2File::getScan(size_t queryScan, Scan& scan) const
 	scan.clear();
 	scan.getPrecursor().setSample(_parentFileBase);
 	scan.getPrecursor().setFile(_fname);
+	scan.setLevel(2);
 	if(!((queryScan >= firstScan) && (queryScan <= lastScan))){
 		std::cerr << "queryScan not in file scan range!" << NEW_LINE;
 		return false;

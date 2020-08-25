@@ -37,6 +37,8 @@ namespace utils {
 
     class MsInterface;
 
+    size_t const SCAN_INDEX_NOT_FOUND = std::string::npos;
+
     class MsInterface: public utils::BufferFile{
     protected:
         typedef std::pair<size_t, size_t> IntPair;
@@ -57,11 +59,12 @@ namespace utils {
         //metadata
         // Maybe later this will expand. For now this is all I need.
         std::string _parentFileBase;
-        size_t firstScan{}, lastScan{};
+        size_t firstScan, lastScan;
 
         virtual void _buildIndex() = 0;
         void copyMetadata(const MsInterface& rhs);
         void initMetadata();
+        size_t _getScanIndex(size_t) const;
 
     public:
         //! Default constructor
@@ -77,6 +80,7 @@ namespace utils {
         virtual bool read(std::string) override;
         virtual bool read();
         virtual bool getScan(size_t, utils::Scan&) const = 0;
+        bool getScan(std::string, utils::Scan&) const;
 
         static FileType getFileType(std::string fname);
     };

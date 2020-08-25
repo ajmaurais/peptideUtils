@@ -88,4 +88,25 @@ utils::MsInterface::FileType utils::MsInterface::getFileType(std::string fname)
     else return utils::MsInterface::FileType::UNKNOWN;
 }
 
+/**
+ \brief Get index for scan in Ms2File::_offsetIndex. <br>
+
+ If \p scan is not found, utils::SCAN_INDEX_NOT_FOUND is returned.
+
+ \param scan Scan number to search for.
+ \return Index for \p scan.
+ */
+size_t utils::MsInterface::_getScanIndex(size_t scan) const{
+    auto it = _scanMap.find(scan);
+    if(it == _scanMap.end())
+        return SCAN_INDEX_NOT_FOUND;
+    return it->second;
+}
+
+/**
+ \brief Overloaded function with \p queryScan as string
+ */
+bool utils::MsInterface::getScan(std::string queryScan, Scan& scan) const{
+    return getScan(std::stoi(queryScan), scan);
+}
 

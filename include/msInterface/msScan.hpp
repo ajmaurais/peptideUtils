@@ -116,6 +116,7 @@ namespace utils {
         std::string _file;
         //! sample name (usually this should just be the file basename with no extension)
         std::string _sample;
+        std::string _activationMethod;
         int _charge;
 
     public:
@@ -125,6 +126,7 @@ namespace utils {
             _file = "";
             _sample = "";
             _charge = 0;
+            _activationMethod = "";
         }
 
         PrecursorScan(const PrecursorScan &rhs) : Ion(rhs) {
@@ -133,6 +135,7 @@ namespace utils {
             _file = rhs._file;
             _sample = rhs._sample;
             _charge = rhs._charge;
+            _activationMethod = rhs._activationMethod;
         }
 
         PrecursorScan &operator=(const PrecursorScan &rhs) {
@@ -142,6 +145,7 @@ namespace utils {
             _file = rhs._file;
             _sample = rhs._sample;
             _charge = rhs._charge;
+            _activationMethod = rhs._activationMethod;
             return *this;
         }
 
@@ -158,7 +162,9 @@ namespace utils {
         void setSample(const std::string& sample) {
             _sample = sample;
         }
-
+        void setActivationMethod(const std::string& am) {
+            _activationMethod = am;
+        }
         void setCharge(int charge) {
             _charge = charge;
         }
@@ -181,6 +187,9 @@ namespace utils {
         int getCharge() const {
             return _charge;
         }
+        std::string getActivationMethod() const {
+            return _activationMethod;
+        }
     };
 
     class Scan {
@@ -196,6 +205,7 @@ namespace utils {
         ScanIntensity _maxInt;
         ScanIntensity _minInt;
         ScanMZ _mzRange;
+        int _level;
 
         //! vector of Ion(s)
         IonsType _ions;
@@ -208,6 +218,7 @@ namespace utils {
             _minMZ = 0;
             _maxMZ = 0;
             _mzRange = 0;
+            _level = 0;
             precursorScan = PrecursorScan();
             _ions = IonsType();
             _scanNum = std::string::npos;
@@ -271,6 +282,9 @@ namespace utils {
         size_t getScanNum() const {
             return _scanNum;
         }
+        int getLevel() const {
+            return _level;
+        }
 
         void setScanNum(size_t scanNum){
             _scanNum = scanNum;
@@ -280,6 +294,9 @@ namespace utils {
         }
         void setMinInt(ScanIntensity minInt){
             _minInt = minInt;
+        }
+        void setLevel(int l) {
+            _level = l;
         }
         void add(const ScanIon&);
         void add(ScanMZ, ScanIntensity);

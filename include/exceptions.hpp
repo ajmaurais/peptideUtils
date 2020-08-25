@@ -21,6 +21,7 @@ namespace utils {
 
     class NotImplemented : public BaseException {};
     class FileIOError : public BaseException {};
+    class InvalidXmlFile : public BaseException {};
 
     //class IOException
 }

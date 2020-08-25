@@ -19,24 +19,29 @@ endif()
 set(SHARE_DIR "${PROJECT_SOURCE_DIR}/share" CACHE STRING "Path to directory with defaultResidueAtoms.txt")
 
 #TODO Make config.h.in file. Right now I don't want to make the master and cmake branches incompatible.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSHARE_DIR=\\\"${SHARE_DIR}\\\"")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSHARE_DIR=\\\"${SHARE_DIR}\\\"")
+add_compile_definitions(SHARE_DIR=\"${SHARE_DIR}\")
 
-SET(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Debug)
 
 add_library(utils STATIC
         src/utils.cpp
         src/tsvFile.cpp
-        src/msInterface/ms2File.cpp
-        src/msInterface/mzMLFile.cpp
+        src/msInterface/internal/base64_utils.cpp
+        src/msInterface/internal/xml_utils.cpp
         src/msInterface/msScan.cpp
-        src/msInterface/mzXMLFile.cpp
         src/msInterface/msInterface.cpp
+        src/msInterface/ms2File.cpp
+        src/msInterface/msXMLBase.cpp
+        src/msInterface/mzMLFile.cpp
+        src/msInterface/mzXMLFile.cpp
         src/fastaFile.cpp
         src/bufferFile.cpp
         src/molecularFormula.cpp
         src/peptideUtils.cpp)
 
 target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(EXCLUDE_FROM_DOXYGEN ${CMAKE_CURRENT_SOURCE_DIR}/include/thirdparty)
 
 install(TARGETS utils DESTINATION lib)
 #set_target_properties(utils PROPERTIES

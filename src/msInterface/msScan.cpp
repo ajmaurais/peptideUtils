@@ -27,8 +27,7 @@
 
 #include <msInterface/msScan.hpp>
 
-utils::Scan& utils::Scan::operator=(const utils::Scan& rhs)\
-{
+utils::Scan& utils::Scan::operator=(const utils::Scan& rhs) {
     _maxInt = rhs._maxInt;
     _minInt = rhs._minInt;
     _minMZ = rhs._minMZ;
@@ -40,8 +39,7 @@ utils::Scan& utils::Scan::operator=(const utils::Scan& rhs)\
     return *this;
 }
 
-utils::Scan::Scan(const utils::Scan& rhs)
-{
+utils::Scan::Scan(const utils::Scan& rhs) {
     _maxInt = rhs._maxInt;
     _minInt = rhs._minInt;
     _minMZ = rhs._minMZ;
@@ -52,8 +50,7 @@ utils::Scan::Scan(const utils::Scan& rhs)
     _scanNum = rhs._scanNum;
 }
 
-void utils::PrecursorScan::clear()
-{
+void utils::PrecursorScan::clear() {
     _mz.clear();
     _scan.clear();
     _rt = 0;
@@ -62,13 +59,15 @@ void utils::PrecursorScan::clear()
     _intensity = 0;
 }
 
-void utils::Scan::clear()
-{
+void utils::Scan::clear() {
     _maxInt = 0;
     _minInt = 0;
     _minMZ = 0;
     _maxMZ = 0;
     _mzRange = 0;
+    _level = 0;
+    _scanNum = std::string::npos;
+    precursorScan.clear();
     _ions.clear();
 }
 
@@ -82,8 +81,7 @@ void utils::Scan::setMaxMZ(ScanMZ maxMZ) {
 }
 
 //! Updates minimum and maximum mz and intensity.
-void utils::Scan::updateRanges()
-{
+void utils::Scan::updateRanges(){
     if(!_ions.empty()) {
         _minMZ = _ions.begin()->getMZ();
         _minInt = _ions.begin()->getIntensity();

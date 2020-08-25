@@ -1,6 +1,6 @@
 //
-// ms2File.hpp
-// ionFinder
+// xml_utils.hpp
+// utils
 // -----------------------------------------------------------------------------
 // MIT License
 // Copyright 2020 Aaron Maurais
@@ -25,46 +25,20 @@
 // -----------------------------------------------------------------------------
 //
 
-#ifndef ms2_hpp
-#define ms2_hpp
+#ifndef xml_utils_hpp
+#define xml_utils_hpp
 
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
-#include <cstring>
-#include <cassert>
-#include <vector>
+#include <exception>
 #include <string>
-#include <map>
 
 #include <utils.hpp>
-#include <msInterface/msInterface.hpp>
-#include <msInterface/msScan.hpp>
+#include <thirdparty/rapidxml/rapidxml.hpp>
 
 namespace utils {
-	
-	int const MD_NUM = 2;
+    bool _isVal(const char* s1, const char* s2);
+    bool _isAttr(const char* s1, const char* s2);
+    bool _checkAttrVal(const char* name, const char* expected, const rapidxml::xml_attribute<>* attr, size_t scanNum);
+    double _xs_duration_to_seconds(char* xs, size_t len);
+}
 
-    class Ms2File;
-	class Ms2File : public utils::MsInterface{
-	private:
-		bool getMetaData();
-
-		void _buildIndex() override;
-
-	public:
-		Ms2File(std::string fname = "") : MsInterface(fname){
-			initMetadata();
-		}
-		~Ms2File(){}
-		
-		bool read() override;
-		bool read(std::string fname) override;
-		
-		//properties
-		bool getScan(size_t, Scan&) const override;
-	};
-		
-}//end of namespace
-
-#endif /* ms2_hpp */
+#endif

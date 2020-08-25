@@ -1,6 +1,6 @@
 //
-// ms2File.hpp
-// ionFinder
+// msXMLBase.hpp
+// utils
 // -----------------------------------------------------------------------------
 // MIT License
 // Copyright 2020 Aaron Maurais
@@ -25,46 +25,20 @@
 // -----------------------------------------------------------------------------
 //
 
-#ifndef ms2_hpp
-#define ms2_hpp
-
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
-#include <cstring>
-#include <cassert>
-#include <vector>
-#include <string>
-#include <map>
+#ifndef mzXMLBase_hpp
+#define mzXMLBase_hpp
 
 #include <utils.hpp>
 #include <msInterface/msInterface.hpp>
-#include <msInterface/msScan.hpp>
 
-namespace utils {
-	
-	int const MD_NUM = 2;
+namespace utils{
+    class MsXMLBase;
 
-    class Ms2File;
-	class Ms2File : public utils::MsInterface{
-	private:
-		bool getMetaData();
+    class MsXMLBase : public utils::MsInterface {
+    private:
+        bool _buildIndex(const char* scanBegin, const char* scanEnd);
+    };
+}
 
-		void _buildIndex() override;
+#endif
 
-	public:
-		Ms2File(std::string fname = "") : MsInterface(fname){
-			initMetadata();
-		}
-		~Ms2File(){}
-		
-		bool read() override;
-		bool read(std::string fname) override;
-		
-		//properties
-		bool getScan(size_t, Scan&) const override;
-	};
-		
-}//end of namespace
-
-#endif /* ms2_hpp */
