@@ -30,7 +30,7 @@ add_library(utils STATIC
         src/msInterface/mzMLFile.cpp
         src/msInterface/msScan.cpp
         src/msInterface/mzXMLFile.cpp
-        src/msInterface/msFileBase.cpp
+        src/msInterface/msInterface.cpp
         src/fastaFile.cpp
         src/bufferFile.cpp
         src/molecularFormula.cpp

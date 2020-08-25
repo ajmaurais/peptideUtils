@@ -1,6 +1,6 @@
 //
 // utils.hpp
-// ionFinder
+// utils
 // -----------------------------------------------------------------------------
 // MIT License
 // Copyright 2020 Aaron Maurais
@@ -40,48 +40,6 @@ size_t utils::Ms2File::_getScanIndex(size_t scan) const{
 	if(it == _scanMap.end())
 		return SCAN_INDEX_NOT_FOUND;
 	return it->second;
-}
-
-/**
- \brief Copy metadata values from rhs to *this
- */
-void utils::Ms2File::copyMetadata(const Ms2File& rhs)
-{
-    _parentMs2FileBase = rhs._parentMs2FileBase;
-	firstScan = rhs.firstScan;
-	lastScan = rhs.lastScan;
-	dataType = rhs.dataType;
-	scanType = rhs.scanType;
-	_offsetIndex = rhs._offsetIndex;
-	_scanCount = rhs._scanCount;
-	_scanMap = rhs._scanMap;
-}
-
-/**
- \brief Initialize metadata values to empty variables
- */
-void utils::Ms2File::initMetadata()
-{
-    _parentMs2FileBase = "";
-	firstScan = 0;
-	lastScan = 0;
-	dataType = "";
-	scanType = "";
-	_scanCount = 0;
-}
-
-bool utils::Ms2File::read(std::string fname)
-{
-	_fname = fname;
-	return Ms2File::read();
-}
-
-bool utils::Ms2File::read()
-{
-	calcParentMs2(_fname);
-	if(!BufferFile::read(_fname)) return false;
-	_buildIndex();
-	return getMetaData();
 }
 
 void utils::Ms2File::_buildIndex()
@@ -130,11 +88,7 @@ bool utils::Ms2File::getMetaData()
 		if(line[0] == 'H')
 		{
 			utils::split(line, IN_DELIM, elems);
-			if(elems[1] == "ScanType")
-				scanType = elems[2];
-			else if(elems[1] == "DataType")
-				dataType = elems[2];
-			else if(elems[1] == "FirstScan")
+			if(elems[1] == "FirstScan")
 				firstScan = std::stoi(elems[2]);
 			else if(elems[1] == "LastScan")
 				lastScan = std::stoi(elems[2]);
@@ -144,9 +98,7 @@ bool utils::Ms2File::getMetaData()
 	}
 	
 	//check that md is good
-    return scanType == "MS2" &&
-           dataType == "Centroid" &&
-           firstScan <= lastScan &&
+    return firstScan <= lastScan &&
            mdCount == MD_NUM;
 }
 
@@ -168,7 +120,7 @@ bool utils::Ms2File::getScan(std::string queryScan, Scan& scan) const{
 bool utils::Ms2File::getScan(size_t queryScan, Scan& scan) const
 {
 	scan.clear();
-	scan.getPrecursor().setSample(_parentMs2FileBase);
+	scan.getPrecursor().setSample(_parentFileBase);
 	scan.getPrecursor().setFile(_fname);
 	if(!((queryScan >= firstScan) && (queryScan <= lastScan))){
 		std::cerr << "queryScan not in file scan range!" << NEW_LINE;
@@ -242,5 +194,15 @@ bool utils::Ms2File::getScan(size_t queryScan, Scan& scan) const
 	scan.updateRanges();
 	
 	return true;
+}
+
+bool utils::Ms2File::read(std::string fname) {
+    bool sucess = MsInterface::read(fname);
+    return sucess && getMetaData();
+}
+
+bool utils::Ms2File::read() {
+    bool sucess = MsInterface::read();
+    return sucess && getMetaData();
 }
 

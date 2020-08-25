@@ -38,70 +38,36 @@
 #include <map>
 
 #include <utils.hpp>
-#include <bufferFile.hpp>
+#include <msInterface/msInterface.hpp>
 #include <msInterface/msScan.hpp>
 
 namespace utils {
 	
-	int const MD_NUM = 4;
+	int const MD_NUM = 2;
 	size_t const SCAN_INDEX_NOT_FOUND = std::string::npos;
 
     class Ms2File;
-	class Ms2File : public utils::BufferFile{
+	class Ms2File : public utils::MsInterface{
 	private:
-		typedef std::pair<size_t, size_t> IntPair;
-		typedef std::vector<IntPair> OffsetIndexType;
 
-		//!Stores pairs of offset values for scans
-		OffsetIndexType _offsetIndex;
-		//!Maps scan numbers to indecies in _offsetIndex
-		std::map<size_t, size_t> _scanMap;
-		//!Actual number of scans read from file
-		size_t _scanCount{};
-		
-		//metadata
-		//!base file name without extension
-		std::string _parentMs2FileBase;
-		size_t firstScan, lastScan;
-		std::string dataType;
-		std::string scanType;
-		
 		bool getMetaData();
-		void calcParentMs2(std::string path){
-            _parentMs2FileBase = utils::baseName(utils::removeExtension(path));
-		}
-		
-		void copyMetadata(const Ms2File& rhs);
-		void initMetadata();
-		void _buildIndex();
+
+		void _buildIndex() override;
 		size_t _getScanIndex(size_t) const;
 		
 	public:
 
-		Ms2File(std::string fname = "") : BufferFile(fname){
+		Ms2File(std::string fname = "") : MsInterface(fname){
 			initMetadata();
 		}
 		~Ms2File(){}
 		
-		//!copy constructor
-		Ms2File(const Ms2File& rhs) : BufferFile(rhs){
-			copyMetadata(rhs);
-		}
-		//!copy assignment
-		Ms2File& operator = (Ms2File rhs)
-		{
-			BufferFile::operator=(rhs);
-			copyMetadata(rhs);
-			return *this;
-		}
-		
-		//modifiers
-		bool read(std::string);
-		bool read();
+		bool read() override;
+		bool read(std::string fname) override;
 		
 		//properties
 		bool getScan(std::string, Scan&) const;
-		bool getScan(size_t, Scan&) const;
+		bool getScan(size_t, Scan&) const override;
 	};
 		
 }//end of namespace

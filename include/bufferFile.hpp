@@ -54,8 +54,10 @@ namespace utils{
 		
 		//modifiers
 		BufferFile& operator = (BufferFile rhs);
-		bool read();
-		bool read(std::string);
+
+        bool read();
+
+        virtual bool read(std::string);
 		bool exists() const;
 
 		//properties

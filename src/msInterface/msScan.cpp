@@ -88,15 +88,15 @@ void utils::Scan::updateRanges()
         _minMZ = _ions.begin()->getMZ();
         _minInt = _ions.begin()->getIntensity();
 
-        for (auto it = _ions.begin(); it != _ions.end(); ++it) {
-            if (it->getMZ() < _minMZ)
-                _minMZ = it->getMZ();
-            if (it->getMZ() > _maxMZ)
-                _maxMZ = it->getMZ();
-            if (it->getIntensity() < _minInt)
-                _minInt = it->getIntensity();
-            if (it->getIntensity() > _maxInt)
-                _maxInt = it->getIntensity();
+        for(auto & _ion : _ions) {
+            if (_ion.getMZ() < _minMZ)
+                _minMZ = _ion.getMZ();
+            if (_ion.getMZ() > _maxMZ)
+                _maxMZ = _ion.getMZ();
+            if (_ion.getIntensity() < _minInt)
+                _minInt = _ion.getIntensity();
+            if (_ion.getIntensity() > _maxInt)
+                _maxInt = _ion.getIntensity();
         }
         _mzRange = (_maxMZ - _minMZ);
     }
