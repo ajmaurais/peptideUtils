@@ -28,8 +28,6 @@
 #ifndef mzXMLFile_hpp
 #define mzXMLFile_hpp
 
-#include <regex>
-
 #include <utils.hpp>
 #include <msInterface/msInterface.hpp>
 #include <msInterface/internal/base64_utils.hpp>

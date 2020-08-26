@@ -88,7 +88,7 @@ bool utils::Ms2File::getMetaData()
 }
 
 /**
- \brief Get parsed utils::Spectrum from utils file.
+ \brief Get parsed utils::Spectrum from ms2 file.
  
  \param queryScan scan number to search for
  \param scan empty utils::Spectrum to load scan into
@@ -133,13 +133,13 @@ bool utils::Ms2File::getScan(size_t queryScan, Scan& scan) const
 		if(elems[0] == "S")
 		{
 			if(elems.size() != 4)
-			    throw utils::FileIOError();
+			    throw utils::FileIOError("Invalid number or elements.");
 			scan.setScanNum(std::stoi(elems[2]));
 			scan.getPrecursor().setMZ(elems[3]);
 		}
 		else if(elems[0] == "I")
 		{
-			if(elems.size() != 3) throw utils::FileIOError();
+			if(elems.size() != 3) throw utils::FileIOError("Invalid number or elements.");
 			if(elems[1] == "RetTime")
 				scan.getPrecursor().setRT(std::stod(elems[2]));
 			else if(elems[1] == "PrecursorInt")
@@ -151,7 +151,7 @@ bool utils::Ms2File::getScan(size_t queryScan, Scan& scan) const
 		}
 		else if(elems[0] == "Z"){
 			if(!z_found){
-				if(elems.size() != 3) throw utils::FileIOError();
+				if(elems.size() != 3) throw utils::FileIOError("");
 				scan.getPrecursor().setCharge(std::stoi(elems[1]));
 				z_found = true;
 			}
@@ -164,7 +164,7 @@ bool utils::Ms2File::getScan(size_t queryScan, Scan& scan) const
 				if(line.empty()) continue;
 				
 				utils::split(line, ' ', elems);
-				if(elems.size() < 2) throw utils::FileIOError();
+				if(elems.size() < 2) throw utils::FileIOError("Invalid number or elements.");
 				scan.getIons().emplace_back(std::stod(elems[0]), std::stod(elems[1]));
 				numIons++;
 			}//end of while

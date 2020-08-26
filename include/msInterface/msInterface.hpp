@@ -83,6 +83,20 @@ namespace utils {
         virtual bool getScan(size_t, utils::Scan&) const = 0;
         bool getScan(std::string, utils::Scan&) const;
 
+        //metadata getters
+        size_t getScanCount() const{
+            return _scanCount;
+        }
+        size_t getLastScan() const {
+            return lastScan;
+        }
+        size_t getFirstScan() const {
+            return firstScan;
+        }
+        std::string getParentFileBase() const{
+            return _parentFileBase;
+        }
+
         static FileType getFileType(std::string fname);
     };
 }

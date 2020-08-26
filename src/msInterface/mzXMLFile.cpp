@@ -36,17 +36,14 @@ void utils::MzXMLFile::_buildIndex()
 
     //validate scan indices
     if(beginScans.size() != endScans.size())
-        throw utils::InvalidXmlFile();
-        //throw utils::InvalidXmlFile("Unbounded <scan>");
+        throw utils::InvalidXmlFile("Unbounded <scan> in file: " + _fname);
     size_t len = beginScans.size();
     for(size_t i = 0; i < len; i++)
         if(beginScans[i] >= endScans[i])
-            throw utils::InvalidXmlFile();
+            throw utils::InvalidXmlFile("Unbounded <scan> in file: " + _fname);
 
     _scanCount = 0;
     std::string newID;
-    std::regex rgx("num\\s?=\\s?\"([\\w\\d.+-]+)\"");
-    std::smatch match;
     for(size_t i = 0; i < len; i++)
     {
         // Get the attributes in the <scan> node
@@ -54,14 +51,18 @@ void utils::MzXMLFile::_buildIndex()
         char* num = strstr(c, "num=\"");
         char* endNode = strchr(c, '>');
         if(num >= endNode)
-            throw utils::InvalidXmlFile();
+            throw utils::InvalidXmlFile("Not able to find required attribute \'num\' in <scan>");
 
-        // Find the "num" attribute
-        const std::string tmp(c, endNode);
-        if(!std::regex_search(tmp.begin(), tmp.end(), match, rgx)){
-            throw utils::InvalidXmlFile();
+        // Find the "num" attribute value
+        newID = "";
+        for(char* it = num + 5; it < endNode; it++) {
+            if(*it == '\"')
+                break;
+            if(isdigit(*it))
+                newID += *it;
+            else
+                throw utils::InvalidXmlFile("Invalid scan header: " + std::string(c, endNode));
         }
-        newID = match[1];
 
         _scanMap[std::stoi(newID)] = _scanCount;
         _offsetIndex.push_back(IntPair(beginScans[i], endScans[i]));
@@ -72,6 +73,13 @@ void utils::MzXMLFile::_buildIndex()
     assert(firstScan <= lastScan);
 }
 
+/**
+ \brief Get parsed utils::Spectrum from mzXML file.
+
+ \param queryScan scan number to search for
+ \param scan empty utils::Spectrum to load scan into
+ \return false if \p queryScan not found, true if successful
+ */
 bool utils::MzXMLFile::getScan(size_t queryScan, utils::Scan& scan) const
 {
     scan.clear();

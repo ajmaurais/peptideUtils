@@ -7,21 +7,31 @@
 
 #include <exception>
 #include <string>
+#include <utility>
 
 namespace utils {
 
-    class BaseException : public std::exception
-    {
-        std::string what_message;
+    class BaseException: public std::exception {
+    private:
+        std::string _message;
     public:
-        const char* what() {
-            return what_message.c_str();
+        explicit BaseException(std::string  message) : _message(std::move(message)){}
+        const char* what() const noexcept override {
+            return _message.c_str();
         }
     };
 
-    class NotImplemented : public BaseException {};
-    class FileIOError : public BaseException {};
-    class InvalidXmlFile : public BaseException {};
+    class NotImplemented : public BaseException {
+        explicit NotImplemented(const std::string &message) : BaseException(message) {}
+    };
+    class FileIOError : public BaseException {
+    public:
+        explicit FileIOError(const std::string &message) : BaseException(message) {}
+    };
+    class InvalidXmlFile : public BaseException {
+    public:
+        explicit InvalidXmlFile(const std::string &message) : BaseException(message) {}
+    };
 
     //class IOException
 }
