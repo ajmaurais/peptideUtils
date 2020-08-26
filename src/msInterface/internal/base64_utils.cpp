@@ -250,7 +250,6 @@ void utils::_decompress32(utils::Scan& scan,
                           size_t peaksCount,
                           unsigned long compressedLen,
                           bool bigEndian){
-    scan.clear();
     if(peaksCount < 1) return;
 
     union udata {
@@ -294,7 +293,6 @@ void utils::_decompress64(utils::Scan& scan,
                           unsigned long compressedLen,
                           bool bigEndian)
 {
-    scan.clear();
     if(peaksCount < 1) return;
 
     union udata {

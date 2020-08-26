@@ -27,15 +27,12 @@
 
 #include <msInterface/mzXMLFile.hpp>
 
-const std::string utils::MzXMLFile::_scanBegin = "<scan";
-const std::string utils::MzXMLFile::_scanEnd = "</scan>";
-
 void utils::MzXMLFile::_buildIndex()
 {
     // Get indices of beginning and end of each scan
     std::vector<size_t> beginScans, endScans;
-    utils::getIdxOfSubstr(_buffer, _scanBegin.c_str(), beginScans);
-    utils::getIdxOfSubstr(_buffer, _scanEnd.c_str(), endScans);
+    utils::getIdxOfSubstr(_buffer, "<scan", beginScans);
+    utils::getIdxOfSubstr(_buffer, "</scan>", endScans);
 
     //validate scan indices
     if(beginScans.size() != endScans.size())
@@ -106,6 +103,7 @@ bool utils::MzXMLFile::getScan(size_t queryScan, utils::Scan& scan) const
     std::string byteOrder = "";
     std::string compressionType = "none";
     unsigned long compressedLen = 0;
+    bool compressedLenSet = false;
     size_t peaksCount = 0;
 
     // parse scan attributes
@@ -144,9 +142,12 @@ bool utils::MzXMLFile::getScan(size_t queryScan, utils::Scan& scan) const
                     byteOrder = std::string(attr->value(), attr->value_size());
                 else if(utils::_isAttr("compressionType", attr->name()))
                     compressionType = std::string(attr->value(), attr->value_size());
-                else if(utils::_isAttr("compressedLen", attr->name()))
+                else if(utils::_isAttr("compressedLen", attr->name())) {
                     compressedLen = std::stoul(attr->value());
-                else if(!utils::_checkAttrVal("contentType", "m/z-int", attr, queryScan)) return false;
+                    compressedLenSet = true;
+                }
+                else if(!utils::_checkAttrVal("contentType", "m/z-int", attr, queryScan))
+                    return false;
             }
 
             //retrieve peak list
@@ -170,19 +171,19 @@ bool utils::MzXMLFile::getScan(size_t queryScan, utils::Scan& scan) const
                                      byteOrder == "network");
             else if(precision == "64" && compressionType == "zlib" && compressedLen != 0)
                 utils::_decompress64(scan,
-                                     std::string(node->value()),
+                                     std::string(node->value(), node->value_size()),
                                      peaksCount,
                                      compressedLen,
                                      byteOrder == "network");
             else {
-                std::cerr << "In scan: " << queryScan << NEW_LINE;
+                std::cerr << "ERROR: In scan: " << queryScan << NEW_LINE;
                 if(precision.empty())
                     std::cerr << "\tMissing value for precision";
                 else if(precision != "32" && precision != "64")
                     std::cerr << "\tInvalid value for precision: " << precision << NEW_LINE;
                 if(compressionType != "none" && compressionType != "zlib")
                     std::cerr << "\tUnsupported compression type: " << compressionType << NEW_LINE;
-                if(compressionType != "none" && compressedLen == 0)
+                if(compressionType != "none" && !compressedLenSet)
                     std::cerr << "\tRequired value: \'compressedLen\' not found!" << NEW_LINE;
                 return false;
             }

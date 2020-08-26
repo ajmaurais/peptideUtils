@@ -44,8 +44,6 @@ namespace utils{
     private:
         void _buildIndex() override;
 
-        static const std::string _scanBegin;
-        static const std::string _scanEnd;
     public:
 
         //properties
