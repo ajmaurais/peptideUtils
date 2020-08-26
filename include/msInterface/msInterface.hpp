@@ -40,11 +40,12 @@ namespace utils {
     size_t const SCAN_INDEX_NOT_FOUND = std::string::npos;
 
     class MsInterface: public utils::BufferFile{
+    public:
+        enum class FileType{MS2, MZXML, MZML, UNKNOWN};
+
     protected:
         typedef std::pair<size_t, size_t> IntPair;
         typedef std::vector<IntPair> OffsetIndexType;
-
-        enum class FileType{MS2, MZXML, MZML, UNKNOWN};
 
         //!Parent file type
         FileType fileType;

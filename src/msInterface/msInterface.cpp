@@ -54,6 +54,7 @@ bool utils::MsInterface::read(std::string fname) {
 }
 
 bool utils::MsInterface::read(){
+    fileType = getFileType(_fname);
     calcParentFileBase(_fname);
     if(!BufferFile::read(_fname)) return false;
     _buildIndex();

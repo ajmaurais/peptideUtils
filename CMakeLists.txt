@@ -22,6 +22,9 @@ set(SHARE_DIR "${PROJECT_SOURCE_DIR}/share" CACHE STRING "Path to directory with
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSHARE_DIR=\\\"${SHARE_DIR}\\\"")
 add_compile_definitions(SHARE_DIR=\"${SHARE_DIR}\")
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty")
+include(zlib)
+
 set(CMAKE_BUILD_TYPE Debug)
 
 add_library(utils STATIC
@@ -42,6 +45,7 @@ add_library(utils STATIC
 
 target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(EXCLUDE_FROM_DOXYGEN ${CMAKE_CURRENT_SOURCE_DIR}/include/thirdparty)
+target_link_libraries(utils zlib)
 
 install(TARGETS utils DESTINATION lib)
 #set_target_properties(utils PROPERTIES
@@ -77,9 +81,8 @@ endif()
 #build test file (for debugging purposes)
 option(BUILD_TEST "Build test executable" OFF)
 if(BUILD_TEST MATCHES ON)
-
     add_executable(test test/main.cpp)
     target_include_directories(test PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-    target_link_libraries(test utils)
+    target_link_libraries(test zlib utils)
 endif()
 

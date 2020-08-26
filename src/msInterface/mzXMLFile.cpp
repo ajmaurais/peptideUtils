@@ -81,7 +81,7 @@ bool utils::MzXMLFile::getScan(size_t queryScan, utils::Scan& scan) const
     scan.getPrecursor().setSample(_parentFileBase);
     scan.getPrecursor().setFile(_fname);
     if(!((queryScan >= firstScan) && (queryScan <= lastScan))){
-        std::cerr << "queryScan not in file scan range!" << NEW_LINE;
+        std::cerr << "queryScan: " << queryScan << " not in file scan range!" << NEW_LINE;
         return false;
     }
 
@@ -94,19 +94,18 @@ bool utils::MzXMLFile::getScan(size_t queryScan, utils::Scan& scan) const
     scanOffset = _offsetIndex[scanIndex].first;
     endOfScan = _offsetIndex[scanIndex].second;
 
-    std::vector<std::string> elems;
-    std::string line;
-    size_t numIons = 0;
-
     // Copy <scan> ... </scan> and initialize xml parser
-    size_t copyLen = (endOfScan + _scanEnd.length()) - scanOffset;
-    char* c = strncpy(new char[copyLen], _buffer + scanOffset, copyLen);
+    size_t copyLen = (endOfScan + 7) - scanOffset;
+    std::string scan_s = std::string(_buffer + scanOffset, copyLen);
+    char* c = strcpy(new char[scan_s.length() + 1], scan_s.c_str());
     rapidxml::xml_document <> doc;
     doc.parse<0>(c);
 
     //parser flags
     std::string precision = "";
     std::string byteOrder = "";
+    std::string compressionType = "none";
+    unsigned long compressedLen = 0;
     size_t peaksCount = 0;
 
     // parse scan attributes
@@ -143,27 +142,53 @@ bool utils::MzXMLFile::getScan(size_t queryScan, utils::Scan& scan) const
                     precision = std::string(attr->value(), attr->value_size());
                 else if(utils::_isAttr("byteOrder", attr->name()))
                     byteOrder = std::string(attr->value(), attr->value_size());
+                else if(utils::_isAttr("compressionType", attr->name()))
+                    compressionType = std::string(attr->value(), attr->value_size());
+                else if(utils::_isAttr("compressedLen", attr->name()))
+                    compressedLen = std::stoul(attr->value());
                 else if(!utils::_checkAttrVal("contentType", "m/z-int", attr, queryScan)) return false;
-                else if(!utils::_checkAttrVal("compressionType", "none", attr, queryScan)) return false;
             }
 
             //retrieve peak list
-            if(precision == "32")
-                utils::_decode32(scan, node->value(), node->value_size(), peaksCount, byteOrder == "network");
-            else if(precision == "64")
-                utils::_decode64(scan, node->value(), node->value_size(), peaksCount, byteOrder == "network");
+            if(precision == "32" && compressionType == "none")
+                utils::_decode32(scan,
+                                 node->value(),
+                                 node->value_size(),
+                                 peaksCount,
+                                 byteOrder == "network");
+            else if(precision == "64" && compressionType == "none")
+                utils::_decode64(scan,
+                                 node->value(),
+                                 node->value_size(),
+                                 peaksCount,
+                                 byteOrder == "network");
+            else if(precision == "32" && compressionType == "zlib" && compressedLen != 0)
+                utils::_decompress32(scan,
+                                     std::string(node->value(), node->value_size()),
+                                     peaksCount,
+                                     compressedLen,
+                                     byteOrder == "network");
+            else if(precision == "64" && compressionType == "zlib" && compressedLen != 0)
+                utils::_decompress64(scan,
+                                     std::string(node->value()),
+                                     peaksCount,
+                                     compressedLen,
+                                     byteOrder == "network");
             else {
+                std::cerr << "In scan: " << queryScan << NEW_LINE;
                 if(precision.empty())
-                    std::cerr << "Missing value for precision";
-                else std::cerr << "Invalid value for precision: " << precision << ",";
-                std::cerr << " in scan: " << queryScan << NEW_LINE;
+                    std::cerr << "\tMissing value for precision";
+                else if(precision != "32" && precision != "64")
+                    std::cerr << "\tInvalid value for precision: " << precision << NEW_LINE;
+                if(compressionType != "none" && compressionType != "zlib")
+                    std::cerr << "\tUnsupported compression type: " << compressionType << NEW_LINE;
+                if(compressionType != "none" && compressedLen == 0)
+                    std::cerr << "\tRequired value: \'compressedLen\' not found!" << NEW_LINE;
                 return false;
             }
         }
     }
-
     delete [] c;
     scan.updateRanges();
-
     return true;
 }

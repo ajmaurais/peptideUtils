@@ -51,6 +51,12 @@ bool utils::_checkAttrVal(const char* name,
     return true;
 }
 
+/**
+ * Convert xs:duration to seconds.
+ * @param xs xs:duration string.
+ * @param len Length of data.
+ * @return Seconds.
+ */
 double utils::_xs_duration_to_seconds(char* xs, size_t len)
 {
     bool positive = true;

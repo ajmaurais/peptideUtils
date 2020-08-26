@@ -1,3 +1,13 @@
+//
+// base64_utils.cpp
+// utils
+// -----------------------------------------------------------------------------
+// Most of the functions in this file were taken from the mstoolkit library.
+// (https://github.com/mhoopmann/mstoolkit).
+// mstoolkit is distributed under an Apache License, Version 2.0.
+// Copyright 2010 Mike Hoopmann, Institute for Systems Biology
+// -----------------------------------------------------------------------------
+//
 
 #include <msInterface/internal/base64_utils.hpp>
 
@@ -187,12 +197,16 @@ void utils::_decode32(utils::Scan& scan, const char* pData, size_t dataSize, siz
  * The original version of this function was taken from mstoolkit
  * (https://github.com/mhoopmann/mstoolkit).
  * @param scan utils::Scan to populate with m/z, int values.
- * @param pData Base 64 encoded data.
- * @param dataSize Length of \p pData.
+ * @param data Base 64 encoded data.
  * @param peaksCount peaksCount attribute from mzXML file.
  * @param bigEndian Is the byte order big endian?
  */
-void utils::_decode64(utils::Scan& scan, const char* pData, size_t dataSize, size_t peaksCount, bool bigEndian) {
+void utils::_decode64(utils::Scan& scan,
+                      const char* data,
+                      size_t dataSize,
+                      size_t peaksCount,
+                      bool bigEndian)
+{
     size_t size = peaksCount * 2 * sizeof(uint32_t);
     char *pDecoded = (char *) new char[size];
     memset(pDecoded, 0, size);
@@ -201,7 +215,7 @@ void utils::_decode64(utils::Scan& scan, const char* pData, size_t dataSize, siz
         // Base64 decoding
         // By comparing the size of the unpacked data and the expected size
         // an additional check of the data file integrity can be performed
-        int length = utils::_b64_decode_mio((char *) pDecoded, (char *) pData, dataSize);
+        int length = utils::_b64_decode_mio((char *) pDecoded, (char *) data, dataSize);
         if (length != size) {
             std::cerr << " decoded size " << length << " and required size " << (unsigned long) size
                       << " dont match:\n";
@@ -229,4 +243,91 @@ void utils::_decode64(utils::Scan& scan, const char* pData, size_t dataSize, siz
 
     // Free allocated memory
     delete[] pDecoded;
+}
+
+void utils::_decompress32(utils::Scan& scan,
+                          std::string compressedData,
+                          size_t peaksCount,
+                          unsigned long compressedLen,
+                          bool bigEndian){
+    scan.clear();
+    if(peaksCount < 1) return;
+
+    union udata {
+        float f;
+        uint32_t i;
+    } uData{};
+
+    uLong uncomprLen;
+    int length;
+    const char* pData = compressedData.data();
+    size_t stringSize = compressedData.size();
+    assert(!(stringSize > 1 && compressedLen == 0));
+
+    //Decode base64
+    char* pDecoded = (char*) new char[compressedLen];
+    memset(pDecoded, 0, compressedLen);
+    length = utils::_b64_decode_mio( (char*) pDecoded , (char*) pData, stringSize);
+
+    //zLib decompression
+    auto* data = new uint32_t[peaksCount*2];
+    uncomprLen = peaksCount * 2 * sizeof(uint32_t);
+    uncompress((Bytef*)data, &uncomprLen, (const Bytef*)pDecoded, length);
+    delete [] pDecoded;
+
+    //write data to arrays
+    int n = 0;
+    double _mz, _int;
+    for(int i=0;i<peaksCount;i++){
+        uData.i = utils::_dtohl(data[n++], bigEndian);
+        _mz = (double)uData.f;
+        uData.i = utils::_dtohl(data[n++], bigEndian);
+        _int = (double)uData.f;
+        scan.add(_mz, _int);
+    }
+    delete [] data;
+}
+
+void utils::_decompress64(utils::Scan& scan,
+                          std::string compressedData,
+                          size_t peaksCount,
+                          unsigned long compressedLen,
+                          bool bigEndian)
+{
+    scan.clear();
+    if(peaksCount < 1) return;
+
+    union udata {
+        double d;
+        uint64_t i;
+    } uData;
+
+    uLong uncomprLen;
+    int length;
+    const char* pData = compressedData.data();
+    size_t stringSize = compressedData.size();
+    assert(!(stringSize > 1 && compressedLen == 0));
+
+    //Decode base64
+    char *pDecoded = (char *) new char[compressedLen];
+    memset(pDecoded, 0, compressedLen);
+    length = utils::_b64_decode_mio( (char*) pDecoded , (char*) pData, stringSize);
+
+    //zLib decompression
+    auto* data = new uint64_t[peaksCount*2];
+    uncomprLen = peaksCount * 2 * sizeof(uint64_t);
+    uncompress((Bytef*)data, &uncomprLen, (const Bytef*)pDecoded, length);
+    delete [] pDecoded;
+
+    //write data to arrays
+    int n = 0;
+    double _mz, _int;
+    for(int i=0;i<peaksCount;i++){
+        uData.i = utils::_dtohl(data[n++], bigEndian);
+        _mz = uData.d;
+        uData.i = utils::_dtohl(data[n++], bigEndian);
+        _int = uData.d;
+        scan.add(_mz, _int);
+    }
+    delete [] data;
 }
