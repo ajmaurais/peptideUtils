@@ -35,7 +35,6 @@ add_library(utils STATIC
         src/msInterface/msScan.cpp
         src/msInterface/msInterface.cpp
         src/msInterface/ms2File.cpp
-        src/msInterface/msXMLBase.cpp
         src/msInterface/mzMLFile.cpp
         src/msInterface/mzXMLFile.cpp
         src/fastaFile.cpp
