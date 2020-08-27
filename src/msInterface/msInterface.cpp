@@ -26,6 +26,7 @@
 
 #include <msInterface/msInterface.hpp>
 
+//! Copy constructor
 utils::MsInterface::MsInterface(const utils::MsInterface &rhs) : BufferFile(rhs){
     copyMetadata(rhs);
     _offsetIndex = rhs._offsetIndex;
@@ -34,6 +35,7 @@ utils::MsInterface::MsInterface(const utils::MsInterface &rhs) : BufferFile(rhs)
     fileType = rhs.fileType;
 }
 
+//! Default constructor
 utils::MsInterface::MsInterface(std::string fname) : BufferFile(fname) {
     initMetadata();
     _offsetIndex = OffsetIndexType();
@@ -42,6 +44,7 @@ utils::MsInterface::MsInterface(std::string fname) : BufferFile(fname) {
     fileType = FileType::UNKNOWN;
 }
 
+//! Copy assignment
 utils::MsInterface &utils::MsInterface::operator=(const utils::MsInterface& rhs) {
     BufferFile::operator=(rhs);
     copyMetadata(rhs);
@@ -113,5 +116,18 @@ size_t utils::MsInterface::_getScanIndex(size_t scan) const{
  */
 bool utils::MsInterface::getScan(std::string queryScan, Scan& scan) const{
     return getScan(std::stoi(queryScan), scan);
+}
+
+/**
+ * Get the scan number of the next scan.
+ * @param i Current scan.
+ * @return Scan number of the next scan.
+ * @raises std::out_of_range if scan \p i does not exist or if a scan after i does not exist.
+ */
+size_t utils::MsInterface::nextScan(size_t i) const {
+    auto curScan = _scanMap.find(i);
+    if(curScan == _scanMap.end() || (++curScan) == _scanMap.end())
+        throw std::out_of_range("Scan " + std::to_string(i) + " out of range.");
+    return curScan->first;
 }
 

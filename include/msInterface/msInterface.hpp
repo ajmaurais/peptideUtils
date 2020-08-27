@@ -69,7 +69,7 @@ namespace utils {
 
     public:
         //! Default constructor
-        MsInterface(std::string fname = "");
+        explicit MsInterface(std::string fname = "");
         //!copy constructor
         MsInterface(const MsInterface& rhs);
         //!copy assignment
@@ -96,6 +96,7 @@ namespace utils {
         std::string getParentFileBase() const{
             return _parentFileBase;
         }
+        size_t nextScan(size_t i) const;
 
         static FileType getFileType(std::string fname);
     };
