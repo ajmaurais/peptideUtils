@@ -58,6 +58,8 @@ bool utils::MsInterface::read(){
     calcParentFileBase(_fname);
     if(!BufferFile::read(_fname)) return false;
     _buildIndex();
+    if(_scanCount == 0)
+        std::cerr << "WARN: no scans found in " << _fname << NEW_LINE;
     return true;
 }
 
@@ -65,12 +67,14 @@ void utils::MsInterface::copyMetadata(const utils::MsInterface &rhs) {
     _parentFileBase = rhs._parentFileBase;
     firstScan = rhs.firstScan;
     lastScan = rhs.lastScan;
+    _scanCount = rhs._scanCount;
 }
 
 void utils::MsInterface::initMetadata() {
     _parentFileBase = "";
     firstScan = 0;
     lastScan = 0;
+    _scanCount = 0;
 }
 
 void utils::MsInterface::calcParentFileBase(std::string path) {

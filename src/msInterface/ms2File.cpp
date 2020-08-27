@@ -29,7 +29,11 @@
 
 void utils::Ms2File::_buildIndex()
 {
-	std::vector<size_t> scanIndecies;
+    //Check the file type
+    if(fileType != FileType::MS2)
+        throw utils::FileIOError("Incorrect file type for file: " + _fname);
+
+    std::vector<size_t> scanIndecies;
 	utils::getIdxOfSubstr(_buffer, "S\t", scanIndecies);
 	scanIndecies.push_back(_size);
 	

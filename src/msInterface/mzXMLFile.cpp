@@ -29,6 +29,10 @@
 
 void utils::MzXMLFile::_buildIndex()
 {
+    //Check the file type
+    if(fileType != FileType::MZXML)
+        throw utils::FileIOError("Incorrect file type for file: " + _fname);
+
     // Get indices of beginning and end of each scan
     std::vector<size_t> beginScans, endScans;
     utils::getIdxOfSubstr(_buffer, "<scan", beginScans);
@@ -64,7 +68,11 @@ void utils::MzXMLFile::_buildIndex()
                 throw utils::InvalidXmlFile("Invalid scan header: " + std::string(c, endNode));
         }
 
-        _scanMap[std::stoi(newID)] = _scanCount;
+        try {
+            _scanMap[std::stoi(newID)] = _scanCount;
+        } catch(std::invalid_argument& e){
+            throw utils::InvalidXmlFile("Invalid spectrum ID: " + newID);
+        }
         _offsetIndex.push_back(IntPair(beginScans[i], endScans[i]));
         _scanCount ++;
     }
