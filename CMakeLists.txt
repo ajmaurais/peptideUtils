@@ -30,6 +30,7 @@ set(CMAKE_BUILD_TYPE Debug)
 add_library(utils STATIC
         src/utils.cpp
         src/tsvFile.cpp
+        src/thirdparty/msnumpress/MSNumpress.cpp
         src/msInterface/internal/base64_utils.cpp
         src/msInterface/internal/xml_utils.cpp
         src/msInterface/msScan.cpp
