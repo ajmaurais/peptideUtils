@@ -27,21 +27,69 @@
 
 #include <msInterface/internal/xml_utils.hpp>
 
-bool utils::_isAttr(const char* s1, const char* s2) {
+bool utils::internal::_isAttr(const char* s1, const char* s2) {
     return strcmp(s1, s2) == 0;
 }
 
-bool utils::_isVal(const char* s1, const char* s2) {
+bool utils::internal::_isAttr(const char *s1, const rapidxml::xml_attribute<>* attr){
+    return strcmp(s1, attr->name()) == 0;
+}
+
+bool utils::internal::_isVal(const char* s1, const char* s2) {
     return strcmp(s1, s2) == 0;
 }
 
-bool utils::_checkAttrVal(const char* name,
+bool utils::internal::_isVal(const char* s1, const rapidxml::xml_attribute<>* attr) {
+    return strcmp(s1, attr->value()) == 0;
+}
+
+int utils::internal::_getAttrValInt(const char* name, const rapidxml::xml_node<>* node){
+    auto* attr = node->first_attribute(name);
+    try{
+        if(attr) return std::stoi(attr->value());
+    } catch(std::invalid_argument& e){
+        throw utils::InvalidXmlFile("Attribute value has incorrect type: " + std::string(name)
+                                    + "=\"" + std::string(attr->value(), attr->value_size()) + "\"");
+    }
+    throw utils::InvalidXmlFile("Required attribute: \'" + std::string(name) + "\' not found.");
+}
+
+size_t utils::internal::_getAttrValUL(const char* name, const rapidxml::xml_node<>* node){
+    auto* attr = node->first_attribute(name);
+    try {
+        if (attr) return std::stoi(attr->value());
+    } catch(std::invalid_argument& e){
+        throw utils::InvalidXmlFile("Attribute value has incorrect type: " + std::string(name)
+                                    + "=\"" + std::string(attr->value(), attr->value_size()) + "\"");
+    }
+    throw utils::InvalidXmlFile("Required attribute: \'" + std::string(name) + "\' not found.");
+}
+
+std::string utils::internal::_getAttrValStr(const char* name, const rapidxml::xml_node<>* node) {
+    auto* attr = node->first_attribute(name);
+    if(attr) return std::string(attr->value(), attr->value_size());
+    else throw utils::InvalidXmlFile("Required attribute: \'" + std::string(name) + "\' not found.");
+}
+
+double utils::internal::_getAttrValdouble(const char* name, const rapidxml::xml_node<>* node) {
+    auto* attr = node->first_attribute(name);
+    if(attr) return std::stod(attr->value());
+    else throw utils::InvalidXmlFile("Required attribute: \'" + std::string(name) + "\' not found.");
+}
+
+rapidxml::xml_node<>* utils::internal::_getFirstChildNode(const char* name, rapidxml::xml_node<>* node) {
+    auto* ret = node->first_node(name);
+    if(ret) return ret;
+    else throw utils::InvalidXmlFile("Required node: \'" + std::string(name) + "\' not found.");
+}
+
+bool utils::internal::_checkAttrVal(const char* name,
                           const char* expected,
                           const rapidxml::xml_attribute<>* attr,
                           size_t scanNum)
 {
-    if(utils::_isAttr(name, attr->name())){
-        if(!utils::_isVal(expected, attr->value())) {
+    if(utils::internal::_isAttr(name, attr)){
+        if(!utils::internal::_isVal(expected, attr)) {
             std::cerr << "Invalid " << std::string(name) << ": " <<
                       std::string(attr->value(), attr->value_size()) << ", in scan" <<
                       std::to_string(scanNum) << NEW_LINE;
@@ -57,7 +105,7 @@ bool utils::_checkAttrVal(const char* name,
  * @param len Length of data.
  * @return Seconds.
  */
-double utils::_xs_duration_to_seconds(char* xs, size_t len)
+double utils::internal::_xs_duration_to_seconds(char* xs, size_t len)
 {
     bool positive = true;
     if(xs[0] != 'P') {
@@ -111,4 +159,23 @@ double utils::_xs_duration_to_seconds(char* xs, size_t len)
         }
     }
     return positive ? ret: -1 * ret;
+}
+
+/**
+ * Convert time value accession to seconds.
+ * @param value Time value in units of \p accession.
+ * @param accession Valid time value accession.
+ * @return Time in seconds.
+ * @throws std::invalid_argument if unknown time value accession.
+ */
+double utils::internal::_obo_to_seconds(double value, const std::string& accession)
+{
+    if(accession == "UO:0000031") return value * 60; //minutes
+    else if(accession == "UO:0000010") return value; //seconds
+    else if(accession == "UO:0000028") return value / 1e3; //millisecond
+    else if(accession == "UO:0000029") return value / 1e6; //microsecond
+    else if(accession == "UO:0000150") return value / 1e9; //nanosecond
+    else if(accession == "UO:0000030") return value / 1e12; //nanosecond
+    else if(accession == "UO:0000032") return value * 3600; //hours
+    else throw std::invalid_argument("Unknown time unit accession: " + accession);
 }

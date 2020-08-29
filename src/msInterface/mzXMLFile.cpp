@@ -27,7 +27,9 @@
 
 #include <msInterface/mzXMLFile.hpp>
 
-void utils::MzXMLFile::_buildIndex()
+using namespace utils;
+
+void msInterface::MzXMLFile::_buildIndex()
 {
     //Check the file type
     if(fileType != FileType::MZXML)
@@ -47,48 +49,58 @@ void utils::MzXMLFile::_buildIndex()
             throw utils::InvalidXmlFile("Unbounded <scan> in file: " + _fname);
 
     _scanCount = 0;
-    std::string newID;
     for(size_t i = 0; i < len; i++)
     {
         // Get the attributes in the <scan> node
         char* c = _buffer + beginScans[i];
-        char* num = strstr(c, "num=\"");
+        char* num = strstr(c, "num");
         char* endNode = strchr(c, '>');
         if(num >= endNode)
             throw utils::InvalidXmlFile("Not able to find required attribute \'num\' in <scan>");
 
         // Find the "num" attribute value
-        newID = "";
-        for(char* it = num + 5; it < endNode; it++) {
-            if(*it == '\"')
-                break;
-            if(isdigit(*it))
-                newID += *it;
-            else
-                throw utils::InvalidXmlFile("Invalid scan header: " + std::string(c, endNode));
-        }
+        // Yes I know that it would be much easier to do this with a regex.
+        // I am choosing not to use a regex because this way is much faster.
+        char* beginNum = nullptr;
+        char* endNum = nullptr;
+        for(char* it = num + 3; it < endNode; ++it) {
+            if(isspace(*it) || *it == '=') continue;
+            if(*it == '\"'){ //We found the beginning of the number
+                ++it;
+                beginNum = it;
+                endNum = it;
+                for(; it < endNode; ++it){
+                    if(*it == '\"') break;
+                    if(isdigit(*it)) ++endNum;
+                    else throw utils::InvalidXmlFile("Invalid scan header: " + std::string(c, endNode));
+                }
+            } //end if
+            break;
+        } //end for it
 
+        if(beginNum == endNum)
+            throw utils::InvalidXmlFile("Not able to find required attribute \'num\' in <scan>");
         try {
-            _scanMap[std::stoi(newID)] = _scanCount;
+            _scanMap[std::stoi(std::string(beginNum, endNum))] = _scanCount;
         } catch(std::invalid_argument& e){
-            throw utils::InvalidXmlFile("Invalid spectrum ID: " + newID);
+            throw utils::InvalidXmlFile("Invalid spectrum ID: " + std::string(beginNum, endNum));
         }
         _offsetIndex.push_back(IntPair(beginScans[i], endScans[i]));
         _scanCount ++;
-    }
+    }//end for i
     firstScan = _scanMap.begin()->first;
     lastScan = _scanMap.rbegin()->first;
     assert(firstScan <= lastScan);
 }
 
 /**
- \brief Get parsed utils::Spectrum from mzXML file.
+ \brief Get parsed utils::msInterface::Spectrum from mzXML file.
 
  \param queryScan scan number to search for
- \param scan empty utils::Spectrum to load scan into
+ \param scan empty utils::msInterface::Spectrum to load scan into
  \return false if \p queryScan not found, true if successful
  */
-bool utils::MzXMLFile::getScan(size_t queryScan, utils::Scan& scan) const
+bool msInterface::MzXMLFile::getScan(size_t queryScan, msInterface::Scan& scan) const
 {
     scan.clear();
     scan.getPrecursor().setSample(_parentFileBase);
@@ -125,68 +137,77 @@ bool utils::MzXMLFile::getScan(size_t queryScan, utils::Scan& scan) const
     // parse scan attributes
     rapidxml::xml_node<> *node = doc.first_node();
     for(auto *attr = node->first_attribute(); attr; attr = attr->next_attribute()){
-        if(utils::_isAttr("retentionTime", attr->name()))
-            scan.getPrecursor().setRT(utils::_xs_duration_to_seconds(attr->value(), attr->value_size()));
-        else if(utils::_isAttr("num", attr->name()))
+        if(utils::internal::_isAttr("retentionTime", attr->name()))
+            scan.getPrecursor().setRT(utils::internal::_xs_duration_to_seconds(attr->value(), attr->value_size()));
+        else if(utils::internal::_isAttr("num", attr->name()))
             scan.setScanNum(std::stol(attr->value()));
-        else if(utils::_isAttr("peaksCount", attr->name()))
+        else if(utils::internal::_isAttr("peaksCount", attr->name()))
             peaksCount = std::stol(attr->value());
-        else if(utils::_isAttr("msLevel", attr->name()))
+        else if(utils::internal::_isAttr("msLevel", attr->name()))
             scan.setLevel(std::stoi(attr->value()));
+        else if(utils::internal::_isAttr("polarity", attr->name())) {
+            char polarity = *attr->value();
+            Polarity setPolarity = Polarity::UNKNOWN;
+            if(polarity == '+')
+                setPolarity = Polarity::POSITIVE;
+            else if(polarity == '-')
+                setPolarity = Polarity::NEGATIVE;
+            scan.setPolarity(setPolarity);
+        }
     }
     //iterate through scan child nodes
     for(node = node->first_node(); node; node = node->next_sibling()) {
-        if(utils::_isVal(node->name(), "precursorMz")){
+        if(utils::internal::_isVal(node->name(), "precursorMz")){
             for(auto *attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-                if(utils::_isAttr("precursorIntensity", attr->name()))
+                if(utils::internal::_isAttr("precursorIntensity", attr->name()))
                     scan.getPrecursor().setIntensity(std::stod(attr->value()));
-                else if(utils::_isAttr("precursorCharge", attr->name()))
+                else if(utils::internal::_isAttr("precursorCharge", attr->name()))
                     scan.getPrecursor().setCharge(std::stoi(attr->value()));
-                else if(utils::_isAttr("activationMethod", attr->name()))
-                    scan.getPrecursor().setActivationMethod(std::string(attr->value()));
+                else if(utils::internal::_isAttr("activationMethod", attr->name()))
+                    scan.getPrecursor().setActivationMethod(msInterface::strToActivation(std::string(attr->value())));
             }
             scan.getPrecursor().setMZ(std::string(node->value()));
         }
-        else if(utils::_isVal(node->name(), "peaks"))
+        else if(utils::internal::_isVal(node->name(), "peaks"))
         {
             // peak attributes
             for(auto *attr = node->first_attribute(); attr; attr = attr->next_attribute())
             {
-                if(utils::_isAttr("precision", attr->name()))
+                if(utils::internal::_isAttr("precision", attr->name()))
                     precision = std::string(attr->value(), attr->value_size());
-                else if(utils::_isAttr("byteOrder", attr->name()))
+                else if(utils::internal::_isAttr("byteOrder", attr->name()))
                     byteOrder = std::string(attr->value(), attr->value_size());
-                else if(utils::_isAttr("compressionType", attr->name()))
+                else if(utils::internal::_isAttr("compressionType", attr->name()))
                     compressionType = std::string(attr->value(), attr->value_size());
-                else if(utils::_isAttr("compressedLen", attr->name())) {
+                else if(utils::internal::_isAttr("compressedLen", attr->name())) {
                     compressedLen = std::stoul(attr->value());
                     compressedLenSet = true;
                 }
-                else if(!utils::_checkAttrVal("contentType", "m/z-int", attr, queryScan))
+                else if(!utils::internal::_checkAttrVal("contentType", "m/z-int", attr, queryScan))
                     return false;
             }
 
             //retrieve peak list
             if(precision == "32" && compressionType == "none")
-                utils::_decode32(scan,
+                utils::internal::_decode32(scan,
                                  node->value(),
                                  node->value_size(),
                                  peaksCount,
                                  byteOrder == "network");
             else if(precision == "64" && compressionType == "none")
-                utils::_decode64(scan,
+                utils::internal::_decode64(scan,
                                  node->value(),
                                  node->value_size(),
                                  peaksCount,
                                  byteOrder == "network");
             else if(precision == "32" && compressionType == "zlib" && compressedLen != 0)
-                utils::_decompress32(scan,
+                utils::internal::_decompress32(scan,
                                      std::string(node->value(), node->value_size()),
                                      peaksCount,
                                      compressedLen,
                                      byteOrder == "network");
             else if(precision == "64" && compressionType == "zlib" && compressedLen != 0)
-                utils::_decompress64(scan,
+                utils::internal::_decompress64(scan,
                                      std::string(node->value(), node->value_size()),
                                      peaksCount,
                                      compressedLen,

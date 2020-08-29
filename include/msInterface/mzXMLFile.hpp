@@ -36,17 +36,19 @@
 #include <exceptions.hpp>
 
 namespace utils{
-    class MzXMLFile;
+    namespace msInterface {
+        class MzXMLFile;
 
-    class MzXMLFile: public utils::MsInterface{
-    private:
-        void _buildIndex() override;
+        class MzXMLFile : public MsInterface {
+        private:
+            void _buildIndex() override;
 
-    public:
+        public:
 
-        //properties
-        bool getScan(size_t, Scan&) const override;
-    };
+            //properties
+            bool getScan(size_t, Scan &) const override;
+        };
+    }
 }
 
 #endif

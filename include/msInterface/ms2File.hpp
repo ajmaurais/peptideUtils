@@ -42,29 +42,30 @@
 #include <msInterface/msScan.hpp>
 
 namespace utils {
-	
-	int const MD_NUM = 2;
+    namespace msInterface {
+        int const MD_NUM = 2;
 
-    class Ms2File;
-	class Ms2File : public utils::MsInterface{
-	private:
-		bool getMetaData();
+        class Ms2File;
 
-		void _buildIndex() override;
+        class Ms2File : public MsInterface {
+        private:
+            bool getMetaData();
 
-	public:
-		Ms2File(std::string fname = "") : MsInterface(fname){
-			initMetadata();
-		}
-		~Ms2File(){}
-		
-		bool read() override;
-		bool read(std::string fname) override;
-		
-		//properties
-		bool getScan(size_t, Scan&) const override;
-	};
-		
+            void _buildIndex() override;
+
+        public:
+            Ms2File(std::string fname = "") : MsInterface(fname) {
+                initMetadata();
+            }
+            ~Ms2File() {}
+
+            bool read() override;
+            bool read(std::string fname) override;
+
+            //properties
+            bool getScan(size_t, Scan &) const override;
+        };
+    }
 }//end of namespace
 
 #endif /* ms2_hpp */

@@ -32,13 +32,24 @@
 #include <string>
 
 #include <utils.hpp>
+#include <exceptions.hpp>
 #include <thirdparty/rapidxml/rapidxml.hpp>
 
 namespace utils {
-    bool _isVal(const char* s1, const char* s2);
-    bool _isAttr(const char* s1, const char* s2);
-    bool _checkAttrVal(const char* name, const char* expected, const rapidxml::xml_attribute<>* attr, size_t scanNum);
-    double _xs_duration_to_seconds(char* xs, size_t len);
+    namespace internal {
+        bool _isVal(const char* s1, const char* s2);
+        bool _isVal(const char* s1, const rapidxml::xml_attribute<>* attr);
+        bool _isAttr(const char* s1, const char* s2);
+        bool _isAttr(const char* s1, const rapidxml::xml_attribute<>* attr);
+        bool _checkAttrVal(const char* name, const char* expected, const rapidxml::xml_attribute<>* attr, size_t scanNum);
+        double _xs_duration_to_seconds(char* xs, size_t len);
+        double _obo_to_seconds(double value, const std::string& accession);
+        int _getAttrValInt(const char* name, const rapidxml::xml_node<>* node);
+        size_t _getAttrValUL(const char* name, const rapidxml::xml_node<>* node);
+        std::string _getAttrValStr(const char* name, const rapidxml::xml_node<>* node);
+        double _getAttrValdouble(const char* name, const rapidxml::xml_node<>* node);
+        rapidxml::xml_node<>* _getFirstChildNode(const char* name, rapidxml::xml_node<>* node);
+    }
 }
 
 #endif

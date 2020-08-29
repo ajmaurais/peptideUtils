@@ -36,17 +36,21 @@
 #include <exceptions.hpp>
 
 namespace utils{
-    class MzMLFile;
+    namespace msInterface {
+        class MzMLFile;
 
-    class MzMLFile: public utils::MsInterface{
-    private:
-        void _buildIndex() override;
+        class MzMLFile : public MsInterface {
+        private:
+            void _buildIndex() override;
 
-    public:
+            std::string _parseScan(std::string) const;
 
-        //properties
-        bool getScan(size_t, Scan&) const override;
-    };
+        public:
+
+            //properties
+            bool getScan(size_t, Scan &) const override;
+        };
+    }
 }
 
 #endif

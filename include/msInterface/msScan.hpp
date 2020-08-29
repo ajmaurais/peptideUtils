@@ -34,276 +34,312 @@
 #include <exceptions.hpp>
 
 namespace utils {
+    namespace msInterface {
 
-    typedef double ScanIntensity;
-    typedef double ScanMZ;
+        typedef double ScanIntensity;
+        typedef double ScanMZ;
 
-    class Scan;
-    class PrecursorScan;
-    template<typename MZ_T, typename INTENSITY_T> class Ion;
-    typedef Ion<ScanMZ, ScanIntensity> ScanIon;
+        //! Represents ion activation methods
+        enum class ActivationMethod {
+            CID, /**< collision-induced dissociation */
+            MPD, /**< photodissociation */
+            ECD, /**< electron capture dissociation */
+            ETD, /**< electron transfer dissociation */
+            PQD, /**< pulsed q dissociation */
+            HCD, /**< higher-energy collisional dissociation */
+            UNKNOWN
+        };
+        ActivationMethod strToActivation(const std::string&);
+        std::string activationToOBO(msInterface::ActivationMethod activation);
+        std::string activationToString(msInterface::ActivationMethod am);
+        ActivationMethod oboToActivation(std::string obo);
+        //! Represents MS scan modes
+        enum class Polarity {POSITIVE, NEGATIVE, UNKNOWN};
 
-    template<typename MZ_T, typename INTENSITY_T>
-    class Ion {
-    protected:
-        MZ_T _mz;
-        INTENSITY_T _intensity;
-    public:
-        Ion() {
-            _mz = 0;
-            _intensity = 0;
-        }
+        class Scan;
 
-        Ion(MZ_T mz, INTENSITY_T intensity) {
-            _mz = mz;
-            _intensity = intensity;
-        }
+        class PrecursorScan;
 
-        Ion(const Ion<MZ_T, INTENSITY_T> &rhs) {
-            _mz = rhs._mz;
-            _intensity = rhs._intensity;
-        }
+        template<typename MZ_T, typename INTENSITY_T>
+        class Ion;
 
-        Ion<MZ_T, INTENSITY_T> &operator=(const Ion<MZ_T, INTENSITY_T> &rhs) {
-            _mz = rhs._mz;
-            _intensity = rhs._intensity;
-            return *this;
-        }
+        typedef Ion<ScanMZ, ScanIntensity> ScanIon;
 
-        // setters
-        void setIntensity(INTENSITY_T intensity) {
-            _intensity = intensity;
-        }
-        void setMZ(MZ_T mz) {
-            _mz = mz;
-        }
-
-        // getters
-        MZ_T getMZ() const {
-            return _mz;
-        }
-        INTENSITY_T getIntensity() const {
-            return _intensity;
-        }
-
-        //for utils::insertSorted()
-        inline bool insertCompare(const Ion& comp) const{
-            return _intensity > comp._intensity;
-        }
-
-        struct MZComparison {
-            bool operator()(const Ion& lhs, const Ion& rhs) const{
-                return lhs.getMZ() < rhs.getMZ();
+        template<typename MZ_T, typename INTENSITY_T>
+        class Ion {
+        protected:
+            MZ_T _mz;
+            INTENSITY_T _intensity;
+        public:
+            Ion() {
+                _mz = 0;
+                _intensity = 0;
+            }
+            Ion(MZ_T mz, INTENSITY_T intensity) {
+                _mz = mz;
+                _intensity = intensity;
+            }
+            Ion(const Ion<MZ_T, INTENSITY_T> &rhs) {
+                _mz = rhs._mz;
+                _intensity = rhs._intensity;
+            }
+            Ion<MZ_T, INTENSITY_T> &operator=(const Ion<MZ_T, INTENSITY_T> &rhs) {
+                _mz = rhs._mz;
+                _intensity = rhs._intensity;
+                return *this;
             }
 
-            bool operator()(const Ion& lhs, double rhs) const{
-                return lhs.getMZ() < rhs;
+            // setters
+            void setIntensity(INTENSITY_T intensity) {
+                _intensity = intensity;
+            }
+            void setMZ(MZ_T mz) {
+                _mz = mz;
+            }
+
+            // getters
+            MZ_T getMZ() const {
+                return _mz;
+            }
+            INTENSITY_T getIntensity() const {
+                return _intensity;
+            }
+
+            //for utils::insertSorted()
+            inline bool insertCompare(const Ion &comp) const {
+                return _intensity > comp._intensity;
+            }
+
+            struct MZComparison {
+                bool operator()(const Ion &lhs, const Ion &rhs) const {
+                    return lhs.getMZ() < rhs.getMZ();
+                }
+
+                bool operator()(const Ion &lhs, double rhs) const {
+                    return lhs.getMZ() < rhs;
+                }
+            };
+
+            struct IntComparison {
+                bool operator()(Ion *lhs, Ion *rhs) const {
+                    return lhs->insertCompare(*rhs);
+                }
+            };
+        };
+
+        class PrecursorScan : public Ion<std::string, ScanIntensity> {
+        private:
+            std::string _scan;
+            double _rt;
+            //! parent file path
+            std::string _file;
+            //! sample name (usually this should just be the file basename with no extension)
+            std::string _sample;
+            ActivationMethod _activationMethod;
+            int _charge;
+
+        public:
+            PrecursorScan() : Ion("", 0) {
+                _scan = "";
+                _rt = 0;
+                _file = "";
+                _sample = "";
+                _charge = 0;
+                _activationMethod = ActivationMethod::UNKNOWN;
+            }
+
+            PrecursorScan(const PrecursorScan &rhs) : Ion(rhs) {
+                _scan = rhs._scan;
+                _rt = rhs._rt;
+                _file = rhs._file;
+                _sample = rhs._sample;
+                _charge = rhs._charge;
+                _activationMethod = rhs._activationMethod;
+            }
+
+            PrecursorScan &operator=(const PrecursorScan &rhs) {
+                Ion::operator=(rhs);
+                _scan = rhs._scan;
+                _rt = rhs._rt;
+                _file = rhs._file;
+                _sample = rhs._sample;
+                _charge = rhs._charge;
+                _activationMethod = rhs._activationMethod;
+                return *this;
+            }
+
+            //modifiers
+            void setScan(const std::string &scan) {
+                _scan = scan;
+            }
+            void setRT(double rt) {
+                _rt = rt;
+            }
+            void setFile(const std::string &file) {
+                _file = file;
+            }
+            void setSample(const std::string &sample) {
+                _sample = sample;
+            }
+            void setActivationMethod(ActivationMethod am) {
+                _activationMethod = am;
+            }
+            void setCharge(int charge) {
+                _charge = charge;
+            }
+            void clear();
+
+            //properties
+            const std::string &getScan() const {
+                return _scan;
+            }
+            std::string getSample() const {
+                return _sample;
+            }
+            double getRT() const {
+                return _rt;
+            }
+            const std::string &getFile() const {
+                return _file;
+            }
+            int getCharge() const {
+                return _charge;
+            }
+            ActivationMethod getActivationMethod() const {
+                return _activationMethod;
             }
         };
 
-        struct IntComparison {
-            bool operator()(Ion *lhs, Ion *rhs) const{
-                return lhs->insertCompare(*rhs);
+        class Scan {
+        private:
+            ScanMZ _minMZ;
+            ScanMZ _maxMZ;
+        protected:
+            typedef std::vector<ScanIon> IonsType;
+            size_t _scanNum;
+            PrecursorScan precursorScan;
+
+            //dynamic metadata
+            ScanIntensity _maxInt;
+            ScanIntensity _minInt;
+            ScanMZ _mzRange;
+            int _level;
+            Polarity _polarity;
+            //! ion injection time in millisecond
+            double _ionInjectionTime;
+
+            //! vector of Ion(s)
+            IonsType _ions;
+
+        public:
+
+            Scan() {
+                _maxInt = 0;
+                _minInt = 0;
+                _minMZ = 0;
+                _maxMZ = 0;
+                _mzRange = 0;
+                _level = 0;
+                _polarity = Polarity::UNKNOWN;
+                _ionInjectionTime = 0;
+                precursorScan = PrecursorScan();
+                _ions = IonsType();
+                _scanNum = std::string::npos;
+            }
+
+            Scan(const Scan &);
+            Scan &operator=(const Scan &);
+
+            void clear();
+            void add(const ScanIon &);
+            void add(ScanMZ, ScanIntensity);
+            void setMinMZ(ScanMZ);
+            void setMaxMZ(ScanMZ);
+            void updateRanges();
+
+            PrecursorScan &getPrecursor() {
+                return precursorScan;
+            }
+            const PrecursorScan &getPrecursor() const {
+                return precursorScan;
+            }
+            IonsType &getIons() {
+                return _ions;
+            }
+            ScanIon &operator[](size_t i) {
+                return _ions[i];
+            }
+            const ScanIon &at(size_t i) const {
+                return _ions.at(i);
+            }
+            ScanIon &at(size_t i) {
+                return _ions.at(i);
+            }
+            const IonsType &getIons() const {
+                return _ions;
+            }
+            IonsType::iterator begin() {
+                return _ions.begin();
+            }
+            IonsType::iterator end() {
+                return _ions.end();
+            }
+            IonsType::const_iterator begin() const {
+                return _ions.begin();
+            }
+            IonsType::const_iterator end() const {
+                return _ions.end();
+            }
+            size_t size() {
+                return _ions.size();
+            }
+            ScanIntensity getMaxInt() const {
+                return _maxInt;
+            }
+            ScanIntensity getMinInt() const {
+                return _minInt;
+            }
+            ScanMZ getMinMZ() const {
+                return _minMZ;
+            }
+            ScanMZ getMaxMZ() const {
+                return _maxMZ;
+            }
+            ScanMZ getMzRange() const {
+                return _mzRange;
+            }
+            size_t getScanNum() const {
+                return _scanNum;
+            }
+            int getLevel() const {
+                return _level;
+            }
+            Polarity getPolarity() const {
+                return _polarity;
+            }
+            double getIonInjectionTime() const{
+                return _ionInjectionTime;
+            }
+            void setIonInjectionTime(double t){
+                _ionInjectionTime = t;
+            }
+            void setScanNum(size_t scanNum) {
+                _scanNum = scanNum;
+            }
+            void setMaxInt(ScanIntensity maxInt) {
+                _maxInt = maxInt;
+            }
+            void setMinInt(ScanIntensity minInt) {
+                _minInt = minInt;
+            }
+            void setLevel(int l) {
+                _level = l;
+            }
+            void setPolarity(Polarity p) {
+                _polarity = p;
             }
         };
-    };
-
-    class PrecursorScan : public Ion<std::string, ScanIntensity> {
-    private:
-        std::string _scan;
-        double _rt;
-        //! parent file path
-        std::string _file;
-        //! sample name (usually this should just be the file basename with no extension)
-        std::string _sample;
-        std::string _activationMethod;
-        int _charge;
-
-    public:
-        PrecursorScan() : Ion("", 0) {
-            _scan = "";
-            _rt = 0;
-            _file = "";
-            _sample = "";
-            _charge = 0;
-            _activationMethod = "";
-        }
-
-        PrecursorScan(const PrecursorScan &rhs) : Ion(rhs) {
-            _scan = rhs._scan;
-            _rt = rhs._rt;
-            _file = rhs._file;
-            _sample = rhs._sample;
-            _charge = rhs._charge;
-            _activationMethod = rhs._activationMethod;
-        }
-
-        PrecursorScan &operator=(const PrecursorScan &rhs) {
-            Ion::operator=(rhs);
-            _scan = rhs._scan;
-            _rt = rhs._rt;
-            _file = rhs._file;
-            _sample = rhs._sample;
-            _charge = rhs._charge;
-            _activationMethod = rhs._activationMethod;
-            return *this;
-        }
-
-        //modifiers
-        void setScan(const std::string &scan) {
-            _scan = scan;
-        }
-        void setRT(double rt) {
-            _rt = rt;
-        }
-        void setFile(const std::string &file) {
-            _file = file;
-        }
-        void setSample(const std::string& sample) {
-            _sample = sample;
-        }
-        void setActivationMethod(const std::string& am) {
-            _activationMethod = am;
-        }
-        void setCharge(int charge) {
-            _charge = charge;
-        }
-
-        void clear();
-
-        //properties
-        const std::string &getScan() const {
-            return _scan;
-        }
-        std::string getSample() const {
-            return _sample;
-        }
-        double getRT() const {
-            return _rt;
-        }
-        const std::string &getFile() const {
-            return _file;
-        }
-        int getCharge() const {
-            return _charge;
-        }
-        std::string getActivationMethod() const {
-            return _activationMethod;
-        }
-    };
-
-    class Scan {
-    private:
-        ScanMZ _minMZ;
-        ScanMZ _maxMZ;
-    protected:
-        typedef std::vector<ScanIon> IonsType;
-        size_t _scanNum;
-        PrecursorScan precursorScan;
-
-        //dynamic metadata
-        ScanIntensity _maxInt;
-        ScanIntensity _minInt;
-        ScanMZ _mzRange;
-        int _level;
-
-        //! vector of Ion(s)
-        IonsType _ions;
-
-    public:
-
-        Scan() {
-            _maxInt = 0;
-            _minInt = 0;
-            _minMZ = 0;
-            _maxMZ = 0;
-            _mzRange = 0;
-            _level = 0;
-            precursorScan = PrecursorScan();
-            _ions = IonsType();
-            _scanNum = std::string::npos;
-        }
-        Scan(const Scan&);
-        Scan& operator = (const Scan&);
-
-        void clear();
-
-        PrecursorScan& getPrecursor() {
-            return precursorScan;
-        }
-        const PrecursorScan& getPrecursor() const {
-            return precursorScan;
-        }
-        IonsType& getIons() {
-            return _ions;
-        }
-        utils::ScanIon& operator [] (size_t i) {
-            return _ions[i];
-        }
-        const utils::ScanIon& at(size_t i) const {
-            return _ions.at(i);
-        }
-        utils::ScanIon& at(size_t i){
-            return _ions.at(i);
-         }
-        const IonsType& getIons() const {
-            return _ions;
-        }
-        IonsType::iterator begin() {
-            return _ions.begin();
-        }
-        IonsType::iterator end() {
-            return _ions.end();
-        }
-        IonsType::const_iterator begin() const {
-            return _ions.begin();
-        }
-        IonsType::const_iterator end() const{
-            return _ions.end();
-        }
-        size_t size() {
-            return _ions.size();
-        }
-        ScanIntensity getMaxInt() const {
-            return _maxInt;
-        }
-        ScanIntensity getMinInt() const {
-            return _minInt;
-        }
-        ScanMZ getMinMZ() const{
-            return _minMZ;
-        }
-        ScanMZ getMaxMZ() const{
-            return _maxMZ;
-        }
-        ScanMZ getMzRange() const{
-            return _mzRange;
-        }
-        size_t getScanNum() const {
-            return _scanNum;
-        }
-        int getLevel() const {
-            return _level;
-        }
-
-        void setScanNum(size_t scanNum){
-            _scanNum = scanNum;
-        }
-        void setMaxInt(ScanIntensity maxInt){
-            _maxInt = maxInt;
-        }
-        void setMinInt(ScanIntensity minInt){
-            _minInt = minInt;
-        }
-        void setLevel(int l) {
-            _level = l;
-        }
-        void add(const ScanIon&);
-        void add(ScanMZ, ScanIntensity);
-        void setMinMZ(ScanMZ);
-        void setMaxMZ(ScanMZ);
-        void updateRanges();
-    };
+    }
 }
 
 #endif

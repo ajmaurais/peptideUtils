@@ -34,72 +34,76 @@
 #include <msInterface/msScan.hpp>
 
 namespace utils {
+    namespace msInterface {
+        class MsInterface;
 
-    class MsInterface;
+        size_t const SCAN_INDEX_NOT_FOUND = std::string::npos;
 
-    size_t const SCAN_INDEX_NOT_FOUND = std::string::npos;
+        class MsInterface : public utils::BufferFile {
+        public:
+            enum class FileType {
+                MS2, MZXML, MZML, UNKNOWN
+            };
 
-    class MsInterface: public utils::BufferFile{
-    public:
-        enum class FileType{MS2, MZXML, MZML, UNKNOWN};
+        protected:
+            typedef std::pair<size_t, size_t> IntPair;
+            typedef std::vector<IntPair> OffsetIndexType;
 
-    protected:
-        typedef std::pair<size_t, size_t> IntPair;
-        typedef std::vector<IntPair> OffsetIndexType;
+            //!Parent file type
+            FileType fileType;
 
-        //!Parent file type
-        FileType fileType;
+            //!Stores pairs of offset values for scans
+            OffsetIndexType _offsetIndex;
+            //!Maps scan numbers to indecies in _offsetIndex
+            std::map<size_t, size_t> _scanMap;
+            //!Actual number of scans read from file
+            size_t _scanCount;
 
-        //!Stores pairs of offset values for scans
-        OffsetIndexType _offsetIndex;
-        //!Maps scan numbers to indecies in _offsetIndex
-        std::map<size_t, size_t> _scanMap;
-        //!Actual number of scans read from file
-        size_t _scanCount;
+            //metadata
+            // Maybe later this will expand. For now this is all I need.
+            std::string _parentFileBase;
+            size_t firstScan, lastScan;
 
-        //metadata
-        // Maybe later this will expand. For now this is all I need.
-        std::string _parentFileBase;
-        size_t firstScan, lastScan;
+            virtual void _buildIndex() = 0;
+            void copyMetadata(const MsInterface &rhs);
+            void initMetadata();
+            size_t _getScanIndex(size_t) const;
 
-        virtual void _buildIndex() = 0;
-        void copyMetadata(const MsInterface& rhs);
-        void initMetadata();
-        size_t _getScanIndex(size_t) const;
+        public:
+            //! Default constructor
+            explicit MsInterface(std::string fname = "");
 
-    public:
-        //! Default constructor
-        explicit MsInterface(std::string fname = "");
-        //!copy constructor
-        MsInterface(const MsInterface& rhs);
-        //!copy assignment
-        MsInterface& operator = (const MsInterface& rhs);
-        ~MsInterface(){}
+            //!copy constructor
+            MsInterface(const MsInterface &rhs);
 
-        void calcParentFileBase(std::string path);
+            //!copy assignment
+            MsInterface &operator=(const MsInterface &rhs);
+            ~MsInterface() {}
 
-        virtual bool read(std::string) override;
-        virtual bool read();
-        virtual bool getScan(size_t, utils::Scan&) const = 0;
-        bool getScan(std::string, utils::Scan&) const;
+            void calcParentFileBase(std::string path);
+            virtual bool read(std::string) override;
+            virtual bool read();
+            virtual bool getScan(size_t, Scan &) const = 0;
+            bool getScan(std::string, Scan &) const;
 
-        //metadata getters
-        size_t getScanCount() const{
-            return _scanCount;
-        }
-        size_t getLastScan() const {
-            return lastScan;
-        }
-        size_t getFirstScan() const {
-            return firstScan;
-        }
-        std::string getParentFileBase() const{
-            return _parentFileBase;
-        }
-        size_t nextScan(size_t i) const;
-
-        static FileType getFileType(std::string fname);
-    };
+            //metadata getters
+            size_t getScanCount() const {
+                return _scanCount;
+            }
+            size_t getLastScan() const {
+                return lastScan;
+            }
+            size_t getFirstScan() const {
+                return firstScan;
+            }
+            std::string getParentFileBase() const {
+                return _parentFileBase;
+            }
+            size_t nextScan(size_t i) const;
+            size_t prevScan(size_t i) const;
+            static FileType getFileType(std::string fname);
+        };
+    }
 }
 
 #endif

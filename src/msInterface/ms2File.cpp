@@ -27,7 +27,9 @@
 
 #include <msInterface/ms2File.hpp>
 
-void utils::Ms2File::_buildIndex()
+using namespace utils;
+
+void msInterface::Ms2File::_buildIndex()
 {
     //Check the file type
     if(fileType != FileType::MS2)
@@ -58,7 +60,7 @@ void utils::Ms2File::_buildIndex()
 	}
 }
 
-bool utils::Ms2File::getMetaData()
+bool msInterface::Ms2File::getMetaData()
 {
 	//find header in buffer and put it into ss
 	std::stringstream ss;
@@ -92,14 +94,14 @@ bool utils::Ms2File::getMetaData()
 }
 
 /**
- \brief Get parsed utils::Spectrum from ms2 file.
+ \brief Get parsed msInterface::Spectrum from ms2 file.
  
  \param queryScan scan number to search for
- \param scan empty utils::Spectrum to load scan into
+ \param scan empty msInterface::Spectrum to load scan into
  \return false if \p queryScan not found, true if successful
  \throws utils::FileIOError if the format of the .ms2 file is invalid.
  */
-bool utils::Ms2File::getScan(size_t queryScan, Scan& scan) const
+bool msInterface::Ms2File::getScan(size_t queryScan, Scan& scan) const
 {
 	scan.clear();
 	scan.getPrecursor().setSample(_parentFileBase);
@@ -179,12 +181,12 @@ bool utils::Ms2File::getScan(size_t queryScan, Scan& scan) const
 	return true;
 }
 
-bool utils::Ms2File::read(std::string fname) {
+bool msInterface::Ms2File::read(std::string fname) {
     bool sucess = MsInterface::read(fname);
     return sucess && getMetaData();
 }
 
-bool utils::Ms2File::read() {
+bool msInterface::Ms2File::read() {
     bool sucess = MsInterface::read();
     return sucess && getMetaData();
 }
