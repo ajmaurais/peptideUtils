@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include <fastaFile.hpp>
+#include <molecularFormula.hpp>
 
 namespace Rcpp{
     typedef std::vector<double> NumericVector;
@@ -12,7 +13,63 @@ namespace Rcpp{
     typedef std::vector<int> IntegerVector;
 }
 
-void readFasta(std::string fastaPath = "", long n_entries = 0)
+void digest(Rcpp::CharacterVector sequences, Rcpp::CharacterVector ids,
+                  unsigned nMissedCleavages = 0, std::string cleavagePattern = "([RK])(?=[^P])",
+                  bool mz_filter = true, std::string residueAtoms = "",
+                  double minMz = 400, double maxMz = 1800,
+                  int minCharge = 1, int maxCharge = 5,
+                  size_t minLen = 6, size_t maxLen = 0)
+{
+    //get file paths for atom mass tables
+    std::string residueAtomsPath;
+
+    if(mz_filter){
+        //residueAtomsPath = residueAtoms.empty() ? _getPackageData("defaultResidueAtoms.txt") : residueAtoms;
+        residueAtomsPath = "/Users/Aaron/code/peptideUtils/peptideUtils/inst/defaultResidueAtoms.txt";
+    }
+
+    //check args
+    if(ids.size() != sequences.size())
+        throw std::runtime_error("sequences and ids must be the same length!");
+
+    size_t _maxLen = maxLen == 0 ? std::string::npos : maxLen;
+
+    size_t len = sequences.size();
+    for(size_t i = 0; i < len; i++)
+    {
+        std::vector<std::string> peptides_temp;
+        Rcpp::CharacterVector ret_temp;
+        if(mz_filter)
+        {
+            //init residues
+            utils::Residues residues(residueAtomsPath);
+            if(!residues.initialize())
+            throw std::runtime_error("Error reading required files for calcMass!");
+
+            residues.digest(utils::removeWhitespace(std::string(sequences[i])), peptides_temp, nMissedCleavages, false, cleavagePattern,
+                            minMz, maxMz, minCharge, maxCharge);
+
+            std::sort(peptides_temp.begin(), peptides_temp.end(), utils::strLenCompare());
+            for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it)
+            {
+                size_t len_temp = it->length();
+                if(len_temp >= minLen && (_maxLen == std::string::npos ? true : len_temp <= _maxLen))
+                    ret_temp.push_back(it->c_str());
+            }
+
+        }//end if mz_filter
+        else{
+            utils::digest(utils::removeWhitespace(std::string(sequences[i])), peptides_temp,
+                          nMissedCleavages, minLen, _maxLen, cleavagePattern);
+            for(auto it = peptides_temp.begin(); it != peptides_temp.end(); ++it){
+                ret_temp.push_back(it->c_str());
+            }
+        }
+    }
+}
+
+void readFasta(std::vector<const char*>& ids, std::vector<const char*>& sequnces,
+               std::string fastaPath = "", long n_entries = 0)
 {
     //std::string _fastaPath = fastaPath.empty() ?
     //                         _getPackageData("extdata/Human_uniprot-reviewed_20171020.fasta") : fastaPath;
@@ -23,8 +80,6 @@ void readFasta(std::string fastaPath = "", long n_entries = 0)
     utils::FastaFile fasta(true, _fastaPath);
     if(!fasta.read()) throw std::runtime_error("Could not read fasta file!");
 
-    Rcpp::CharacterVector ids, seqs;
-
     size_t len = fasta.getSequenceCount();
     if(n_entries > len)
         throw std::runtime_error("n_entries more than the number of entries in file!");
@@ -33,46 +88,16 @@ void readFasta(std::string fastaPath = "", long n_entries = 0)
     for(size_t i = 0; i < len; i++)
     {
         ids.push_back(fasta.getIndexID(i).c_str());
-        seqs.push_back(fasta.at(i).c_str());
+        sequnces.push_back(fasta.at(i).c_str());
     }
 
-    std::cout << "Read " << seqs.size() << " sequences!\n";
+    std::cout << "Read " << sequnces.size() << " sequences!\n";
 
     // return Rcpp::DataFrame::create(Rcpp::Named("id") = ids,
     //                                Rcpp::Named("sequence") = seqs,
     //                                Rcpp::Named("stringsAsFactors") = false);
 }
 
-void transpose_sequence(const Rcpp::StringVector& peptide_sequences,
-                        const Rcpp::NumericVector& quantification,
-                        const std::string& protein_seq)
-{
-    if(peptide_sequences.size() != quantification.size())
-        throw std::runtime_error("peptide_sequences and quantification must be the same length!");
-
-    std::vector<char> residues;
-    Rcpp::IntegerVector numbers;
-    Rcpp::NumericVector quantifications;
-
-    size_t n_seq = peptide_sequences.size();
-    size_t begin, end;
-    for(size_t i = 0; i < n_seq; i++)
-    {
-        if(!utils::align(peptide_sequences[i], protein_seq, begin, end))
-            throw std::runtime_error("Peptide sequence '" + peptide_sequences[i] + "' does not exist in protein_seq!");
-
-        size_t pep_len = peptide_sequences[i].size();
-        for(size_t pep_begin = 0; pep_begin < pep_len; pep_begin++) {
-            residues.push_back(peptide_sequences[i][pep_begin]);
-            numbers.push_back(pep_begin + begin);
-            quantifications.push_back(quantification[i]);
-        }
-    }
-
-    // return Rcpp::DataFrame::create(Rcpp::Named("residue") = residues,
-    //                                Rcpp::Named("number") = numbers,
-    //                                Rcpp::Named("quant") = quantifications);
-}
 
 int main() {
 
@@ -81,21 +106,11 @@ int main() {
     fastaFile.read(fname);
     // std::string pfkl_seq = fastaFile.getSequence("P17858");
 
-    readFasta(fname);
+    std::vector<const char*> ids, sequences;
+    readFasta(ids, sequences, fname, 10);
 
-    // const std::string seqs [] = {"AAAYNLVQHGITNLCVIGGDGSLTGANIFR",
-    //     "AAAYNLVQHGITNLCVIGGDGSLTGANIFR", "AAAYNLVQHGITNLCVIGGDGSLTGANIFR",
-    //     "AIGVLTSGGDAQGMNAAVR", "AIGVLTSGGDAQGMNAAVR", "AIGVLTSGGDAQGMNAAVR",
-    //     "AIGVLTSGGDAQGMNAAVR", "AMDDKRFDEATQLR", "AMDDKRFDEATQLR", "AMDDKRFDEATQLR"};
+    digest(ids, sequences);
 
-    // const double ratios [] = {0.05, 0.05, 0.05, 0.997914597815293, 1.96910994764398,
-    //     0.997914597815293, 1.9673647469459, 1.57885220125786,
-    //     0.402500267122556, 1.61120882635114};
-
-    // std::vector <std::string> seqs_v(seqs, seqs + 10);
-    // std::vector <double> ratios_v(ratios, ratios + 10);
-
-    // transpose_sequence(seqs_v, ratios_v, pfkl_seq);
 
     return 0;
 }
