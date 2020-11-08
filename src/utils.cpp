@@ -567,7 +567,7 @@ bool utils::isInteger(const std::string & s)
  \param max maximum valid value
  \return int between min and max
  */
-int utils::getInt(int min, int max)
+int utils::readInt(int min, int max)
 {
 	std::string choice;
 	int ret = min - 1;
@@ -595,6 +595,16 @@ int utils::getInt(int min, int max)
 	} while(!good);
 	return ret;
 }//end of fxn
+
+//! Return true if a and b are within FLT_EPSILON
+bool utils::almostEqual(float a, float b){
+	return fabs(a - b) <= FLT_EPSILON;
+}
+
+//! Return true if a and b are within FLT_EPSILON
+bool utils::almostEqual(double a, double b){
+	return fabs(a - b) <= DBL_EPSILON;
+}
 
 /**
  Prints progress bar to std::out

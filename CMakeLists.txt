@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 3.9)
-project(utils VERSION 1.2.0)
+project(utils VERSION 1.3.0)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -29,6 +29,7 @@ add_library(utils STATIC ${SOURCES})
 
 target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+install(TARGETS utils DESTINATION lib)
 #set_target_properties(utils PROPERTIES
 #    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 #)
