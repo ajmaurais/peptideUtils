@@ -98,19 +98,33 @@ void readFasta(std::vector<const char*>& ids, std::vector<const char*>& sequnces
     //                                Rcpp::Named("stringsAsFactors") = false);
 }
 
-
 int main() {
 
     utils::FastaFile fastaFile;
     std::string fname = "/Users/Aaron/Documents/School_Work/analysis/chatterjee_lab_PW_incorporation/percent_W_Y_in_proteome/data/human_proteome.fasta";
+    std::string pfkl_id = "P17858";
     fastaFile.read(fname);
-    // std::string pfkl_seq = fastaFile.getSequence("P17858");
+    std::string pfkl_seq = fastaFile.getSequence(pfkl_id);
 
     std::vector<const char*> ids, sequences;
     readFasta(ids, sequences, fname, 10);
 
     digest(ids, sequences);
 
+    std::string peptides_a [] = {"AAYNLVQHGITNLCVIGGDGSLTGANIFR", "AAYVFEDPFNIHDLK", "AAYVSGELEHVTR", "ADAAYVFEDPFNIHDLK", "AFSPVTELKK", "AGLVGSIDNDFCGTDMTIGTDSALHR", "AGWLGR"};
+    std::vector<std::string> peptides(peptides_a, peptides_a + 7);
+
+    for(auto it = peptides.begin(); it != peptides.end(); ++it)
+    {
+        int end = utils::indexN(*it, pfkl_seq, std::string::npos);
+        int begin = utils::indexN(*it, pfkl_seq, 0);
+        std::cout << *it << " l = " << it->length() << " -> "<< begin << ", " << end << ", ";
+        std::string test_seq;
+        for(int i = begin; i <= end; i++)
+            test_seq += pfkl_seq[i];
+        assert(test_seq == *it);
+        std::cout << test_seq << std::endl;
+    }
 
     return 0;
 }
