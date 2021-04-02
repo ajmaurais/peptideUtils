@@ -1,18 +1,23 @@
+
 include(FindPkgConfig)
 
 add_library(zlib INTERFACE)
-set(ZLIB_VERSION "1.2.11")
 find_package(zlib ${ZLIB_VERSION})
 
 if(NOT ZLIB_FOUND)
+	set(SYSTEM_ZLIB FALSE)
 	include(ExternalProject)
 	include(GNUInstallDirs)
 
 	set(ZLIB_PREFIX "zlib-${ZLIB_VERSION}")
 
-	set(ZLIB_URL ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/zlib1211.zip)
+	if(NOT DEFINED ZLIB_URL)
+		set(ZLIB_URL ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/zlib1211.zip)
+	endif()
+	if(NOT DEFINED ZLIB_SRC_BASE)
+		set(ZLIB_SRC_BASE ${CMAKE_CURRENT_BINARY_DIR}/${ZLIB_PREFIX}) 
+	endif()
 	set(ZLIB_URL_MD5 16b41357b2cd81bca5e1947238e64465)
-	set(ZLIB_SRC_BASE ${CMAKE_CURRENT_BINARY_DIR}/${ZLIB_PREFIX}) 
 
 	ExternalProject_Add(${ZLIB_PREFIX}
 			PREFIX ${ZLIB_PREFIX}
@@ -31,6 +36,9 @@ if(NOT ZLIB_FOUND)
 	add_dependencies(zlib ${ZLIB_PREFIX})
 	set(ZLIB_LIBRARY ${LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_STATIC_LIBRARY_PREFIX}z${CMAKE_STATIC_LIBRARY_SUFFIX})
 	set(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+	set(ZLIB_FOUND TRUE)
+else()
+	set(SYSTEM_ZLIB TRUE)
 endif()
 
 target_link_libraries(zlib INTERFACE ${ZLIB_LIBRARY})

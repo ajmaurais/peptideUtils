@@ -23,7 +23,10 @@ add_compile_definitions(SHARE_DIR=\"${SHARE_DIR}\")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-include(zlib)
+if(NOT ZLIB_FOUND)
+	set(ZLIB_VERSION "1.2.11")
+	include(zlib)
+endif()
 
 set(CMAKE_BUILD_TYPE Debug)
 
