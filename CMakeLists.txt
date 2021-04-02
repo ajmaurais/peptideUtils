@@ -19,10 +19,10 @@ endif()
 set(SHARE_DIR "${PROJECT_SOURCE_DIR}/share" CACHE STRING "Path to directory with defaultResidueAtoms.txt")
 
 #TODO Make config.h.in file. Right now I don't want to make the master and cmake branches incompatible.
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSHARE_DIR=\\\"${SHARE_DIR}\\\"")
 add_compile_definitions(SHARE_DIR=\"${SHARE_DIR}\")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 include(zlib)
 
 set(CMAKE_BUILD_TYPE Debug)

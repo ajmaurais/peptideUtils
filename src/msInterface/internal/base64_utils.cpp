@@ -12,7 +12,7 @@
 #include <msInterface/internal/base64_utils.hpp>
 
 /**
- * Convert binary to 32 bit integer.
+ * Correct byte order
  * The original version of this function was taken from mstoolkit
  * (https://github.com/mhoopmann/mstoolkit).
  * @param l Binary data.
@@ -33,7 +33,7 @@ unsigned long utils::internal::_dtohl(uint32_t l, bool bigEndian)
 }
 
 /**
- * Convert binary to 64 bit integer.
+ * Correct byte order
  * The original version of this function was taken from mstoolkit
  * (https://github.com/mhoopmann/mstoolkit).
  * @param l Binary data.

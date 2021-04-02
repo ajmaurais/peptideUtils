@@ -44,6 +44,7 @@ namespace utils{
             void _buildIndex() override;
 
         public:
+            MzXMLFile(std::string fname = "") : MsInterface(fname){}
 
             //properties
             bool getScan(size_t, Scan &) const override;

@@ -139,8 +139,8 @@ namespace utils{
 	void printProgress(float progress, int barWidth = PROGRESS_BAR_WIDTH);
 	std::string ascTime();
 	int readInt(int min, int max);
-	bool almostEqual(float a, float b);
-	bool almostEqual(double a, double b);
+	bool almostEqual(float a, float b, float epsilon = FLT_EPSILON);
+	bool almostEqual(double a, double b, double epsilon = DBL_EPSILON);
 	template <typename _Tp> int round(_Tp num){
 		return floor(num + 0.5);
 	}

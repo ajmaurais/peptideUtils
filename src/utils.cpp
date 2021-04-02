@@ -432,14 +432,12 @@ std::string utils::removeSubstrs(std::string findStr, std::string whithinStr, bo
 	return whithinStr;
 }
 
-std::string utils::removeChars(char findChar, std::string wStr)
-{
+std::string utils::removeChars(char findChar, std::string wStr) {
 	wStr.erase(remove(wStr.begin(), wStr.end(), findChar), wStr.end());
 	return wStr;
 }
 
-std::string utils::toLower(std::string str)
-{
+std::string utils::toLower(std::string str) {
 	transform(str.begin(), str.end(), str.begin(), ::tolower);
 	return str;
 }
@@ -449,7 +447,7 @@ std::string utils::repeat(std::string str, size_t numTimes)
 	std::string ret = "";
 	assert(!str.empty());
 	for(int i = 0; i < numTimes; i++)
-	ret += str;
+        ret += str;
 	return ret;
 }
 
@@ -469,15 +467,13 @@ std::string utils::toSubscript(int _num)
 }
 
 //!Find \p str in buffer \p buf of length \p len
-size_t utils::offset(const char* buf, size_t len, std::string s)
-{
+size_t utils::offset(const char* buf, size_t len, std::string s){
 	const char* str = s.c_str();
 	return std::search(buf, buf + len, str, str + strlen(str)) - buf;
 }
 
 //!Find \p str in buffer \p buf of length \p len
-size_t utils::offset(const char* buf, size_t len, const char* str)
-{
+size_t utils::offset(const char* buf, size_t len, const char* str){
 	return std::search(buf, buf + len, str, str + strlen(str)) - buf;
 }
 
@@ -596,14 +592,14 @@ int utils::readInt(int min, int max)
 	return ret;
 }//end of fxn
 
-//! Return true if a and b are within FLT_EPSILON
-bool utils::almostEqual(float a, float b){
-	return fabs(a - b) <= FLT_EPSILON;
+//! Return true if \p a and \p b are within \p epsilon
+bool utils::almostEqual(float a, float b, float epsilon){
+	return fabs(a - b) <= epsilon;
 }
 
-//! Return true if a and b are within FLT_EPSILON
-bool utils::almostEqual(double a, double b){
-	return fabs(a - b) <= DBL_EPSILON;
+//! Return true if \p a and \p b are within \p epsilon
+bool utils::almostEqual(double a, double b, double epsilon){
+	return fabs(a - b) <= epsilon;
 }
 
 /**
@@ -645,6 +641,7 @@ void utils::printProgress(float progress, std::ostream& out, int barWidth)
 void utils::getIdxOfSubstr(char* searchStr, const char* findStr,
 						   std::vector<size_t>& indices)
 {
+    indices.clear();
 	char* tmp = searchStr;
 	size_t incrementAmt = strlen(findStr);
 	while((tmp = strstr(tmp, findStr)) != nullptr){

@@ -46,6 +46,7 @@ namespace utils{
             std::string _parseScan(std::string) const;
 
         public:
+            MzMLFile(std::string fname = "") : MsInterface(fname){}
 
             //properties
             bool getScan(size_t, Scan &) const override;

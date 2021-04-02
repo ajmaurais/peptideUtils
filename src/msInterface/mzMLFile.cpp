@@ -53,10 +53,10 @@ void msInterface::MzMLFile::_buildIndex()
     std::vector<size_t> beginScans, endScans, beginRuns;
     getIdxOfSubstr(_buffer, "<spectrum ", beginScans);
     getIdxOfSubstr(_buffer, "</spectrum>", endScans);
-    getIdxOfSubstr(_buffer, "<run", beginRuns);
-    if(beginRuns.size() > 1)
-        throw FileIOError("\n\tMore than 1 sample run found in:\n\t" +
-                                 _fname + "\n\tOnly a single run per file is supported.");
+    // getIdxOfSubstr(_buffer, "<run", beginRuns);
+    // if(beginRuns.size() > 1)
+    //     throw FileIOError("\n\tMore than 1 sample run found in:\n\t" +
+    //                              _fname + "\n\tOnly a single run per file is supported.");
 
     //validate spectrum indices
     if(beginScans.size() != endScans.size())

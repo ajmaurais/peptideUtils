@@ -55,7 +55,7 @@ msInterface::MsInterface &msInterface::MsInterface::operator=(const msInterface:
 
 bool msInterface::MsInterface::read(std::string fname) {
     _fname = fname;
-    return read();
+    return MsInterface::read();
 }
 
 bool msInterface::MsInterface::read(){
