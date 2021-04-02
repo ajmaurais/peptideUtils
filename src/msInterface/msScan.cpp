@@ -65,6 +65,31 @@ void msInterface::PrecursorScan::clear() {
     _intensity = 0;
 }
 
+bool msInterface::PrecursorScan::operator==(const msInterface::PrecursorScan &rhs) const {
+    if(!(_scan == rhs._scan &&
+         _rt == rhs._rt &&
+         _file == rhs._file &&
+         _sample == rhs._sample &&
+         _charge == rhs._charge &&
+         _activationMethod == rhs._activationMethod))
+        return false;
+    return true;
+}
+
+bool msInterface::PrecursorScan::almostEqual(const msInterface::PrecursorScan &rhs, double epsilon) const {
+    if(!(_scan == rhs._scan &&
+         _file == rhs._file &&
+         _sample == rhs._sample &&
+         _charge == rhs._charge &&
+         _activationMethod == rhs._activationMethod))
+        return false;
+
+    if(!(utils::almostEqual(_rt, rhs._rt, epsilon)))
+        return false;
+
+    return true;
+}
+
 void msInterface::Scan::clear() {
     _maxInt = 0;
     _minInt = 0;
@@ -92,6 +117,8 @@ void msInterface::Scan::updateRanges(){
     if(!_ions.empty()) {
         _minMZ = _ions.begin()->getMZ();
         _minInt = _ions.begin()->getIntensity();
+        _maxInt = 0;
+        _maxMZ = 0;
 
         for(auto & _ion : _ions) {
             if (_ion.getMZ() < _minMZ)
@@ -113,6 +140,54 @@ void msInterface::Scan::add(const ScanIon& ion) {
 
 void msInterface::Scan::add(ScanMZ mz, ScanIntensity intensity) {
     _ions.emplace_back(mz, intensity);
+}
+
+bool msInterface::Scan::almostEqual(const msInterface::Scan &rhs, double epsilon) const {
+
+    //first to equality comparisons
+    if(!(_scanNum == rhs._scanNum &&
+         _level == rhs._level &&
+         _polarity == rhs._polarity))
+        return false;
+
+    //float comparisons
+    if(!(precursorScan.almostEqual(rhs.precursorScan, epsilon) &&
+         utils::almostEqual(_maxInt, rhs._maxInt, epsilon) &&
+         utils::almostEqual(_minInt, rhs._minInt, epsilon) &&
+         utils::almostEqual(_minMZ, rhs._minMZ, epsilon) &&
+         utils::almostEqual(_maxMZ, rhs._maxMZ, epsilon) &&
+         utils::almostEqual(_mzRange, rhs._mzRange, epsilon)))
+        return false;
+
+    size_t len = _ions.size();
+    if(len != rhs._ions.size()) return false;
+    for(size_t i = 0; i < len; i++) {
+        if (!(_ions[i].almostEqual(rhs._ions[i], epsilon)))
+            return false;
+    }
+
+    return true;
+}
+
+bool msInterface::Scan::operator==(const msInterface::Scan &rhs) const {
+    if(!(_maxInt == rhs._maxInt &&
+         _minInt == rhs._minInt &&
+         _minMZ == rhs._minMZ &&
+         _maxMZ == rhs._maxMZ &&
+         _mzRange == rhs._mzRange &&
+         precursorScan == rhs.precursorScan &&
+         _scanNum == rhs._scanNum &&
+         _level == rhs._level &&
+         _polarity == rhs._polarity))
+        return false;
+
+    size_t len = _ions.size();
+    if(len != rhs._ions.size()) return false;
+    for(size_t i = 0; i < len; i++)
+        if(_ions[i] != rhs._ions[i])
+            return false;
+
+    return true;
 }
 
 msInterface::ActivationMethod msInterface::oboToActivation(std::string obo) {

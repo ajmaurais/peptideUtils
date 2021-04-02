@@ -88,6 +88,16 @@ namespace utils {
                 _intensity = rhs._intensity;
                 return *this;
             }
+            bool operator==(const Ion& rhs) const{
+                return _mz == rhs._mz && _intensity == rhs._intensity;
+            }
+            bool operator!=(const Ion& rhs) const{
+                return _mz != rhs._mz && _intensity != rhs._intensity;
+            }
+            bool almostEqual(const Ion& rhs, double epsilon = DBL_EPSILON) const{
+                return utils::almostEqual(_mz, rhs._mz, epsilon) &&
+                       utils::almostEqual(_intensity, rhs._intensity, epsilon);
+            }
 
             // setters
             void setIntensity(INTENSITY_T intensity) {
@@ -167,6 +177,7 @@ namespace utils {
                 _activationMethod = rhs._activationMethod;
                 return *this;
             }
+            bool operator==(const PrecursorScan& rhs) const;
 
             //modifiers
             void setScan(const std::string &scan) {
@@ -190,6 +201,8 @@ namespace utils {
             void clear();
 
             //properties
+            bool almostEqual(const PrecursorScan& rhs,
+                             double epsilon = DBL_EPSILON) const;
             const std::string &getScan() const {
                 return _scan;
             }
@@ -249,6 +262,7 @@ namespace utils {
 
             Scan(const Scan &);
             Scan &operator=(const Scan &);
+            bool operator==(const Scan& rhs) const;
 
             void clear();
             void add(const ScanIon &);
@@ -257,6 +271,7 @@ namespace utils {
             void setMaxMZ(ScanMZ);
             void updateRanges();
 
+            bool almostEqual(const Scan& rhs, double epsilon = DBL_EPSILON) const;
             PrecursorScan &getPrecursor() {
                 return precursorScan;
             }
