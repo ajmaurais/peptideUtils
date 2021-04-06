@@ -2,7 +2,7 @@
 include(FindPkgConfig)
 
 add_library(zlib INTERFACE)
-# find_package(zlib ${ZLIB_VERSION})
+find_package(zlib ${ZLIB_VERSION})
 
 if(NOT ZLIB_FOUND)
 	set(SYSTEM_ZLIB FALSE)
