@@ -29,6 +29,7 @@ namespace utils {
         int _b64_decode_mio( char *dest,  char *src, size_t size );
         void _decode32(msInterface::Scan& scan, const char* pData, size_t dataSize, size_t peaksCount, bool bigEndian = true);
         void _decode64(msInterface::Scan& scan, const char* pData, size_t dataSize, size_t peaksCount, bool bigEndian = true);
+
         void _decompress32(msInterface::Scan& scan,
                            const std::string& data,
                            size_t peaksCount,

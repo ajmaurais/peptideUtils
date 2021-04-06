@@ -260,6 +260,7 @@ void utils::internal::_decompress32(msInterface::Scan& scan,
                                     size_t peaksCount,
                                     unsigned long compressedLen,
                                     bool bigEndian){
+#ifdef ENABLE_ZLIB
     if(peaksCount < 1) return;
 
     union udata {
@@ -295,6 +296,9 @@ void utils::internal::_decompress32(msInterface::Scan& scan,
         scan.add(_mz, _int);
     }
     delete [] data;
+#else
+    throw std::runtime_error("zlib compression not enables!");
+#endif
 }
 
 /**
@@ -313,6 +317,7 @@ void utils::internal::_decompress64(msInterface::Scan& scan,
                                     unsigned long compressedLen,
                                     bool bigEndian)
 {
+#ifdef ENABLE_ZLIB
     if(peaksCount < 1) return;
 
     union udata {
@@ -348,6 +353,9 @@ void utils::internal::_decompress64(msInterface::Scan& scan,
         scan.add(_mz, _int);
     }
     delete [] data;
+#else
+    throw std::runtime_error("zlib compression not enables!");
+#endif
 }
 
 void utils::internal::BinaryData::decode(std::vector<double>& d) const
@@ -382,7 +390,7 @@ void utils::internal::BinaryData::decode(std::vector<double>& d) const
 
     //zlib decompression
     if(zlib) {
-
+#ifdef ENABLE_ZLIB
         if(dataType == DataType::FLOAT_32) {
             unzippedLen = peaksCount*sizeof(uint32_t);
         } else if(dataType == DataType::FLOAT_64) {
@@ -399,7 +407,9 @@ void utils::internal::BinaryData::decode(std::vector<double>& d) const
         unzipped = new Bytef[unzippedLen];
         uncompress((Bytef*)unzipped, &unzippedLen, (const Bytef*)decoded, (uLong)decodeLen);
         delete [] decoded;
-
+#else
+        throw std::runtime_error("zlib compression not enabled!");
+#endif
     }
 
     //Numpress decompression
@@ -408,13 +418,32 @@ void utils::internal::BinaryData::decode(std::vector<double>& d) const
 
         try{
             if(numpressLinear){
-                if(zlib) ms::numpress::MSNumpress::decodeLinear((unsigned char*)unzipped,(const size_t)unzippedLen,unpressed);
+                if(zlib){
+#ifdef ENABLE_ZLIB
+                    ms::numpress::MSNumpress::decodeLinear((unsigned char *) unzipped, (const size_t) unzippedLen, unpressed);
+#else
+                    throw std::runtime_error("zlib compression not enables!");
+#endif
+                }
                 else ms::numpress::MSNumpress::decodeLinear((unsigned char*)decoded,decodeLen,unpressed);
-            } else if(numpressSlof){
-                if(zlib) ms::numpress::MSNumpress::decodeSlof((unsigned char*)unzipped,(const size_t)unzippedLen,unpressed);
+            }
+            else if(numpressSlof){
+                if(zlib) {
+#ifdef ENABLE_ZLIB
+                    ms::numpress::MSNumpress::decodeSlof((unsigned char *) unzipped, (const size_t) unzippedLen, unpressed);
+#else
+                    throw std::runtime_error("zlib compression not enables!");
+#endif
+                }
                 else ms::numpress::MSNumpress::decodeSlof((unsigned char*)decoded,decodeLen,unpressed);
             } else if(numpressPic){
-                if(zlib) ms::numpress::MSNumpress::decodePic((unsigned char*)unzipped,(const size_t)unzippedLen,unpressed);
+                if(zlib) {
+#ifdef ENABLE_ZLIB
+                    ms::numpress::MSNumpress::decodePic((unsigned char *) unzipped, (const size_t) unzippedLen, unpressed);
+#else
+                    throw std::runtime_error("zlib compression not enables!");
+#endif
+                }
                 else ms::numpress::MSNumpress::decodePic((unsigned char*)decoded,decodeLen,unpressed);
             }
         } catch (const char* ch){
@@ -431,6 +460,7 @@ void utils::internal::BinaryData::decode(std::vector<double>& d) const
 
     //Byte order correction
     if(zlib){
+#ifdef ENABLE_ZLIB
         if(dataType == DataType::FLOAT_32){
             uint32_t* unzipped32 = (uint32_t*)unzipped;
             for(i=0;i<peaksCount;i++){
@@ -445,6 +475,9 @@ void utils::internal::BinaryData::decode(std::vector<double>& d) const
             }
         }
         delete [] unzipped;
+#else
+        throw std::runtime_error("zlib compression not enables!");
+#endif
     } else {
         if(dataType == DataType::FLOAT_32){
             uint32_t* decoded32 = (uint32_t*)decoded;
