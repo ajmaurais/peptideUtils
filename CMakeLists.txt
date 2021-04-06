@@ -23,10 +23,6 @@ add_compile_definitions(SHARE_DIR=\"${SHARE_DIR}\")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/thirdparty")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-if(NOT ZLIB_FOUND)
-	set(ZLIB_VERSION "1.2.11")
-	include(zlib)
-endif()
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -48,7 +44,21 @@ add_library(utils STATIC
 
 target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(EXCLUDE_FROM_DOXYGEN ${CMAKE_CURRENT_SOURCE_DIR}/include/thirdparty)
-target_link_libraries(utils zlib)
+
+if(NOT ZLIB_FOUND)
+	set(ZLIB_VERSION "1.2.11")
+	include(zlib)
+    add_dependencies(utils zlib)
+else()
+    message("!!! zlib already found !!!")
+endif()
+
+message("!!! utils zlib paths !!!")
+message("${ZLIB_LIBRARIES}")
+message("${ZLIB_INCLUDE_DIRS}")
+target_link_directories(utils INTERFACE ${ZLIB_LINK_DIRS})
+target_link_libraries(utils ${ZLIB_LIBRARIES})
+target_include_directories(utils PUBLIC ${ZLIB_INCLUDE_DIRS})
 
 install(TARGETS utils DESTINATION lib)
 #set_target_properties(utils PROPERTIES

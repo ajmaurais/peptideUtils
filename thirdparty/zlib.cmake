@@ -2,7 +2,7 @@
 include(FindPkgConfig)
 
 add_library(zlib INTERFACE)
-find_package(zlib ${ZLIB_VERSION})
+# find_package(zlib ${ZLIB_VERSION})
 
 if(NOT ZLIB_FOUND)
 	set(SYSTEM_ZLIB FALSE)
@@ -34,13 +34,15 @@ if(NOT ZLIB_FOUND)
 	)
 
 	add_dependencies(zlib ${ZLIB_PREFIX})
-	set(ZLIB_LIBRARY ${LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_STATIC_LIBRARY_PREFIX}z${CMAKE_STATIC_LIBRARY_SUFFIX})
-	set(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    set(ZLIB_LIBRARIES ${LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_STATIC_LIBRARY_PREFIX}z${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(ZLIB_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/include)
+    set(ZLIB_LINK_DIRS "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    target_link_directories(zlib INTERFACE ${ZLIB_LINK_DIRS})
 	set(ZLIB_FOUND TRUE)
 else()
 	set(SYSTEM_ZLIB TRUE)
 endif()
 
-target_link_libraries(zlib INTERFACE ${ZLIB_LIBRARY})
-target_include_directories(zlib INTERFACE ${ZLIB_INCLUDE_DIR})
+target_link_libraries(zlib INTERFACE ${ZLIB_LIBRARIES})
+target_include_directories(zlib INTERFACE ${ZLIB_INCLUDE_DIRS})
 
