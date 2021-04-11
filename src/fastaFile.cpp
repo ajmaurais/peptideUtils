@@ -354,6 +354,33 @@ std::string utils::FastaFile::nBefore(const std::string& query, const std::strin
 }
 
 /**
+\brief Get the index of the nth residue in \p query in protein \p ref_id. <br>
+
+If \p query not found in \p ref_id, returns std::string::npos.
+
+\param query String to search for.
+\param ref_it Identifier of parent protein.
+\param n nth residue. If n is std::string::npos, the index of the last residue in query is returned.
+\param noExcept Should an std::out_of_range be thrown if \p query is not in \p ref?
+
+\throws std::out_of_range if \p query is not in \p ref and \p noExcept is false.
+
+\return Residue index of nth residue in \p ref.
+*/
+size_t utils::FastaFile::indexN(const std::string &query, const std::string &ref_id, unsigned int n, bool noExcept)
+{
+    std::string ref = getSequence(ref_id);
+    return utils::indexN(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
+}
+
+//!const overloaded version of FastaFile::indexN
+size_t utils::FastaFile::indexN(const std::string &query, const std::string &ref_id, unsigned int n, bool noExcept) const
+{
+    std::string ref = getSequence(ref_id);
+    return utils::indexN(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
+}
+
+/**
  \brief Get position residue and position of \p modLoc in parent protein
  of \p peptideSeq.
  \param seq parent protein sequence of \p peptideSeq
@@ -452,3 +479,33 @@ std::string utils::nAfter(const std::string& query, const std::string& ref, unsi
 		n = ref.length() - end;
 	return ref.substr(end, n);
 }
+
+/**
+\brief Get the index of the nth residue in \p query in \p ref. <br>
+
+If \p query not found in \p ref, returns std::string::npos.
+
+\param query String to search for.
+\param ref String to search in.
+\param n nth residue. If n is std::string::npos, the index of the last residue in query is returned.
+\param noExcept Should an std::out_of_range be thrown if \p query is not in \p ref?
+
+\throws std::out_of_range if \p query is not in \p ref and \p noExcept is false.
+
+\return Residue index of nth residue in \p ref.
+*/
+size_t utils::indexN(const std::string& query, const std::string& ref, size_t n, bool noExcept)
+{
+	size_t beg, end;
+	if(!utils::align(query, ref, beg, end)){
+		if(noExcept) return std::string::npos;
+		else throw std::out_of_range("query not in ref");
+	}
+	
+	if(n == std::string::npos)
+		n = query.length() - 1;
+	if(beg + n > ref.length())
+		return ref.length() - 1;
+	return beg + n;
+}
+
