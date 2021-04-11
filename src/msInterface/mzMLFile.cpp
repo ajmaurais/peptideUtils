@@ -50,7 +50,12 @@ void msInterface::MzMLFile::_buildIndex()
         throw FileIOError("Incorrect file type for file: " + _fname);
 
     // Get indices of beginning and end of each scan
-    std::vector<size_t> beginScans, endScans, beginRuns;
+    std::vector<size_t> beginScans;
+    std::vector<size_t> endScans;
+    std::vector<size_t> beginRuns;
+    beginScans.clear();
+    endScans.clear();
+    beginRuns.clear();
     getIdxOfSubstr(_buffer, "<spectrum ", beginScans);
     getIdxOfSubstr(_buffer, "</spectrum>", endScans);
     // getIdxOfSubstr(_buffer, "<run", beginRuns);
@@ -59,12 +64,22 @@ void msInterface::MzMLFile::_buildIndex()
     //                              _fname + "\n\tOnly a single run per file is supported.");
 
     //validate spectrum indices
-    if(beginScans.size() != endScans.size())
-        throw InvalidXmlFile("Unbounded <spectrum>");
+    // if(beginScans.size() != endScans.size())
+    //     throw InvalidXmlFile("Unbounded <spectrum> in file: " + _fname);
     size_t len = beginScans.size();
     for(size_t i = 0; i < len; i++)
-        if(beginScans[i] >= endScans[i])
-            throw InvalidXmlFile("Unbounded <spectrum>");
+        if(beginScans[i] >= endScans[i]) {
+            std::ofstream outF("/Volumes/Data/msData/ionFinder/another_another_bug/bad_mzml.mzML");
+            assert(outF);
+            outF << std::string(_buffer, _size);
+            outF.close();
+
+            std::vector<size_t> beginTest, endTest;
+            getIdxOfSubstr(_buffer, "<spectrum ", beginTest);
+            getIdxOfSubstr(_buffer, "</spectrum>", endTest);
+
+            throw InvalidXmlFile("Unbounded <spectrum> in file: " + _fname);
+        }
 
     _scanCount = 0;
     std::string newID;

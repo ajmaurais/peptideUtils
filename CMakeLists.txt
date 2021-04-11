@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 3.9)
-project(utils VERSION 2.1.0)
+project(peptideUtils VERSION 2.1.0)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -26,7 +26,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 set(CMAKE_BUILD_TYPE Debug)
 
-add_library(utils STATIC
+add_library(peptideUtils STATIC
         src/utils.cpp
         src/tsvFile.cpp
         src/thirdparty/msnumpress/MSNumpress.cpp
@@ -40,9 +40,9 @@ add_library(utils STATIC
         src/fastaFile.cpp
         src/bufferFile.cpp
         src/molecularFormula.cpp
-        src/peptideUtils.cpp)
+        src/sequenceUtils.cpp)
 
-target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(peptideUtils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(EXCLUDE_FROM_DOXYGEN ${CMAKE_CURRENT_SOURCE_DIR}/include/thirdparty)
 
 option(ENABLE_ZLIB "Add support for zlib decompression" ON)
@@ -50,21 +50,21 @@ if(ENABLE_ZLIB)
 	if(NOT ZLIB_FOUND)
 		set(ZLIB_VERSION "1.2.11")
 		include(zlib)
-		add_dependencies(utils zlib)
+		add_dependencies(peptideUtils zlib)
 	else()
 		message("!!! zlib already found !!!")
 	endif()
 
-	message("!!! utils zlib paths !!!")
+	message("!!! peptideUtils zlib paths !!!")
 	message("${ZLIB_LIBRARIES}")
 	message("${ZLIB_INCLUDE_DIRS}")
-	target_link_libraries(utils ${ZLIB_LIBRARIES})
-	target_include_directories(utils PUBLIC ${ZLIB_INCLUDE_DIRS})
+	target_link_libraries(peptideUtils ${ZLIB_LIBRARIES})
+	target_include_directories(peptideUtils PUBLIC ${ZLIB_INCLUDE_DIRS})
 	add_compile_definitions("ENABLE_ZLIB")
 endif()
 
-install(TARGETS utils DESTINATION lib)
-#set_target_properties(utils PROPERTIES
+install(TARGETS peptideUtils DESTINATION lib)
+#set_target_properties(peptideUtils PROPERTIES
 #    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 #)
 
@@ -99,6 +99,6 @@ option(BUILD_TEST "Build test executable" OFF)
 if(BUILD_TEST MATCHES ON)
     add_executable(test test/main.cpp)
     target_include_directories(test PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-    target_link_libraries(test zlib utils)
+    target_link_libraries(test zlib peptideUtils)
 endif()
 
