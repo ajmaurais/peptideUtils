@@ -1,7 +1,8 @@
-// 
-// fileBuffer.hpp
-// utils
+//
+// ms2File.hpp
+// ionFinder
 // -----------------------------------------------------------------------------
+// MIT License
 // Copyright 2020 Aaron Maurais
 // -----------------------------------------------------------------------------
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -10,10 +11,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,47 +23,49 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 // -----------------------------------------------------------------------------
-// 
+//
 
-#ifndef fileBuffer_hpp
-#define fileBuffer_hpp
+#ifndef ms2_hpp
+#define ms2_hpp
 
+#include <iostream>
+#include <fstream>
+#include <stdexcept>
+#include <cstring>
+#include <cassert>
+#include <vector>
 #include <string>
+#include <map>
+
 #include <utils.hpp>
+#include <msInterface/msInterface.hpp>
+#include <msInterface/msScan.hpp>
 
-namespace utils{
-	class BufferFile;
-	
-	//!Base class for reading and manipulating large file buffers.
-	class BufferFile{
-	protected:
-		//!file path
-		std::string _fname;
-		
-		//!file buffer
-		char* _buffer;
-		
-		//!_buffer length in chars
-		size_t _size;
-	public:
-		BufferFile(std::string fname = "");
-		BufferFile(const BufferFile& rhs);
-		
-		~BufferFile(){
-			delete [] _buffer;
-		}
-		
-		//modifiers
-		BufferFile& operator = (BufferFile rhs);
+namespace utils {
+    namespace msInterface {
+        int const MD_NUM = 2;
 
-        bool read();
+        class Ms2File;
 
-        virtual bool read(std::string);
-		bool exists() const;
+        class Ms2File : public MsInterface {
+        private:
+            bool getMetaData();
 
-		//properties
-		bool buffer_empty() const;
-	};
-}
+            void _buildIndex() override;
 
-#endif /* fileBuffer_hpp */
+        public:
+            Ms2File(std::string fname = "") : MsInterface(fname) {
+                initMetadata();
+            }
+            ~Ms2File() {}
+
+            bool read() override;
+            bool read(std::string fname) override;
+
+            //properties
+            bool getScan(size_t, Scan &) const override;
+        };
+    }
+}//end of namespace
+
+#endif /* ms2_hpp */

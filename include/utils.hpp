@@ -1,8 +1,8 @@
-//
-//  utils.hpp
-//  utils
+// 
+// utils.hpp
+// utils
 // -----------------------------------------------------------------------------
-// Copyright 2018 Aaron Maurais
+// Copyright 2020 Aaron Maurais
 // -----------------------------------------------------------------------------
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -10,10 +10,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 // -----------------------------------------------------------------------------
-//
+// 
 
 #ifndef utils_hpp
 #define utils_hpp
@@ -48,6 +48,7 @@
 #include <type_traits>
 #include <set>
 #include <tuple>
+#include <cfloat>
 
 #ifndef PATH_MAX
 	#define PATH_MAX 1024
@@ -137,6 +138,9 @@ namespace utils{
 	void printProgress(float progress, std::ostream& out, int barWidth = PROGRESS_BAR_WIDTH);
 	void printProgress(float progress, int barWidth = PROGRESS_BAR_WIDTH);
 	std::string ascTime();
+	int readInt(int min, int max);
+	bool almostEqual(float a, float b, float epsilon = FLT_EPSILON);
+	bool almostEqual(double a, double b, double epsilon = DBL_EPSILON);
 	template <typename _Tp> int round(_Tp num){
 		return floor(num + 0.5);
 	}
@@ -199,7 +203,6 @@ namespace utils{
 	template<typename _Tp> bool inSpan(_Tp beg, _Tp end, _Tp comp){
 		return beg <= comp && comp <= end;
 	}
-	int getInt(int min, int max);
 	
 	/**
 	 Get underlying integer value for enum class
@@ -216,7 +219,7 @@ namespace utils{
 	\brief Remove duplicate values from vector.
 
 	\param v Vector to remove duplicates from. 
-	\oaram sort Should the values in \p v be sorted?
+	\param sort Should the values in \p v be sorted?
 	
 	Sorting is performed using the default comparator for \p _Tp. 
 	If sort is set to \p false, elements are returned in a random order.

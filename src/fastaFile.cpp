@@ -1,8 +1,8 @@
-//
-//  fastaFile.cpp
-//  utils
+// 
+// fastaFile.cpp
+// utils
 // -----------------------------------------------------------------------------
-// Copyright 2018 Aaron Maurais
+// Copyright 2020 Aaron Maurais
 // -----------------------------------------------------------------------------
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -10,10 +10,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 // -----------------------------------------------------------------------------
-//
+// 
 
 #include <fastaFile.hpp>
 
@@ -354,6 +354,33 @@ std::string utils::FastaFile::nBefore(const std::string& query, const std::strin
 }
 
 /**
+\brief Get the index of the nth residue in \p query in protein \p ref_id. <br>
+
+If \p query not found in \p ref_id, returns std::string::npos.
+
+\param query String to search for.
+\param ref_it Identifier of parent protein.
+\param n nth residue. If n is std::string::npos, the index of the last residue in query is returned.
+\param noExcept Should an std::out_of_range be thrown if \p query is not in \p ref?
+
+\throws std::out_of_range if \p query is not in \p ref and \p noExcept is false.
+
+\return Residue index of nth residue in \p ref.
+*/
+size_t utils::FastaFile::indexN(const std::string &query, const std::string &ref_id, unsigned int n, bool noExcept)
+{
+    std::string ref = getSequence(ref_id);
+    return utils::indexN(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
+}
+
+//!const overloaded version of FastaFile::indexN
+size_t utils::FastaFile::indexN(const std::string &query, const std::string &ref_id, unsigned int n, bool noExcept) const
+{
+    std::string ref = getSequence(ref_id);
+    return utils::indexN(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
+}
+
+/**
  \brief Get position residue and position of \p modLoc in parent protein
  of \p peptideSeq.
  \param seq parent protein sequence of \p peptideSeq
@@ -370,6 +397,8 @@ std::string utils::getModifiedResidue(const std::string& seq, const std::string&
 	if(begin == std::string::npos)
 		return utils::PEP_SEQ_NOT_FOUND;
 	size_t modNum = begin + modLoc;
+	if(modLoc > peptideSeq.length())
+		throw std::runtime_error("modLoc is out of bounds!");
 	std::string ret = std::string(1, peptideSeq[modLoc]) + std::to_string(modNum + 1);
 	
 	return ret;
@@ -385,7 +414,7 @@ std::string utils::getModifiedResidue(const std::string& seq, const std::string&
 
 \return false if \p query is not in \p ref, true otherwise.
 */
-bool utils::allign(const std::string& query, const std::string& ref, size_t& beg, size_t& end)
+bool utils::align(const std::string& query, const std::string& ref, size_t& beg, size_t& end)
 {
 	size_t match = ref.find(query);
 	if(match == std::string::npos) return false;
@@ -413,7 +442,7 @@ If \p n overruns \p ref, the maximum possible number of characters will be retur
 std::string utils::nBefore(const std::string& query, const std::string& ref, unsigned n, bool noExcept)
 {
 	size_t beg, end;
-	if(!utils::allign(query, ref, beg, end)){
+	if(!utils::align(query, ref, beg, end)){
 		if(noExcept) return "";
 		else throw std::out_of_range("query not in ref");
 	}
@@ -440,7 +469,7 @@ If \p n overruns \p ref, the maximum possible number of characters will be retur
 std::string utils::nAfter(const std::string& query, const std::string& ref, unsigned n, bool noExcept)
 {
 	size_t beg, end;
-	if(!utils::allign(query, ref, beg, end)){
+	if(!utils::align(query, ref, beg, end)){
 		if(noExcept) return "";
 		else throw std::out_of_range("query not in ref");
 	}
@@ -450,3 +479,33 @@ std::string utils::nAfter(const std::string& query, const std::string& ref, unsi
 		n = ref.length() - end;
 	return ref.substr(end, n);
 }
+
+/**
+\brief Get the index of the nth residue in \p query in \p ref. <br>
+
+If \p query not found in \p ref, returns std::string::npos.
+
+\param query String to search for.
+\param ref String to search in.
+\param n nth residue. If n is std::string::npos, the index of the last residue in query is returned.
+\param noExcept Should an std::out_of_range be thrown if \p query is not in \p ref?
+
+\throws std::out_of_range if \p query is not in \p ref and \p noExcept is false.
+
+\return Residue index of nth residue in \p ref.
+*/
+size_t utils::indexN(const std::string& query, const std::string& ref, size_t n, bool noExcept)
+{
+	size_t beg, end;
+	if(!utils::align(query, ref, beg, end)){
+		if(noExcept) return std::string::npos;
+		else throw std::out_of_range("query not in ref");
+	}
+	
+	if(n == std::string::npos)
+		n = query.length() - 1;
+	if(beg + n > ref.length())
+		return ref.length() - 1;
+	return beg + n;
+}
+

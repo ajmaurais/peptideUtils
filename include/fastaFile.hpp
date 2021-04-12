@@ -1,8 +1,8 @@
-//
-//  fastaFile.hpp
-//  utils
+// 
+// fastaFile.hpp
+// utils
 // -----------------------------------------------------------------------------
-// Copyright 2018 Aaron Maurais
+// Copyright 2020 Aaron Maurais
 // -----------------------------------------------------------------------------
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -10,10 +10,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 // -----------------------------------------------------------------------------
-//
+// 
 
 #ifndef fastaFile_hpp
 #define fastaFile_hpp
@@ -144,13 +144,18 @@ namespace utils {
 			unsigned n, bool noExcept = false) const;
 		std::string nAfter(const std::string& query, const std::string& ref_id,
 			unsigned n, bool noExcept = false) const;
+		size_t indexN(const std::string& query, const std::string& ref_id,
+			unsigned n, bool noExcept = false);
+		size_t indexN(const std::string& query, const std::string& ref_id,
+			unsigned n, bool noExcept = false) const;
 	};
 
 	std::string getModifiedResidue(const std::string& seq, const std::string& peptideSeq, int modLoc);
 
-	bool allign(const std::string& query, const std::string& ref, size_t& beg, size_t& end);
+	bool align(const std::string& query, const std::string& ref, size_t& beg, size_t& end);
 	std::string nBefore(const std::string& query, const std::string& ref, unsigned n, bool noExcept = false);
 	std::string nAfter(const std::string& query, const std::string& ref, unsigned n, bool noExcept = false);
+	size_t indexN(const std::string& query, const std::string& ref, size_t n, bool noExcept = false);
 }
 
 #endif /* fastaFile_hpp */

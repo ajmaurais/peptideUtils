@@ -1,8 +1,8 @@
-//
-//  utils.cpp
-//  utils
+// 
+// utils.cpp
+// utils
 // -----------------------------------------------------------------------------
-// Copyright 2018 Aaron Maurais
+// Copyright 2020 Aaron Maurais
 // -----------------------------------------------------------------------------
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -10,10 +10,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 // -----------------------------------------------------------------------------
-//
+// 
 
 #include <utils.hpp>
 
@@ -235,13 +235,13 @@ std::string utils::removeExtension(const std::string& filename)
 std::string utils::getExtension(const std::string& filename)
 {
 	typename std::string::size_type const p(filename.find_last_of('.'));
-	return p > 0 && p != std::string::npos ? filename.substr(p) : filename;
+	return p > 0 && p != std::string::npos ? filename.substr(p + 1) : filename;
 }
 
 /**
  \brief Get next line from \p is and store it in \p t.
  
- std::getline only handels \\n. safeGetLine handels \\n \\r \\r\\n.
+ std::getline only handles \\n. safeGetLine handles \\n \\r \\r\\n.
  \param is stream to read from
  \param s string to store next line in \p t is cleared prior to adding new string.
  \param oldPos stores state of stream before reading new line
@@ -255,7 +255,7 @@ std::istream& utils::safeGetline(std::istream& is, std::string& s, std::streampo
 /**
  \brief Get next line from \p is and store it in \p t.
  
- std::getline only handels \\n. safeGetLine handels \\n \\r \\r\\n.
+ std::getline only handles \\n. safeGetLine handles \\n \\r \\r\\n.
  \param is stream to read from
  \param s string to store next line in \p t is cleared prior to adding new string.
  \return ref to \p is after reaing next line.
@@ -304,7 +304,7 @@ bool utils::strContains(std::string findTxt, std::string whithinTxt)
 	return whithinTxt.find(findTxt) != std::string::npos;
 }
 
-//!overloaded version of strContains, handels \p findTxt as char
+//!overloaded version of strContains, handles \p findTxt as char
 bool utils::strContains(char findTxt, std::string whithinTxt)
 {
 	return strContains(std::string(1, findTxt), whithinTxt);
@@ -432,14 +432,12 @@ std::string utils::removeSubstrs(std::string findStr, std::string whithinStr, bo
 	return whithinStr;
 }
 
-std::string utils::removeChars(char findChar, std::string wStr)
-{
+std::string utils::removeChars(char findChar, std::string wStr) {
 	wStr.erase(remove(wStr.begin(), wStr.end(), findChar), wStr.end());
 	return wStr;
 }
 
-std::string utils::toLower(std::string str)
-{
+std::string utils::toLower(std::string str) {
 	transform(str.begin(), str.end(), str.begin(), ::tolower);
 	return str;
 }
@@ -449,7 +447,7 @@ std::string utils::repeat(std::string str, size_t numTimes)
 	std::string ret = "";
 	assert(!str.empty());
 	for(int i = 0; i < numTimes; i++)
-	ret += str;
+        ret += str;
 	return ret;
 }
 
@@ -469,15 +467,13 @@ std::string utils::toSubscript(int _num)
 }
 
 //!Find \p str in buffer \p buf of length \p len
-size_t utils::offset(const char* buf, size_t len, std::string s)
-{
+size_t utils::offset(const char* buf, size_t len, std::string s){
 	const char* str = s.c_str();
 	return std::search(buf, buf + len, str, str + strlen(str)) - buf;
 }
 
 //!Find \p str in buffer \p buf of length \p len
-size_t utils::offset(const char* buf, size_t len, const char* str)
-{
+size_t utils::offset(const char* buf, size_t len, const char* str){
 	return std::search(buf, buf + len, str, str + strlen(str)) - buf;
 }
 
@@ -567,7 +563,7 @@ bool utils::isInteger(const std::string & s)
  \param max maximum valid value
  \return int between min and max
  */
-int utils::getInt(int min, int max)
+int utils::readInt(int min, int max)
 {
 	std::string choice;
 	int ret = min - 1;
@@ -595,6 +591,16 @@ int utils::getInt(int min, int max)
 	} while(!good);
 	return ret;
 }//end of fxn
+
+//! Return true if \p a and \p b are within \p epsilon
+bool utils::almostEqual(float a, float b, float epsilon){
+	return fabs(a - b) <= epsilon;
+}
+
+//! Return true if \p a and \p b are within \p epsilon
+bool utils::almostEqual(double a, double b, double epsilon){
+	return fabs(a - b) <= epsilon;
+}
 
 /**
  Prints progress bar to std::out
@@ -626,19 +632,20 @@ void utils::printProgress(float progress, std::ostream& out, int barWidth)
 }
 
 /**
- \brief Find indecies of all instances of substrings in string.
+ \brief Find indices of all instances of substrings in string.
  
  \param searchStr Buffer to search.
  \param findStr String to find.
- \param indecies set contain all indecies
+ \param indices populated with all indices.
  */
 void utils::getIdxOfSubstr(char* searchStr, const char* findStr,
-						   std::vector<size_t>& indecies)
+						   std::vector<size_t>& indices)
 {
+    indices.clear();
 	char* tmp = searchStr;
 	size_t incrementAmt = strlen(findStr);
 	while((tmp = strstr(tmp, findStr)) != nullptr){
-		indecies.push_back((size_t)(tmp - searchStr));
+		indices.push_back((size_t)(tmp - searchStr));
 		tmp += incrementAmt;
 	}
 }
