@@ -58,28 +58,15 @@ void msInterface::MzMLFile::_buildIndex()
     beginRuns.clear();
     getIdxOfSubstr(_buffer, "<spectrum ", beginScans);
     getIdxOfSubstr(_buffer, "</spectrum>", endScans);
-    // getIdxOfSubstr(_buffer, "<run", beginRuns);
-    // if(beginRuns.size() > 1)
-    //     throw FileIOError("\n\tMore than 1 sample run found in:\n\t" +
-    //                              _fname + "\n\tOnly a single run per file is supported.");
+    getIdxOfSubstr(_buffer, "<run", beginRuns);
+    if(beginRuns.size() > 1)
+        throw FileIOError("\n\tMore than 1 sample run found in:\n\t" +
+                          _fname + "\n\tOnly a single run per file is supported.");
 
-    //validate spectrum indices
-    // if(beginScans.size() != endScans.size())
-    //     throw InvalidXmlFile("Unbounded <spectrum> in file: " + _fname);
+    // validate spectrum indices
+    if(beginScans.size() != endScans.size())
+        throw InvalidXmlFile("Unbounded <spectrum> in file: " + _fname);
     size_t len = beginScans.size();
-    for(size_t i = 0; i < len; i++)
-        if(beginScans[i] >= endScans[i]) {
-            std::ofstream outF("/Volumes/Data/msData/ionFinder/another_another_bug/bad_mzml.mzML");
-            assert(outF);
-            outF << std::string(_buffer, _size);
-            outF.close();
-
-            std::vector<size_t> beginTest, endTest;
-            getIdxOfSubstr(_buffer, "<spectrum ", beginTest);
-            getIdxOfSubstr(_buffer, "</spectrum>", endTest);
-
-            throw InvalidXmlFile("Unbounded <spectrum> in file: " + _fname);
-        }
 
     _scanCount = 0;
     std::string newID;
