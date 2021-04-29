@@ -446,7 +446,7 @@ std::string utils::repeat(std::string str, size_t numTimes)
 {
 	std::string ret = "";
 	assert(!str.empty());
-	for(int i = 0; i < numTimes; i++)
+	for(size_t i = 0; i < numTimes; i++)
         ret += str;
 	return ret;
 }

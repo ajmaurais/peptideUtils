@@ -409,9 +409,9 @@ void utils::digest(std::string seq, std::vector<std::string>& peptides,
 	std::sort(index_matches.begin(), index_matches.end());
 
 	size_t len = index_matches.size();
-	for(int i = 0; i < len; i++)
+	for(size_t i = 0; i < len; i++)
 	{
-		for(int j = 0; j <= nMissedCleavages; j++)
+		for(unsigned j = 0; j <= nMissedCleavages; j++)
 		{
 			size_t pLen;
 			if((i + j + 1) >= len)
@@ -453,7 +453,7 @@ sequence will be appended to \p peptides.
 */
 void utils::Residues::digest(std::string seq, std::vector<std::string>& peptides,
 		unsigned missedCleavages, bool length_filter, std::string cleavagePattern,
-		double minMz, double maxMz, int minCharge, int maxCharge) const
+		double minMz, double maxMz, unsigned minCharge, unsigned maxCharge) const
 {
 	//check precondition
 	assert(minMz >= 0 && maxMz >= 0);
