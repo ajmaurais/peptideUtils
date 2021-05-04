@@ -444,7 +444,7 @@ std::string utils::nBefore(const std::string& query, const std::string& ref, uns
 	size_t beg, end;
 	if(!utils::align(query, ref, beg, end)){
 		if(noExcept) return "";
-		else throw std::out_of_range("query not in ref");
+		else throw std::out_of_range("query:\n\t" + query + "\nnot in ref:\n\t" + ref);
 	}
 	
 	if(beg < n) n = beg;
@@ -471,7 +471,7 @@ std::string utils::nAfter(const std::string& query, const std::string& ref, unsi
 	size_t beg, end;
 	if(!utils::align(query, ref, beg, end)){
 		if(noExcept) return "";
-		else throw std::out_of_range("query not in ref");
+		else throw std::out_of_range("query:\n\t" + query + "\nnot in ref:\n\t" + ref);
 	}
 	
 	end += 1;
