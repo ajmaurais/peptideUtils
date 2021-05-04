@@ -1,5 +1,5 @@
 # utils
-General custom utils library.
+A c++ library with useful functions for workig with proteomics data.
 
 ## Building
 The Makefile builds a static library in `./lib/`<br>

@@ -52,21 +52,17 @@ if(ENABLE_ZLIB)
 		include(zlib)
 		add_dependencies(peptideUtils zlib)
 	else()
-		message("!!! zlib already found !!!")
+        message("-- ZLIB already found")
 	endif()
 
-	message("!!! peptideUtils zlib paths !!!")
-	message("${ZLIB_LIBRARIES}")
-	message("${ZLIB_INCLUDE_DIRS}")
+    message("-- peptideUtils zlib shared lib ${ZLIB_LIBRARIES}")
+    message("-- peptideUtils zlib include dir ${ZLIB_INCLUDE_DIRS}")
 	target_link_libraries(peptideUtils ${ZLIB_LIBRARIES})
 	target_include_directories(peptideUtils PUBLIC ${ZLIB_INCLUDE_DIRS})
 	add_compile_definitions("ENABLE_ZLIB")
 endif()
 
 install(TARGETS peptideUtils DESTINATION lib)
-#set_target_properties(peptideUtils PROPERTIES
-#    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-#)
 
 # first we can indicate the documentation build as an option and set it to ON by default
 option(BUILD_DOC "Build documentation" OFF)
