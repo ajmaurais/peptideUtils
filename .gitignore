@@ -10,3 +10,5 @@ include/config.hpp
 doc/doxygen/html/*
 README.html
 .idea/*
+CMakeFiles
+cmake-build-debug
