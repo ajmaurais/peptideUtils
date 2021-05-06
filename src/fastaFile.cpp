@@ -34,24 +34,24 @@
 \param end End offset
 */
 utils::FastaEntry::FastaEntry(std::string id, size_t beg, size_t end){
-	_id = id; _beg = beg; _end = end;
+    _id = id; _beg = beg; _end = end;
 }
 
 //!Copy constructor
 utils::FastaEntry::FastaEntry(const FastaEntry& rhs)
 {
-	_id = rhs._id;
-	_beg = rhs._beg;
-	_end = rhs._end;
+    _id = rhs._id;
+    _beg = rhs._beg;
+    _end = rhs._end;
 }
 
 //!Copy assignment
 utils::FastaEntry& utils::FastaEntry::operator = (const FastaEntry& rhs)
 {
-	_id = rhs._id;
-	_beg = rhs._beg;
-	_end = rhs._end;
-	return *this;
+    _id = rhs._id;
+    _beg = rhs._beg;
+    _end = rhs._end;
+    return *this;
 }
 
 /**
@@ -63,28 +63,28 @@ If i > _indexOffsets.size(), an empty string is returned.
 */
 std::string utils::FastaFile::operator [](size_t i) const
 {
-	if(i >= _indexOffsets.size())
-		return "";
+    if(i >= _indexOffsets.size())
+        return "";
 
-	std::string temp(_buffer + _indexOffsets[i].getBeg(),
-		_buffer + (_indexOffsets[i].getBeg() + (_indexOffsets[i].getEnd() - _indexOffsets[i].getBeg())));
-	std::stringstream ss(temp);
-	
-	std::string line;
-	std::string seq = "";
-	int begin_count = 0;
-	while(utils::safeGetline(ss, line))
-	{
-		if(line[0] == '>')
-		{
-			if(begin_count > 0)
-				break;
-			begin_count ++;
-			continue;
-		}
-		seq += line;
-	}
-	return seq;
+    std::string temp(_buffer + _indexOffsets[i].getBeg(),
+        _buffer + (_indexOffsets[i].getBeg() + (_indexOffsets[i].getEnd() - _indexOffsets[i].getBeg())));
+    std::stringstream ss(temp);
+    
+    std::string line;
+    std::string seq = "";
+    int begin_count = 0;
+    while(utils::safeGetline(ss, line))
+    {
+        if(line[0] == '>')
+        {
+            if(begin_count > 0)
+                break;
+            begin_count ++;
+            continue;
+        }
+        seq += line;
+    }
+    return seq;
 }
 
 /**
@@ -95,20 +95,20 @@ std::string utils::FastaFile::operator [](size_t i) const
 */
 std::string utils::FastaFile::at(size_t i) const
 {
-	std::string ret = (*this)[i];
-	if(ret.empty())
-		throw std::out_of_range("Protein index does not exist!");
-	return ret;
+    std::string ret = (*this)[i];
+    if(ret.empty())
+        throw std::out_of_range("Protein index does not exist!");
+    return ret;
 }
 
 //!Copy FastaFile members from \p rhs. Should not be called directly.
 void utils::FastaFile::_copyValues(const FastaFile& rhs)
 {
-	_indexOffsets = rhs._indexOffsets;
-	_idIndex = rhs._idIndex;
-	_foundSequences = rhs._foundSequences;
-	_sequenceCount = rhs._sequenceCount;
-	_storeFound = rhs._storeFound;
+    _indexOffsets = rhs._indexOffsets;
+    _idIndex = rhs._idIndex;
+    _foundSequences = rhs._foundSequences;
+    _sequenceCount = rhs._sequenceCount;
+    _storeFound = rhs._storeFound;
 }
 
 /**
@@ -120,17 +120,17 @@ void utils::FastaFile::_copyValues(const FastaFile& rhs)
 */
 size_t utils::FastaFile::getIdIndex(std::string proteinID) const
 {
-	auto it = _idIndex.find(proteinID);
-	if(it == _idIndex.end())
-		return PROT_ID_NOT_FOUND;
-	return it->second;
+    auto it = _idIndex.find(proteinID);
+    if(it == _idIndex.end())
+        return PROT_ID_NOT_FOUND;
+    return it->second;
 }
 
 std::string utils::FastaFile::getIndexID(size_t i) const
 {
-	if(i >= _indexOffsets.size())
-		return utils::PROT_SEQ_NOT_FOUND;
-	return _indexOffsets[i].getID();
+    if(i >= _indexOffsets.size())
+        return utils::PROT_SEQ_NOT_FOUND;
+    return _indexOffsets[i].getID();
 }
 
 /**
@@ -142,16 +142,16 @@ std::string utils::FastaFile::getIndexID(size_t i) const
  */
 std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose) const
 {
-	//get offset of proteinID
-	size_t proteinIndex_temp = getIdIndex(proteinID);
-	if(proteinIndex_temp == utils::PROT_ID_NOT_FOUND){
-		if(verbose){
-			std::cerr << "Warning! ID: " << proteinID << " not found in fastaFile.\n";
-		}
-		return utils::PROT_SEQ_NOT_FOUND;
-	}
-	
-	return (*this)[proteinIndex_temp];
+    //get offset of proteinID
+    size_t proteinIndex_temp = getIdIndex(proteinID);
+    if(proteinIndex_temp == utils::PROT_ID_NOT_FOUND){
+        if(verbose){
+            std::cerr << "Warning! ID: " << proteinID << " not found in fastaFile.\n";
+        }
+        return utils::PROT_SEQ_NOT_FOUND;
+    }
+    
+    return (*this)[proteinIndex_temp];
 }
 
 /**
@@ -163,34 +163,34 @@ std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose) c
  */
 std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose)
 {
-	if(_storeFound){
-		//if proteinID has already been parsed, return the seq and exit
-		auto foundIt = _foundSequences.find(proteinID);
-		if(foundIt != _foundSequences.end())
-			return foundIt->second;
-	}
-	
-	//get offset of proteinID
-	size_t proteinIndex_temp = getIdIndex(proteinID);
-	if(proteinIndex_temp == utils::PROT_ID_NOT_FOUND){
-		if(verbose){
-			std::cerr << "Warning! ID: " << proteinID << " not found in fastaFile.\n";
-		}
-		return utils::PROT_SEQ_NOT_FOUND;
-	}
-	
-	std::string seq = (*this)[proteinIndex_temp];
-	_foundSequences[proteinID] = seq;
-	return seq;
+    if(_storeFound){
+        //if proteinID has already been parsed, return the seq and exit
+        auto foundIt = _foundSequences.find(proteinID);
+        if(foundIt != _foundSequences.end())
+            return foundIt->second;
+    }
+    
+    //get offset of proteinID
+    size_t proteinIndex_temp = getIdIndex(proteinID);
+    if(proteinIndex_temp == utils::PROT_ID_NOT_FOUND){
+        if(verbose){
+            std::cerr << "Warning! ID: " << proteinID << " not found in fastaFile.\n";
+        }
+        return utils::PROT_SEQ_NOT_FOUND;
+    }
+    
+    std::string seq = (*this)[proteinIndex_temp];
+    _foundSequences[proteinID] = seq;
+    return seq;
 }
 
 //! const overloaded version of FastaFile::getModifiedResidue
 std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
-												 std::string peptideSeq,
-												 int modLoc) const
+                                                 std::string peptideSeq,
+                                                 int modLoc) const
 {
-	std::string seq = getSequence(proteinID);
-	return utils::getModifiedResidue(seq, peptideSeq, modLoc);	
+    std::string seq = getSequence(proteinID);
+    return utils::getModifiedResidue(seq, peptideSeq, modLoc);  
 }
 
 /**
@@ -202,11 +202,11 @@ std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
  (where 0 is the beginning of the peptide.)
  */
 std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
-												 std::string peptideSeq,
-												 int modLoc)
+                                                 std::string peptideSeq,
+                                                 int modLoc)
 {
-	std::string seq = getSequence(proteinID);
-	return utils::getModifiedResidue(seq, peptideSeq, modLoc);	
+    std::string seq = getSequence(proteinID);
+    return utils::getModifiedResidue(seq, peptideSeq, modLoc);  
 }
 
 /**
@@ -221,20 +221,20 @@ std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
  \return string representation of modified residue.
  */
 std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
-												 std::string peptideSeq,
-												 int modLoc,
-												 bool verbose,
-												 bool& found)
+                                                 std::string peptideSeq,
+                                                 int modLoc,
+                                                 bool verbose,
+                                                 bool& found)
 {
-	found = true;
-	std::string seq = getSequence(proteinID, verbose);
-	if(seq == utils::PROT_SEQ_NOT_FOUND)
-		found = false;
-	//else seq = _foundSequences[proteinID];
-	if(seq == utils::PROT_SEQ_NOT_FOUND)
-		return utils::PROT_SEQ_NOT_FOUND;
-	
-	return utils::getModifiedResidue(seq, peptideSeq, modLoc);
+    found = true;
+    std::string seq = getSequence(proteinID, verbose);
+    if(seq == utils::PROT_SEQ_NOT_FOUND)
+        found = false;
+    //else seq = _foundSequences[proteinID];
+    if(seq == utils::PROT_SEQ_NOT_FOUND)
+        return utils::PROT_SEQ_NOT_FOUND;
+    
+    return utils::getModifiedResidue(seq, peptideSeq, modLoc);
 }
 
 /**
@@ -242,61 +242,61 @@ std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
  */
 void utils::FastaFile::_buildIndex()
 {
-	//iterate through _buffer to search for where entries begin
-	std::vector<size_t> combined, trIdx;
-	utils::getIdxOfSubstr(_buffer, ">sp", combined);
-	utils::getIdxOfSubstr(_buffer, ">tr", trIdx);
-	
-	//combine and sort vectors
-	combined.insert(combined.end(), trIdx.begin(), trIdx.end());
-	combined.push_back(_size); //add index to end of buffer
-	std::sort(combined.begin(), combined.end());
-	
-	//build _indexOffsets
-	_sequenceCount = 0;
-	int const scanLen = 20;
-	std::string newID;
-	size_t len = combined.size();
-	for(size_t i = 0; i < len - 1; i++) //for all but last index in combined
-	{
-		char* c = &_buffer[combined[i] + 4];
-		newID = "";
-		for(int j = 0; j < scanLen; j++)
-		{
-			newID += *c;
-			c += 1;
-			if(*c == '|')
-				break;
-		}
+    //iterate through _buffer to search for where entries begin
+    std::vector<size_t> combined, trIdx;
+    utils::getIdxOfSubstr(_buffer, ">sp", combined);
+    utils::getIdxOfSubstr(_buffer, ">tr", trIdx);
+    
+    //combine and sort vectors
+    combined.insert(combined.end(), trIdx.begin(), trIdx.end());
+    combined.push_back(_size); //add index to end of buffer
+    std::sort(combined.begin(), combined.end());
+    
+    //build _indexOffsets
+    _sequenceCount = 0;
+    int const scanLen = 20;
+    std::string newID;
+    size_t len = combined.size();
+    for(size_t i = 0; i < len - 1; i++) //for all but last index in combined
+    {
+        char* c = &_buffer[combined[i] + 4];
+        newID = "";
+        for(int j = 0; j < scanLen; j++)
+        {
+            newID += *c;
+            c += 1;
+            if(*c == '|')
+                break;
+        }
 
-		//add sequence offset to class members
-		_idIndex[newID] = _sequenceCount;
-		_indexOffsets.push_back(utils::FastaEntry(newID, combined[i], combined.at(i + 1)));
-		_sequenceCount++;
-	}
+        //add sequence offset to class members
+        _idIndex[newID] = _sequenceCount;
+        _indexOffsets.push_back(utils::FastaEntry(newID, combined[i], combined.at(i + 1)));
+        _sequenceCount++;
+    }
 }
 
 
 bool utils::FastaFile::read(){
-	if(!BufferFile::read()) return false;
-		_buildIndex();
-	return true;
+    if(!BufferFile::read()) return false;
+        _buildIndex();
+    return true;
 }
 
 bool utils::FastaFile::read(std::string fname){
-	_fname = fname;
-	return FastaFile::read();
+    _fname = fname;
+    return FastaFile::read();
 }
 
 /**
 \return true if FastaFile::_buffer is empty.
 */
 bool utils::FastaFile::empty() const{
-	return buffer_empty();
+    return buffer_empty();
 }
 
 size_t utils::FastaFile::getSequenceCount() const{
-	return _sequenceCount;
+    return _sequenceCount;
 }
 
 /**
@@ -314,9 +314,9 @@ If \p n overruns \p ref, the maximum number of characters will be returned.
 \return \p n residues after \p query.
 */
 std::string utils::FastaFile::nAfter(const std::string& query, const std::string& ref_id, unsigned n,
-	bool noExcept){
-	std::string ref = getSequence(ref_id);
-	return utils::nAfter(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
+    bool noExcept){
+    std::string ref = getSequence(ref_id);
+    return utils::nAfter(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
 }
 
 /**
@@ -334,23 +334,23 @@ If \p n overruns \p ref, the maximum number of characters will be returned.
 \return \p n residues before \p query.
 */
 std::string utils::FastaFile::nBefore(const std::string& query, const std::string& ref_id,
-	unsigned n, bool noExcept){
-	std::string ref = getSequence(ref_id);
-	return utils::nBefore(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
+    unsigned n, bool noExcept){
+    std::string ref = getSequence(ref_id);
+    return utils::nBefore(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
 }
 
 //!const overloaded version of FastaFile::nAfter
 std::string utils::FastaFile::nAfter(const std::string& query, const std::string& ref_id, unsigned n,
-	bool noExcept) const{
-	std::string ref = getSequence(ref_id);
-	return utils::nAfter(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
+    bool noExcept) const{
+    std::string ref = getSequence(ref_id);
+    return utils::nAfter(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
 }
 
 //!const overloaded version of FastaFile::nBefore
 std::string utils::FastaFile::nBefore(const std::string& query, const std::string& ref_id,
-	unsigned n, bool noExcept) const{
-	std::string ref = getSequence(ref_id);
-	return utils::nBefore(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
+    unsigned n, bool noExcept) const{
+    std::string ref = getSequence(ref_id);
+    return utils::nBefore(query, (ref == utils::PROT_SEQ_NOT_FOUND ? "" : ref), n, noExcept);
 }
 
 /**
@@ -390,18 +390,18 @@ size_t utils::FastaFile::indexN(const std::string &query, const std::string &ref
  */
 std::string utils::getModifiedResidue(const std::string& seq, const std::string& peptideSeq, int modLoc)
 {
-	if(seq == utils::PROT_SEQ_NOT_FOUND)
-		return utils::PROT_SEQ_NOT_FOUND;
-	
-	size_t begin = seq.find(peptideSeq);
-	if(begin == std::string::npos)
-		return utils::PEP_SEQ_NOT_FOUND;
-	size_t modNum = begin + modLoc;
-	if(modLoc > peptideSeq.length())
-		throw std::runtime_error("modLoc is out of bounds!");
-	std::string ret = std::string(1, peptideSeq[modLoc]) + std::to_string(modNum + 1);
-	
-	return ret;
+    if(seq == utils::PROT_SEQ_NOT_FOUND)
+        return utils::PROT_SEQ_NOT_FOUND;
+    
+    size_t begin = seq.find(peptideSeq);
+    if(begin == std::string::npos)
+        return utils::PEP_SEQ_NOT_FOUND;
+    size_t modNum = begin + modLoc;
+    if(modLoc > peptideSeq.length())
+        throw std::runtime_error("modLoc is out of bounds!");
+    std::string ret = std::string(1, peptideSeq[modLoc]) + std::to_string(modNum + 1);
+    
+    return ret;
 }
 
 /**
@@ -416,13 +416,13 @@ std::string utils::getModifiedResidue(const std::string& seq, const std::string&
 */
 bool utils::align(const std::string& query, const std::string& ref, size_t& beg, size_t& end)
 {
-	size_t match = ref.find(query);
-	if(match == std::string::npos) return false;
-	
-	beg = match;
-	end = match + query.length() - 1;
-	
-	return true;
+    size_t match = ref.find(query);
+    if(match == std::string::npos) return false;
+    
+    beg = match;
+    end = match + query.length() - 1;
+    
+    return true;
 }
 
 /**
@@ -441,15 +441,15 @@ If \p n overruns \p ref, the maximum possible number of characters will be retur
 */
 std::string utils::nBefore(const std::string& query, const std::string& ref, unsigned n, bool noExcept)
 {
-	size_t beg, end;
-	if(!utils::align(query, ref, beg, end)){
-		if(noExcept) return "";
-		else throw std::out_of_range("query:\n\t" + query + "\nnot in ref:\n\t" + ref);
-	}
-	
-	if(beg < n) n = beg;
+    size_t beg, end;
+    if(!utils::align(query, ref, beg, end)){
+        if(noExcept) return "";
+        else throw std::out_of_range("query:\n\t" + query + "\nnot in ref:\n\t" + ref);
+    }
+    
+    if(beg < n) n = beg;
 
-	return ref.substr(beg - n, n);
+    return ref.substr(beg - n, n);
 }
 
 /**
@@ -468,16 +468,16 @@ If \p n overruns \p ref, the maximum possible number of characters will be retur
 */
 std::string utils::nAfter(const std::string& query, const std::string& ref, unsigned n, bool noExcept)
 {
-	size_t beg, end;
-	if(!utils::align(query, ref, beg, end)){
-		if(noExcept) return "";
-		else throw std::out_of_range("query:\n\t" + query + "\nnot in ref:\n\t" + ref);
-	}
-	
-	end += 1;
-	if(end + n > ref.length())
-		n = ref.length() - end;
-	return ref.substr(end, n);
+    size_t beg, end;
+    if(!utils::align(query, ref, beg, end)){
+        if(noExcept) return "";
+        else throw std::out_of_range("query:\n\t" + query + "\nnot in ref:\n\t" + ref);
+    }
+    
+    end += 1;
+    if(end + n > ref.length())
+        n = ref.length() - end;
+    return ref.substr(end, n);
 }
 
 /**
@@ -496,16 +496,16 @@ If \p query not found in \p ref, returns std::string::npos.
 */
 size_t utils::indexN(const std::string& query, const std::string& ref, size_t n, bool noExcept)
 {
-	size_t beg, end;
-	if(!utils::align(query, ref, beg, end)){
-		if(noExcept) return std::string::npos;
-		else throw std::out_of_range("query not in ref");
-	}
-	
-	if(n == std::string::npos)
-		n = query.length() - 1;
-	if(beg + n > ref.length())
-		return ref.length() - 1;
-	return beg + n;
+    size_t beg, end;
+    if(!utils::align(query, ref, beg, end)){
+        if(noExcept) return std::string::npos;
+        else throw std::out_of_range("query not in ref");
+    }
+    
+    if(n == std::string::npos)
+        n = query.length() - 1;
+    if(beg + n > ref.length())
+        return ref.length() - 1;
+    return beg + n;
 }
 

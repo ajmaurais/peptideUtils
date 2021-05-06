@@ -81,30 +81,30 @@ int utils::internal::_b64_decode_mio( char *dest,  char *src, size_t size )
         if (!(t1 = *src++) || !(t2 = *src++) || !(t3 = *src++) || !(t4 = *src++))
             return (int)(temp-dest);
 
-        if (t1 == 61 || temp >= end)		// if == '='
+        if (t1 == 61 || temp >= end)        // if == '='
             return(int)(temp-dest);
 
-        if( t1 > 96 )		// [a-z]
+        if( t1 > 96 )       // [a-z]
             a = (t1 - 71);
-        else if( t1 > 64 )		// [A-Z]
+        else if( t1 > 64 )      // [A-Z]
             a = (t1 - 65);
-        else if( t1 > 47 )		// [0-9]
+        else if( t1 > 47 )      // [0-9]
             a = (t1 + 4);
         else if( t1 == 43 )
             a = 62;
-        else				// src[0] == '/'
+        else                // src[0] == '/'
             a = 63;
 
 
-        if( t2 > 96 )		// [a-z]
+        if( t2 > 96 )       // [a-z]
             b = (t2 - 71);
-        else if( t2 > 64 )		// [A-Z]
+        else if( t2 > 64 )      // [A-Z]
             b = (t2 - 65);
-        else if( t2 > 47 )		// [0-9]
+        else if( t2 > 47 )      // [0-9]
             b = (t2 + 4);
         else if( t2 == 43 )
             b = 62;
-        else				// src[0] == '/'
+        else                // src[0] == '/'
             b = 63;
 
         *temp++ = ( a << 2) | ( b >> 4);
@@ -112,15 +112,15 @@ int utils::internal::_b64_decode_mio( char *dest,  char *src, size_t size )
         if (t3 == 61 || temp >= end)
             return (int)(temp-dest);;
 
-        if( t3 > 96 )		// [a-z]
+        if( t3 > 96 )       // [a-z]
             a = (t3 - 71);
-        else if( t3 > 64 )		// [A-Z]
+        else if( t3 > 64 )      // [A-Z]
             a = (t3 - 65);
-        else if( t3 > 47 )		// [0-9]
+        else if( t3 > 47 )      // [0-9]
             a = (t3 + 4);
         else if( t3 == 43 )
             a = 62;
-        else				// src[0] == '/'
+        else                // src[0] == '/'
             a = 63;
 
         *temp++ = ( b << 4) | ( a >> 2);
@@ -128,15 +128,15 @@ int utils::internal::_b64_decode_mio( char *dest,  char *src, size_t size )
         if (t4 == 61 || temp >= end)
             return (int)(temp-dest);;
 
-        if( t4 > 96 )		// [a-z]
+        if( t4 > 96 )       // [a-z]
             b = (t4 - 71);
-        else if( t4 > 64 )		// [A-Z]
+        else if( t4 > 64 )      // [A-Z]
             b = (t4 - 65);
-        else if( t4 > 47 )		// [0-9]
+        else if( t4 > 47 )      // [0-9]
             b = (t4 + 4);
         else if( t4 == 43 )
             b = 62;
-        else				// src[0] == '/'
+        else                // src[0] == '/'
             b = 63;
 
         *temp++ = ( a << 6) | ( b );

@@ -31,38 +31,38 @@
 #include <utils.hpp>
 
 namespace utils{
-	class BufferFile;
-	
-	//!Base class for reading and manipulating large file buffers.
-	class BufferFile{
-	protected:
-		//!file path
-		std::string _fname;
-		
-		//!file buffer
-		char* _buffer;
-		
-		//!_buffer length in chars
-		size_t _size;
-	public:
-		BufferFile(std::string fname = "");
-		BufferFile(const BufferFile& rhs);
-		
-		~BufferFile(){
-			delete [] _buffer;
-		}
-		
-		//modifiers
-		BufferFile& operator = (BufferFile rhs);
+    class BufferFile;
+    
+    //!Base class for reading and manipulating large file buffers.
+    class BufferFile{
+    protected:
+        //!file path
+        std::string _fname;
+        
+        //!file buffer
+        char* _buffer;
+        
+        //!_buffer length in chars
+        size_t _size;
+    public:
+        BufferFile(std::string fname = "");
+        BufferFile(const BufferFile& rhs);
+        
+        ~BufferFile(){
+            delete [] _buffer;
+        }
+        
+        //modifiers
+        BufferFile& operator = (BufferFile rhs);
 
         bool read();
 
         virtual bool read(std::string);
-		bool exists() const;
+        bool exists() const;
 
-		//properties
-		bool buffer_empty() const;
-	};
+        //properties
+        bool buffer_empty() const;
+    };
 }
 
 #endif /* fileBuffer_hpp */

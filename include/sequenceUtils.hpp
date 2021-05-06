@@ -38,90 +38,90 @@
 
 namespace utils{
 
-	typedef std::map<std::string, std::vector<std::string> > SeqListType;
+    typedef std::map<std::string, std::vector<std::string> > SeqListType;
 
-	//!Characters representing dynamic modifications
-	const std::string MOD_CHARS = "*";
+    //!Characters representing dynamic modifications
+    const std::string MOD_CHARS = "*";
 
-	//!Maps 1 letter amino acids to 3.
-	const std::map<char, std::string> _ONE_LETTER_TO_THREE_MAP = {{'A', "Ala"},
-																  {'C', "Cys"},
-																  {'D', "Asp"},
-																  {'E', "Glu"},
-																  {'F', "Phe"},
-																  {'G', "Gly"},
-																  {'H', "His"},
-																  {'I', "Ile"},
-																  {'K', "Lys"},
-																  {'L', "Leu"},
-																  {'M', "Met"},
-																  {'N', "Asn"},
-																  {'P', "Pro"},
-																  {'Q', "Gln"},
-																  {'R', "Arg"},
-																  {'S', "Ser"},
-																  {'T', "Thr"},
-																  {'U', "Sec"},
-																  {'V', "Val"},
-																  {'W', "Trp"},
-																  {'Y', "Tyr"}};
+    //!Maps 1 letter amino acids to 3.
+    const std::map<char, std::string> _ONE_LETTER_TO_THREE_MAP = {{'A', "Ala"},
+                                                                  {'C', "Cys"},
+                                                                  {'D', "Asp"},
+                                                                  {'E', "Glu"},
+                                                                  {'F', "Phe"},
+                                                                  {'G', "Gly"},
+                                                                  {'H', "His"},
+                                                                  {'I', "Ile"},
+                                                                  {'K', "Lys"},
+                                                                  {'L', "Leu"},
+                                                                  {'M', "Met"},
+                                                                  {'N', "Asn"},
+                                                                  {'P', "Pro"},
+                                                                  {'Q', "Gln"},
+                                                                  {'R', "Arg"},
+                                                                  {'S', "Ser"},
+                                                                  {'T', "Thr"},
+                                                                  {'U', "Sec"},
+                                                                  {'V', "Val"},
+                                                                  {'W', "Trp"},
+                                                                  {'Y', "Tyr"}};
 
-	//!Maps 3 letter amino acids to 1.
-	const std::map<std::string, char> _THREE_LETTER_TO_ONE_MAP = {{"Ala", 'A'},
-																  {"Cys", 'C'},
-																  {"Asp", 'D'},
-																  {"Glu", 'E'},
-																  {"Phe", 'F'},
-																  {"Gly", 'G'},
-																  {"His", 'H'},
-																  {"Ile", 'I'},
-																  {"Lys", 'K'},
-																  {"Leu", 'L'},
-																  {"Met", 'M'},
-																  {"Asn", 'N'},
-																  {"Pro", 'P'},
-																  {"Gln", 'Q'},
-																  {"Arg", 'R'},
-																  {"Ser", 'S'},
-																  {"Thr", 'T'},
-																  {"Sec", 'U'},
-																  {"Val", 'V'},
-																  {"Trp", 'W'},
-																  {"Tyr", 'Y'}};
+    //!Maps 3 letter amino acids to 1.
+    const std::map<std::string, char> _THREE_LETTER_TO_ONE_MAP = {{"Ala", 'A'},
+                                                                  {"Cys", 'C'},
+                                                                  {"Asp", 'D'},
+                                                                  {"Glu", 'E'},
+                                                                  {"Phe", 'F'},
+                                                                  {"Gly", 'G'},
+                                                                  {"His", 'H'},
+                                                                  {"Ile", 'I'},
+                                                                  {"Lys", 'K'},
+                                                                  {"Leu", 'L'},
+                                                                  {"Met", 'M'},
+                                                                  {"Asn", 'N'},
+                                                                  {"Pro", 'P'},
+                                                                  {"Gln", 'Q'},
+                                                                  {"Arg", 'R'},
+                                                                  {"Ser", 'S'},
+                                                                  {"Thr", 'T'},
+                                                                  {"Sec", 'U'},
+                                                                  {"Val", 'V'},
+                                                                  {"Trp", 'W'},
+                                                                  {"Tyr", 'Y'}};
 
-	void _digest_all_len(unsigned int begin, unsigned int end,
-		const utils::FastaFile& fasta, SeqListType& seqs,
-		unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
-		std::string cleavagePattern = "([RK])(?=[^P])");
+    void _digest_all_len(unsigned int begin, unsigned int end,
+        const utils::FastaFile& fasta, SeqListType& seqs,
+        unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
+        std::string cleavagePattern = "([RK])(?=[^P])");
 
-	void _digest_all_res(unsigned int begin, unsigned int end,
-		const utils::FastaFile& fasta, const utils::Residues& residues, SeqListType& seqs,
-		unsigned nMissedCleavages = 0, bool length_filter = true,
-		std::string cleavagePattern = "([RK])(?=[^P])",
-		double minMz = 400, double maxMz = 1800, int minCharge = 1, int maxCharge = 5);
+    void _digest_all_res(unsigned int begin, unsigned int end,
+        const utils::FastaFile& fasta, const utils::Residues& residues, SeqListType& seqs,
+        unsigned nMissedCleavages = 0, bool length_filter = true,
+        std::string cleavagePattern = "([RK])(?=[^P])",
+        double minMz = 400, double maxMz = 1800, int minCharge = 1, int maxCharge = 5);
 
-	void digest_all(const utils::FastaFile& fasta, const utils::Residues& residues, SeqListType& peptides, unsigned int nThread = 0,
-		unsigned nMissedCleavages = 0, bool length_filter = true,
-		std::string cleavagePattern = "([RK])(?=[^P])",
-		double minMz = 400, double maxMz = 1800, int minCharge = 1, int maxCharge = 5);
+    void digest_all(const utils::FastaFile& fasta, const utils::Residues& residues, SeqListType& peptides, unsigned int nThread = 0,
+        unsigned nMissedCleavages = 0, bool length_filter = true,
+        std::string cleavagePattern = "([RK])(?=[^P])",
+        double minMz = 400, double maxMz = 1800, int minCharge = 1, int maxCharge = 5);
 
-	void digest_all(const utils::FastaFile& fasta, SeqListType& peptides, unsigned int nThread = 0,
-		unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
-		std::string cleavagePattern = "([RK])(?=[^P])");
+    void digest_all(const utils::FastaFile& fasta, SeqListType& peptides, unsigned int nThread = 0,
+        unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
+        std::string cleavagePattern = "([RK])(?=[^P])");
 
-	std::string getModLocs(std::string seq, std::vector<int>& modLocs);
+    std::string getModLocs(std::string seq, std::vector<int>& modLocs);
 
-	std::string oneLetterToThree(std::string seq,
-								 std::string sep_in = "",
-								 std::string sep_out = "",
-								 std::string n_term_out = "",
-								 std::string c_term_out = "");
+    std::string oneLetterToThree(std::string seq,
+                                 std::string sep_in = "",
+                                 std::string sep_out = "",
+                                 std::string n_term_out = "",
+                                 std::string c_term_out = "");
 
-	std::string threeLetterToOne(std::string seq,
-								 std::string sep_in = "",
-								 std::string sep_out = "",
-								 std::string n_term_out = "",
-								 std::string c_term_out = "");
+    std::string threeLetterToOne(std::string seq,
+                                 std::string sep_in = "",
+                                 std::string sep_out = "",
+                                 std::string n_term_out = "",
+                                 std::string c_term_out = "");
 
 }//end namespace utils
 

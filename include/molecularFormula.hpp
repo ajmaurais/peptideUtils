@@ -46,23 +46,23 @@
 namespace utils{
 
     class Species;
-	class Residue;
-	class Residues;
+    class Residue;
+    class Residues;
 
     typedef std::map<std::string, Species> AtomMassMapType;
-	typedef std::vector<std::string> HeaderType;
-	typedef std::map<std::string, int> AtomCountMapType;
-	
-	bool const UNICODE_AS_DEFAULT = true;
-	const std::string FORMULA_RESIDUE_ORDER [] = {"C", "(13)C", "H", "D", "Br", "Cl", "N",
-		"(15)N", "O", "(18)O", "P", "S", "Se"};
-	const size_t FORMULA_RESIDUE_ORDER_LEN = 13;
-	const std::string N_TERM_STR = "N_term";
-	const std::string C_TERM_STR = "C_term";
-	const std::string BAD_AMINO_ACID = "BAD_AA_IN_SEQ";
-	const std::string ATOM_COUNT_NAME = "defaultResidueAtoms.txt";
-	
-	std::string getFormulaFromMap(const AtomCountMapType&, bool unicode);
+    typedef std::vector<std::string> HeaderType;
+    typedef std::map<std::string, int> AtomCountMapType;
+    
+    bool const UNICODE_AS_DEFAULT = true;
+    const std::string FORMULA_RESIDUE_ORDER [] = {"C", "(13)C", "H", "D", "Br", "Cl", "N",
+        "(15)N", "O", "(18)O", "P", "S", "Se"};
+    const size_t FORMULA_RESIDUE_ORDER_LEN = 13;
+    const std::string N_TERM_STR = "N_term";
+    const std::string C_TERM_STR = "C_term";
+    const std::string BAD_AMINO_ACID = "BAD_AA_IN_SEQ";
+    const std::string ATOM_COUNT_NAME = "defaultResidueAtoms.txt";
+    
+    std::string getFormulaFromMap(const AtomCountMapType&, bool unicode);
 
     class Species{
     private:
@@ -98,92 +98,92 @@ namespace utils{
         }
     };
 
-	class Residue{
-	private:
-		AtomCountMapType atomCountMap;
-		AtomMassMapType* atomMassMap;
+    class Residue{
+    private:
+        AtomCountMapType atomCountMap;
+        AtomMassMapType* atomMassMap;
 
-		Species masses;
+        Species masses;
 
-		void calcMasses();
-		void removeZeros();
-	public:
-		//!Constructor
-		Residue (){
-			atomMassMap = new AtomMassMapType;
-		}
-		Residue(const Residue& _atomMassMap); //copy constructor
-		Residue(utils::AtomMassMapType* _atomMassMap,
-				const utils::HeaderType& _header,
-				const std::vector<std::string>& _elems){
-			initialize(_atomMassMap, _header, _elems);
-		}
-		~Residue() {
-			//delete atomMassMap;
-		}
-		
-		//modifiers
-		Residue& operator = (Residue rhs); //copy assignment
-		void initialize(AtomMassMapType*, const HeaderType&, const std::vector<std::string>&);
+        void calcMasses();
+        void removeZeros();
+    public:
+        //!Constructor
+        Residue (){
+            atomMassMap = new AtomMassMapType;
+        }
+        Residue(const Residue& _atomMassMap); //copy constructor
+        Residue(utils::AtomMassMapType* _atomMassMap,
+                const utils::HeaderType& _header,
+                const std::vector<std::string>& _elems){
+            initialize(_atomMassMap, _header, _elems);
+        }
+        ~Residue() {
+            //delete atomMassMap;
+        }
+        
+        //modifiers
+        Residue& operator = (Residue rhs); //copy assignment
+        void initialize(AtomMassMapType*, const HeaderType&, const std::vector<std::string>&);
 
-		//properties
-		void combineAtomCountMap(AtomCountMapType&) const;
-		int getCount(std::string) const;
-		std::string getFormula(bool unicode = UNICODE_AS_DEFAULT) const{
-			return getFormulaFromMap(atomCountMap, unicode);
-		}
-		double getMass(char) const;
-		double getMono() const;
-		double getAvg() const;
-	};
-	
-	class Residues{
-	private:
-		typedef std::map<std::string, Residue> ResidueMapType;
-		ResidueMapType residueMap;
-		std::string atomCountTableLoc;
-		HeaderType atomCountHeader;
+        //properties
+        void combineAtomCountMap(AtomCountMapType&) const;
+        int getCount(std::string) const;
+        std::string getFormula(bool unicode = UNICODE_AS_DEFAULT) const{
+            return getFormulaFromMap(atomCountMap, unicode);
+        }
+        double getMass(char) const;
+        double getMono() const;
+        double getAvg() const;
+    };
+    
+    class Residues{
+    private:
+        typedef std::map<std::string, Residue> ResidueMapType;
+        ResidueMapType residueMap;
+        std::string atomCountTableLoc;
+        HeaderType atomCountHeader;
 
-		//!Stores atom mono and avg masses
+        //!Stores atom mono and avg masses
         static AtomMassMapType _atomMassMap;
 
-		//!Has atom count table been read?
-		bool atomCountTableRead;
-	public:
-		Residues(){
-			atomCountTableLoc = "";
-			atomCountTableRead = false;
-		}
-		Residues(std::string _atomCountTableLoc){
-			atomCountTableLoc = _atomCountTableLoc;
-			atomCountTableRead = false;
-		}
-		~Residues() {}
-		
-		bool readAtomCountTable(std::string);
-		bool readAtomCountTable();
-		bool initialize(bool use_default = true);
-		bool initialize(std::string);
-		
-		std::string calcFormula(std::string, bool unicode = UNICODE_AS_DEFAULT,
-								bool _nterm = true, bool _cterm = true) const;
-		double calcMass(std::string _seq, char avg_mono,
-					   bool _nterm = true, bool _cterm = true) const;
-		double calcMW(std::string _seq, bool _nterm = true, bool _cterm = true) const{
-			return calcMass(_seq, 'a', _nterm, _cterm);
-		}
-		double calcMono(std::string _seq, bool _nterm = true, bool _cterm = true) const{
-			return calcMass(_seq, 'm', _nterm, _cterm);
-		}
-		void digest(std::string seq, std::vector<std::string>& peptides,
-			unsigned nMissedCleavages = 0, bool length_filter = true,
-			std::string cleavagePattern = "([RK])(?=[^P])",
-			double minMz = 400, double maxMz = 1800, unsigned minCharge = 1, unsigned maxCharge = 5) const;
-	};
+        //!Has atom count table been read?
+        bool atomCountTableRead;
+    public:
+        Residues(){
+            atomCountTableLoc = "";
+            atomCountTableRead = false;
+        }
+        Residues(std::string _atomCountTableLoc){
+            atomCountTableLoc = _atomCountTableLoc;
+            atomCountTableRead = false;
+        }
+        ~Residues() {}
+        
+        bool readAtomCountTable(std::string);
+        bool readAtomCountTable();
+        bool initialize(bool use_default = true);
+        bool initialize(std::string);
+        
+        std::string calcFormula(std::string, bool unicode = UNICODE_AS_DEFAULT,
+                                bool _nterm = true, bool _cterm = true) const;
+        double calcMass(std::string _seq, char avg_mono,
+                       bool _nterm = true, bool _cterm = true) const;
+        double calcMW(std::string _seq, bool _nterm = true, bool _cterm = true) const{
+            return calcMass(_seq, 'a', _nterm, _cterm);
+        }
+        double calcMono(std::string _seq, bool _nterm = true, bool _cterm = true) const{
+            return calcMass(_seq, 'm', _nterm, _cterm);
+        }
+        void digest(std::string seq, std::vector<std::string>& peptides,
+            unsigned nMissedCleavages = 0, bool length_filter = true,
+            std::string cleavagePattern = "([RK])(?=[^P])",
+            double minMz = 400, double maxMz = 1800, unsigned minCharge = 1, unsigned maxCharge = 5) const;
+    };
 
-	void digest(std::string seq, std::vector<std::string>& peptides,
-		unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
-		std::string cleavagePattern = "([RK])(?=[^P])");
+    void digest(std::string seq, std::vector<std::string>& peptides,
+        unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
+        std::string cleavagePattern = "([RK])(?=[^P])");
 }
 
 /* molecularFormula_hpp */

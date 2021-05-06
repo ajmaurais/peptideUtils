@@ -32,9 +32,9 @@
  */
 utils::BufferFile::BufferFile(std::string fname)
 {
-	_fname = fname;
-	_size = 0;
-	_buffer = new char[_size];
+    _fname = fname;
+    _size = 0;
+    _buffer = new char[_size];
 }
 
 /**
@@ -43,13 +43,13 @@ utils::BufferFile::BufferFile(std::string fname)
  */
 utils::BufferFile::BufferFile(const utils::BufferFile& rhs)
 {
-	//copy buffer
-	_buffer = new char[rhs._size];
-	std::copy(rhs._buffer, rhs._buffer + rhs._size, _buffer);
-	
-	//other vars
-	_fname = rhs._fname;
-	_size = rhs._size;
+    //copy buffer
+    _buffer = new char[rhs._size];
+    std::copy(rhs._buffer, rhs._buffer + rhs._size, _buffer);
+    
+    //other vars
+    _fname = rhs._fname;
+    _size = rhs._size;
 }
 
 /**
@@ -58,12 +58,12 @@ utils::BufferFile::BufferFile(const utils::BufferFile& rhs)
  */
 utils::BufferFile& utils::BufferFile::operator = (utils::BufferFile rhs)
 {
-	std::swap(_buffer, rhs._buffer);
-	
-	//other vars
-	_fname = rhs._fname;
-	_size = rhs._size;
-	return *this;
+    std::swap(_buffer, rhs._buffer);
+    
+    //other vars
+    _fname = rhs._fname;
+    _size = rhs._size;
+    return *this;
 }
 
 /**
@@ -73,8 +73,8 @@ utils::BufferFile& utils::BufferFile::operator = (utils::BufferFile rhs)
  */
 bool utils::BufferFile::read(std::string fname)
 {
-	_fname = fname;
-	return read();
+    _fname = fname;
+    return read();
 }
 
 /**
@@ -84,11 +84,11 @@ bool utils::BufferFile::read(std::string fname)
  */
 bool utils::BufferFile::read()
 {
-	std::ifstream inF(_fname);
-	if(!inF) return false;
-	
-	utils::readBuffer(_fname, &_buffer, _size);
-	return true;
+    std::ifstream inF(_fname);
+    if(!inF) return false;
+    
+    utils::readBuffer(_fname, &_buffer, _size);
+    return true;
 }
 
 /**
@@ -99,7 +99,7 @@ At some point maybe I will implement a more rigorous test.
 \return true if BufferFile::_buffer is empty.
 */
 bool utils::BufferFile::buffer_empty() const{
-	return _size == 0;
+    return _size == 0;
 }
 
 //! Test if file exists.
