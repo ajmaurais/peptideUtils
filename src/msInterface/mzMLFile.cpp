@@ -64,8 +64,8 @@ void msInterface::MzMLFile::_buildIndex()
                           _fname + "\n\tOnly a single run per file is supported.");
 
     // validate spectrum indices
-    if(beginScans.size() != endScans.size())
-        throw InvalidXmlFile("Unbounded <spectrum> in file: " + _fname);
+    if(beginScans.size() > endScans.size())
+       throw InvalidXmlFile("Unbounded <spectrum> in file: " + _fname);
     size_t len = beginScans.size();
 
     _scanCount = 0;
@@ -230,6 +230,7 @@ bool msInterface::MzMLFile::getScan(size_t queryScan, msInterface::Scan& scan) c
     }
 
     scan.updateRanges();
+    delete [] c;
     return true;
 }
 
