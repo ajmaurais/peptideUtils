@@ -270,3 +270,12 @@ msInterface::ActivationMethod msInterface::strToActivation(const std::string& s)
     else return ActivationMethod::UNKNOWN;
 }
 
+/**
+ * Write ions to out as mz, intensity pairs deliminated by \p sep
+ * @param out Stream to write to.
+ * @param sep Deliminator between mz and intensity.
+ */
+void msInterface::Scan::printIons(std::ostream& out, char sep){
+    for(auto & _ion : _ions) out << _ion.getMZ() << sep << _ion.getIntensity() << NEW_LINE;
+}
+

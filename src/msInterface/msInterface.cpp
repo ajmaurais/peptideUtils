@@ -42,7 +42,6 @@ msInterface::MsInterface::MsInterface(std::string fname) : BufferFile(fname) {
     initMetadata();
     _offsetIndex = OffsetIndexType();
     _scanMap = std::map<size_t, size_t>();
-    _scanCount = 0;
     fileType = FileType::UNKNOWN;
 }
 
@@ -53,13 +52,27 @@ msInterface::MsInterface &msInterface::MsInterface::operator=(const msInterface:
     return *this;
 }
 
+void msInterface::MsInterface::clear(){
+    _offsetIndex.clear();
+    _scanMap.clear();
+    initMetadata();
+}
+
 bool msInterface::MsInterface::read(std::string fname) {
     _fname = fname;
     return MsInterface::read();
 }
 
-bool msInterface::MsInterface::read(){
-    fileType = getFileType(_fname);
+bool msInterface::MsInterface::read()
+{
+    clear(); // clear all data
+
+    // Determine file type
+    FileType temp = getFileType(_fname);
+    if(fileType != FileType::UNKNOWN && temp != fileType) // Do this check in case of reuse of a MsInterface instance
+        throw std::runtime_error("Attempting to read a different file type!");
+    fileType = temp;
+
     calcParentFileBase(_fname);
     if(!BufferFile::read(_fname)) return false;
     _buildIndex();

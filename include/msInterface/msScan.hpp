@@ -353,6 +353,7 @@ namespace utils {
             void setPolarity(Polarity p) {
                 _polarity = p;
             }
+            void printIons(std::ostream&, char sep = '\t');
         };
     }
 }

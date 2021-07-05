@@ -85,6 +85,7 @@ namespace utils {
             virtual bool read();
             virtual bool getScan(size_t, Scan &) const = 0;
             bool getScan(std::string, Scan &) const;
+            void clear();
 
             //metadata getters
             size_t getScanCount() const {
