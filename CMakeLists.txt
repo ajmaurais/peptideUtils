@@ -44,6 +44,7 @@ add_library(peptideUtils STATIC
 
 target_include_directories(peptideUtils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(EXCLUDE_FROM_DOXYGEN ${CMAKE_CURRENT_SOURCE_DIR}/include/thirdparty)
+set_target_properties(peptideUtils PROPERTIES PUBLIC_HEADER "include/sequenceUtils.hpp;include/molecularFormula.hpp;include/fastaFile.hpp;include/bufferFile.hpp;include/msInterface/mzXMLFile.hpp;include/msInterface/msInterface.hpp;include/msInterface/mzMLFile.hpp;include/msInterface/internal/xml_utils.hpp;include/msInterface/internal/base64_utils.hpp;include/msInterface/msScan.hpp;include/msInterface/ms2File.hpp;include/exceptions.hpp;include/utils.hpp;include/tsvFile.hpp;include/thirdparty/msnumpress/MSNumpress.hpp;include/thirdparty/rapidxml/rapidxml_iterators.hpp;include/thirdparty/rapidxml/rapidxml_print.hpp;include/thirdparty/rapidxml/rapidxml_utils.hpp;include/thirdparty/rapidxml/rapidxml.hpp")
 
 option(ENABLE_ZLIB "Add support for zlib decompression" ON)
 if(ENABLE_ZLIB)
@@ -62,7 +63,10 @@ if(ENABLE_ZLIB)
 	add_compile_definitions("ENABLE_ZLIB")
 endif()
 
-install(TARGETS peptideUtils DESTINATION lib)
+install(TARGETS peptideUtils
+		LIBRARY DESTINATION lib
+		PUBLIC_HEADER DESTINATION include/peptideUtils
+		)
 
 # first we can indicate the documentation build as an option and set it to ON by default
 option(BUILD_DOC "Build documentation" OFF)
