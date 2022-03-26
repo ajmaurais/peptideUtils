@@ -68,6 +68,24 @@ std::string utils::getModLocs(std::string seq, std::vector<int>& modLocs)
     return ret;
 }
 
+/**
+ * Calculate the sequences of fragment ions of a peptide.
+ * @param s Peptide sequence.
+ * @param ions Populated with the ion name mapped to the beginning index and length of fragment ions in \p s.
+ * @param addB Add b ions?
+ * @param addY Ass y ions?
+ */
+void utils::seqToIons(const std::string& s, std::map<std::string, SizePair>& ions,
+                      bool addB, bool addY)
+{
+    ions.clear();
+    size_t len = s.length();
+    for(size_t i = 0; i < len; i++){
+        if(addB) ions["b" + std::to_string(i + 1)] = SizePair(0, i + 1);
+        if(addY) ions["y" + std::to_string(len - i)] = SizePair(i, len - i);
+    }
+}
+
 //!This function should not be called directly.
 void utils::_digest_all_res(unsigned int begin, unsigned int end,
                             const utils::FastaFile& fasta, const utils::Residues& residues, utils::SeqListType& seqs,

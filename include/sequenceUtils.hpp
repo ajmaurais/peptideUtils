@@ -39,6 +39,7 @@
 namespace utils{
 
     typedef std::map<std::string, std::vector<std::string> > SeqListType;
+    typedef std::pair<size_t, size_t> SizePair;
 
     //!Characters representing dynamic modifications
     const std::string MOD_CHARS = "*";
@@ -110,6 +111,8 @@ namespace utils{
         std::string cleavagePattern = "([RK])(?=[^P])");
 
     std::string getModLocs(std::string seq, std::vector<int>& modLocs);
+    void seqToIons(const std::string& s, std::map<std::string, SizePair>& ions,
+                   bool addB = true, bool addY = true);
 
     std::string oneLetterToThree(std::string seq,
                                  std::string sep_in = "",
