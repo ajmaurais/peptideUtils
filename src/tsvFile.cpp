@@ -114,4 +114,3 @@ bool utils::TsvFile::write(std::string ofname, char delim){
     std::ofstream outF(ofname.c_str());
     return write(outF, delim);
 }
-

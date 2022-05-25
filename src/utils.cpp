@@ -40,8 +40,7 @@ void utils::readBuffer(std::string fname, char** buffer, size_t& size)
 {
     std::ifstream inF(fname.c_str());
     
-    if(!inF)
-        throw std::runtime_error("Could not open " + fname);
+    if(!inF) throw std::runtime_error("Could not open " + fname);
     
     inF.seekg(0, inF.end);
     size = inF.tellg();
