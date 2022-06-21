@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 3.9)
-project(peptideUtils VERSION 2.1.0)
+project(peptideUtils VERSION 2.1.1)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
