@@ -258,14 +258,14 @@ std::string utils::oneLetterToThree(std::string seq,
                                     std::string sep_in, std::string sep_out,
                                     std::string n_term_out, std::string c_term_out)
 {
-seq = utils::removeSubstrs(sep_in, seq, false);
-std::string ret_temp = "";
-std::string add = "";
+    seq = utils::removeSubstrs(sep_in, seq, false);
+    std::string ret_temp = "";
+    std::string add = "";
 
-//check that n term is not a diff mod
-for(auto p = utils::MOD_CHARS.begin(); p != utils::MOD_CHARS.end(); p++)
-    if(seq[0] == *p)
-        throw std::runtime_error("Invalid peptide sequence: " + seq);
+    //check that n term is not a diff mod
+    for(auto p = utils::MOD_CHARS.begin(); p != utils::MOD_CHARS.end(); p++)
+        if(seq[0] == *p)
+            throw std::runtime_error("Invalid peptide sequence: " + seq);
     
     for(size_t i = 0; i < seq.length(); i++)
     {
