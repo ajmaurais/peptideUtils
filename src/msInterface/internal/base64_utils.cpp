@@ -233,7 +233,7 @@ void utils::internal::_decode64(msInterface::Scan& scan,
     int n = 0;
     auto *pDecodedInts = (uint64_t *) pDecoded; // cast to uint_64 for reading int sized chunks
     double _mz, _int;
-    for (int i = 0; i < peaksCount; i++) {
+    for (size_t i = 0; i < peaksCount; i++) {
         uData.iData = utils::internal::_dtohl(pDecodedInts[n++], bigEndian);
         _mz = uData.fData;
         uData.iData = utils::internal::_dtohl(pDecodedInts[n++], bigEndian);
@@ -288,7 +288,7 @@ void utils::internal::_decompress32(msInterface::Scan& scan,
     //write data to arrays
     int n = 0;
     double _mz, _int;
-    for(int i=0;i<peaksCount;i++){
+    for(size_t i=0;i<peaksCount;i++){
         uData.i = utils::internal::_dtohl(data[n++], bigEndian);
         _mz = (double)uData.f;
         uData.i = utils::internal::_dtohl(data[n++], bigEndian);
@@ -345,7 +345,7 @@ void utils::internal::_decompress64(msInterface::Scan& scan,
     //write data to arrays
     int n = 0;
     double _mz, _int;
-    for(int i=0;i<peaksCount;i++){
+    for(size_t i=0;i<peaksCount;i++){
         uData.i = utils::internal::_dtohl(data[n++], bigEndian);
         _mz = uData.d;
         uData.i = utils::internal::_dtohl(data[n++], bigEndian);
@@ -380,10 +380,12 @@ void utils::internal::BinaryData::decode(std::vector<double>& d) const
 
     char* decoded = new char[compressedLen];  //array for decoded base64 string
     int decodeLen;
+
+#ifdef ENABLE_ZLIB
     Bytef* unzipped = NULL;
     uLong unzippedLen;
-
-    int i;
+    size_t i;
+#endif
 
     //Base64 decoding
     decodeLen = utils::internal::_b64_decode_mio(decoded,(char*)pData,stringSize);
@@ -451,7 +453,9 @@ void utils::internal::BinaryData::decode(std::vector<double>& d) const
             exit(EXIT_FAILURE);
         }
 
+#ifdef ENABLE_ZLIB
         if(zlib) delete [] unzipped;
+#endif
         else delete [] decoded;
         for(i=0;i<peaksCount;i++) d.push_back(unpressed[i]);
         delete [] unpressed;

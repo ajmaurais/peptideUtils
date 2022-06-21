@@ -5,7 +5,10 @@ add_library(zlib INTERFACE)
 find_package(zlib ${ZLIB_VERSION})
 
 if(NOT ZLIB_FOUND)
-	set(SYSTEM_ZLIB FALSE)
+    set(SYSTEM_ZLIB FALSE)
+endif()
+
+if(NOT SYSTEM_ZLIB)
 	include(ExternalProject)
 	include(GNUInstallDirs)
 
@@ -37,8 +40,6 @@ if(NOT ZLIB_FOUND)
     set(ZLIB_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}z${CMAKE_SHARED_LIBRARY_SUFFIX}")
     set(ZLIB_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/include")
 	set(ZLIB_FOUND TRUE)
-else()
-	set(SYSTEM_ZLIB TRUE)
 endif()
 
 target_link_libraries(zlib INTERFACE ${ZLIB_LIBRARIES})
