@@ -297,7 +297,7 @@ void utils::internal::_decompress32(msInterface::Scan& scan,
     }
     delete [] data;
 #else
-    throw std::runtime_error("zlib compression not enables!");
+    throw std::runtime_error("zlib compression not enabled!");
 #endif
 }
 
@@ -354,7 +354,7 @@ void utils::internal::_decompress64(msInterface::Scan& scan,
     }
     delete [] data;
 #else
-    throw std::runtime_error("zlib compression not enables!");
+    throw std::runtime_error("zlib compression not enabled!");
 #endif
 }
 
@@ -424,7 +424,7 @@ void utils::internal::BinaryData::decode(std::vector<double>& d) const
 #ifdef ENABLE_ZLIB
                     ms::numpress::MSNumpress::decodeLinear((unsigned char *) unzipped, (const size_t) unzippedLen, unpressed);
 #else
-                    throw std::runtime_error("zlib compression not enables!");
+                    throw std::runtime_error("zlib compression not enabled!");
 #endif
                 }
                 else ms::numpress::MSNumpress::decodeLinear((unsigned char*)decoded,decodeLen,unpressed);
@@ -434,7 +434,7 @@ void utils::internal::BinaryData::decode(std::vector<double>& d) const
 #ifdef ENABLE_ZLIB
                     ms::numpress::MSNumpress::decodeSlof((unsigned char *) unzipped, (const size_t) unzippedLen, unpressed);
 #else
-                    throw std::runtime_error("zlib compression not enables!");
+                    throw std::runtime_error("zlib compression not enabled!");
 #endif
                 }
                 else ms::numpress::MSNumpress::decodeSlof((unsigned char*)decoded,decodeLen,unpressed);
@@ -443,7 +443,7 @@ void utils::internal::BinaryData::decode(std::vector<double>& d) const
 #ifdef ENABLE_ZLIB
                     ms::numpress::MSNumpress::decodePic((unsigned char *) unzipped, (const size_t) unzippedLen, unpressed);
 #else
-                    throw std::runtime_error("zlib compression not enables!");
+                    throw std::runtime_error("zlib compression not enabled!");
 #endif
                 }
                 else ms::numpress::MSNumpress::decodePic((unsigned char*)decoded,decodeLen,unpressed);
@@ -480,7 +480,7 @@ void utils::internal::BinaryData::decode(std::vector<double>& d) const
         }
         delete [] unzipped;
 #else
-        throw std::runtime_error("zlib compression not enables!");
+        throw std::runtime_error("zlib compression not enabled!");
 #endif
     } else {
         if(dataType == DataType::FLOAT_32){
