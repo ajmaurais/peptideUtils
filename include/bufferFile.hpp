@@ -43,9 +43,9 @@ namespace utils{
         char* _buffer;
         
         //!_buffer length in chars
-        size_t _size;
+        std::streamsize _size;
     public:
-        BufferFile(std::string fname = "");
+        explicit BufferFile(std::string fname = "");
         BufferFile(const BufferFile& rhs);
         
         ~BufferFile(){
