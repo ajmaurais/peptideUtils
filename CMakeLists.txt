@@ -1,8 +1,9 @@
 
 cmake_minimum_required(VERSION 3.9)
-project(peptideUtils VERSION 2.1.0)
+project(peptideUtils VERSION 2.1.1)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(MSVC)
     # Force to always compile with W4
@@ -46,6 +47,7 @@ target_include_directories(peptideUtils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inclu
 set(EXCLUDE_FROM_DOXYGEN ${CMAKE_CURRENT_SOURCE_DIR}/include/thirdparty)
 set_target_properties(peptideUtils PROPERTIES PUBLIC_HEADER "include/sequenceUtils.hpp;include/molecularFormula.hpp;include/fastaFile.hpp;include/bufferFile.hpp;include/msInterface/mzXMLFile.hpp;include/msInterface/msInterface.hpp;include/msInterface/mzMLFile.hpp;include/msInterface/internal/xml_utils.hpp;include/msInterface/internal/base64_utils.hpp;include/msInterface/msScan.hpp;include/msInterface/ms2File.hpp;include/exceptions.hpp;include/utils.hpp;include/tsvFile.hpp;include/thirdparty/msnumpress/MSNumpress.hpp;include/thirdparty/rapidxml/rapidxml_iterators.hpp;include/thirdparty/rapidxml/rapidxml_print.hpp;include/thirdparty/rapidxml/rapidxml_utils.hpp;include/thirdparty/rapidxml/rapidxml.hpp")
 
+option(SYSTEM_ZLIB "Use system zlib library" ON)
 option(ENABLE_ZLIB "Add support for zlib decompression" ON)
 if(ENABLE_ZLIB)
 	if(NOT ZLIB_FOUND)

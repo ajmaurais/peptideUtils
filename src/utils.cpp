@@ -24,6 +24,7 @@
 // -----------------------------------------------------------------------------
 // 
 
+#include <utility>
 #include <utils.hpp>
 
 /*******************/
@@ -36,7 +37,7 @@
  \param buffer location to store file contents
  \param size length of \p buffer after reading
  */
-void utils::readBuffer(std::string fname, char** buffer, size_t& size)
+void utils::readBuffer(const std::string& fname, char** buffer, std::streamsize& size)
 {
     std::ifstream inF(fname.c_str());
     
@@ -57,42 +58,47 @@ void utils::readBuffer(std::string fname, char** buffer, size_t& size)
  */
 bool utils::dirExists (const char* path)
 {
-    struct stat buffer;
+    struct stat buffer{};
     return stat(path, &buffer) == 0 && S_ISDIR(buffer.st_mode);
 }
 
 //!returns true if file at end of \p path exists and false if it does not
 bool utils::fileExists(const char* path)
 {
-    struct stat buffer;
+    struct stat buffer{};
     return stat(path, &buffer) == 0;
 }
 
-bool utils::fileExists(std::string path)
-{
+bool utils::fileExists(const std::string& path) {
     return fileExists(path.c_str());
 }
 
-bool utils::dirExists(std::string path)
-{
+bool utils::dirExists(const std::string& path) {
     return dirExists(path.c_str());
 }
 
-bool utils::isDir(std::string path)
-{
+bool utils::isDir(const std::string& path) {
     return utils::isDir(path.c_str());
 }
 
-//!checks whether file is directory
-bool utils::isDir(const char* path)
-{
-    struct stat buffer;
-    if(stat(path, &buffer) != 0)
-        std::cerr << path << " does not exist!";
-    return S_ISDIR(buffer.st_mode);
+//!checks whether path a is directory
+bool utils::isDir(const char* path) {
+    struct stat buffer{};
+    return stat(path, &buffer) != 0 && S_ISDIR(buffer.st_mode);
 }
 
-//!returns dirrectory from which program is run
+//! Return true if \p path is a regular file.
+bool utils::isFile(const char* path) {
+    struct stat buffer{};
+    return stat(path, &buffer) == 0 && S_ISREG(buffer.st_mode);
+}
+
+//! sting overload of utils::isFile(const char*)
+bool utils::isFile(const std::string& path) {
+    return utils::isFile(path.c_str());
+}
+
+//!returns directory from which program is run
 std::string utils::pwd()
 {
     char temp[PATH_MAX + 1];
@@ -108,7 +114,7 @@ std::string utils::absPath(const char* _fname)
 }
 
 //!resolves relative and symbolic file references
-std::string utils::absPath(std::string _fname)
+std::string utils::absPath(const std::string& _fname)
 {
     return(absPath(_fname.c_str()));
 }
@@ -129,35 +135,35 @@ bool utils::ls(const char* path, std::vector<std::string>& files)
             
             //skip hidden files
             if(IGNORE_HIDDEN_FILES && (hFile->d_name[0] == '.'))
-            continue;
+                continue;
             
             //add to files
-            files.push_back(hFile->d_name);
+            files.emplace_back(hFile->d_name);
         }
         closedir(dirFile);
     }
     return true;
 }
 
-bool utils::ls(const char* path, std::vector<std::string>& files, std::string extension)
+bool utils::ls(const char* path, std::vector<std::string>& files, const std::string& extension)
 {
     files.clear();
     std::vector<std::string> allFiles;
     if(!ls(path, allFiles))
         return false;
     
-    for(std::vector<std::string>::iterator it = allFiles.begin(); it != allFiles.end(); ++it)
-        if(endsWith(*it, extension))
-            files.push_back(*it);
+    for(auto & allFile : allFiles)
+        if(endsWith(allFile, extension))
+            files.push_back(allFile);
     return true;
 }
 
 //!executes \p command as system command
-void utils::systemCommand(std::string command){
+void utils::systemCommand(const std::string& command){
     system(command.c_str());
 }
 
-bool utils::mkdir(std::string path, std::string options){
+bool utils::mkdir(const std::string& path, const std::string& options){
     return utils::mkdir(path.c_str(), options);
 }
 
@@ -166,21 +172,19 @@ bool utils::mkdir(std::string path, std::string options){
  \param path path of new dir to create
  \return true if successful.
  */
-bool utils::mkdir(const char* path, std::string options)
+bool utils::mkdir(const char* path, const std::string& options)
 {
     //get abs path and make sure that it doesn't already exist
     //return false if it does
     std::string rpath = absPath(path);
-    if(dirExists(rpath))
-    return false;
+    if(dirExists(rpath)) return false;
     
     //make sure that parent dir exists
     //return false if not
-    size_t pos = rpath.find_last_of("/");
+    size_t pos = rpath.find_last_of('/');
     assert(pos != std::string::npos);
     std::string parentDir = rpath.substr(0, pos);
-    if(!dirExists(parentDir))
-    return false;
+    if(!dirExists(parentDir)) return false;
     
     //make dir
     systemCommand("mkdir " + options + " " + rpath);
@@ -196,14 +200,14 @@ std::string utils::baseName(std::string path, const std::string& delims)
     return path.substr(path.find_last_of(delims) + 1);
 }
 
-std::string utils::dirName(std::string path, const std::string& delims)
+std::string utils::dirName(const std::string& path, const std::string& delims)
 {
     std::string ret = path.substr(0, path.find_last_of(delims));
     if(ret == path) return "./";
     return ret;
 }
 
-std::string utils::parentDir(std::string path, char delim)
+std::string utils::parentDir(const std::string& path, char delim)
 {
     //split by delim
     std::vector<std::string> elems;
@@ -298,27 +302,26 @@ std::istream& utils::safeGetline(std::istream& is, std::string& s)
 /*****************/
 
 //!returns true if \p findTxt is found in \p whithinTxt and false if it it not
-bool utils::strContains(std::string findTxt, std::string whithinTxt)
+bool utils::strContains(const std::string& findTxt, const std::string& whithinTxt)
 {
     return whithinTxt.find(findTxt) != std::string::npos;
 }
 
 //!overloaded version of strContains, handles \p findTxt as char
-bool utils::strContains(char findTxt, std::string whithinTxt)
+bool utils::strContains(char findTxt, const std::string& whithinTxt)
 {
     return strContains(std::string(1, findTxt), whithinTxt);
 }
 
-bool utils::startsWith(std::string whithinStr, std::string findStr)
+bool utils::startsWith(const std::string& whithinStr, const std::string& findStr)
 {
     return (whithinStr.find(findStr) == 0);
 }
 
-bool utils::endsWith(std::string whithinStr, std::string findStr)
+bool utils::endsWith(const std::string& whithinStr, const std::string& findStr)
 {
     size_t pos = whithinStr.rfind(findStr);
-    if(pos == std::string::npos)
-    return false;
+    if(pos == std::string::npos) return false;
     
     return (whithinStr.substr(pos) == findStr);
 }
@@ -343,8 +346,7 @@ void utils::split (const std::string& str, const char delim, std::vector<std::st
 */
 std::string utils::trimTraling(const std::string& str)
 {
-    if(str.empty())
-    return "";
+    if(str.empty()) return "";
     return str.substr(0, str.find_last_not_of(WHITESPACE) + 1);
 }
 
@@ -355,8 +357,7 @@ std::string utils::trimTraling(const std::string& str)
  */
 std::string utils::trimLeading(const std::string& str)
 {
-    if(str.empty())
-    return "";
+    if(str.empty()) return "";
     return str.substr(str.find_first_not_of(WHITESPACE));
 }
 
@@ -367,8 +368,7 @@ std::string utils::trimLeading(const std::string& str)
  */
 std::string utils::trim(const std::string& str)
 {
-    if(str.empty())
-    return "";
+    if(str.empty()) return "";
     return trimLeading(trimTraling(str));
 }
 
@@ -387,8 +387,8 @@ std::string utils::removeWhitespace(const std::string& s){
 
 void utils::trimAll(std::vector<std::string>& elems)
 {
-    for(std::vector<std::string>::iterator it = elems.begin(); it != elems.end(); ++it)
-        (*it) = trim((*it));
+    for(auto & elem : elems)
+        elem = trim(elem);
 }
 
 //!returns true if line begins with utils::COMMENT_SYMBOL, ignoring leading whitespace
@@ -399,12 +399,12 @@ bool utils::isCommentLine(std::string line)
 }
 
 //!removes \p findStr from \p whithinStr and returns \p whithinStr
-std::string utils::removeSubstr(std::string findStr, std::string whithinStr)
+std::string utils::removeSubstr(const std::string& findStr, std::string whithinStr)
 {
     std::string::size_type i = whithinStr.find(findStr);
     
     if(i !=std::string::npos)
-    whithinStr.erase(i, findStr.length());
+        whithinStr.erase(i, findStr.length());
     
     return whithinStr;
 }
@@ -417,7 +417,7 @@ std::string utils::removeSubstr(std::string findStr, std::string whithinStr)
  \param checkEmpty Should an exception be thrown if either argument is an empty string?
  \return \p whithinStr with substrings removed.
 */
-std::string utils::removeSubstrs(std::string findStr, std::string whithinStr, bool checkEmpty)
+std::string utils::removeSubstrs(const std::string& findStr, std::string whithinStr, bool checkEmpty)
 {
     if(findStr.empty() || whithinStr.empty()){
         if(checkEmpty)
@@ -441,9 +441,9 @@ std::string utils::toLower(std::string str) {
     return str;
 }
 
-std::string utils::repeat(std::string str, size_t numTimes)
+std::string utils::repeat(const std::string& str, size_t numTimes)
 {
-    std::string ret = "";
+    std::string ret;
     assert(!str.empty());
     for(size_t i = 0; i < numTimes; i++)
         ret += str;
@@ -453,7 +453,7 @@ std::string utils::repeat(std::string str, size_t numTimes)
 std::string utils::toSubscript(int _num)
 {
     std::string strNum = std::to_string(_num);
-    std::string ret = "";
+    std::string ret;
     
     size_t len = strNum.length();
     for(size_t i = 0; i < len; i++)
@@ -480,7 +480,7 @@ void utils::removeEmptyStrings(std::vector<std::string>& elems)
 {
     for(auto it = elems.begin(); it != elems.end();)
     {
-        if(*it == "")
+        if(it->empty())
             elems.erase(it);
         else ++it;
     }
@@ -493,7 +493,7 @@ void utils::removeEmptyStrings(std::vector<std::string>& elems)
  \param s string to add to
  \param delim delimiter to use
  */
-void utils::addChar(std::string toAdd, std::string& s, std::string delim)
+void utils::addChar(const std::string& toAdd, std::string& s, const std::string& delim)
 {
     if(s.empty())
         s = toAdd;
@@ -507,7 +507,7 @@ void utils::addChar(std::string toAdd, std::string& s, std::string delim)
  \param s string to add to
  \param delim delimiter to use
  */
-void utils::addChar(char toAdd, std::string& s, std::string delim)
+void utils::addChar(char toAdd, std::string& s, const std::string& delim)
 {
     if(s.empty())
         s = std::string(1, toAdd);
