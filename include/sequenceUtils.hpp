@@ -44,6 +44,9 @@ namespace utils{
     //!Characters representing dynamic modifications
     const std::string MOD_CHARS = "*";
 
+    //! Trypsin regex pattern
+    const std::string TRYPSIN_RE = "([RK])(?=[^P])"'
+
     //!Maps 1 letter amino acids to 3.
     const std::map<char, std::string> _ONE_LETTER_TO_THREE_MAP = {{'A', "Ala"},
                                                                   {'C', "Cys"},
@@ -93,22 +96,22 @@ namespace utils{
     void _digest_all_len(unsigned int begin, unsigned int end,
         const utils::FastaFile& fasta, SeqListType& seqs,
         unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
-        std::string cleavagePattern = "([RK])(?=[^P])");
+        std::string cleavagePattern = TRYPSIN_RE);
 
     void _digest_all_res(unsigned int begin, unsigned int end,
         const utils::FastaFile& fasta, const utils::Residues& residues, SeqListType& seqs,
         unsigned nMissedCleavages = 0, bool length_filter = true,
-        std::string cleavagePattern = "([RK])(?=[^P])",
+        std::string cleavagePattern = TRYPSIN_RE,
         double minMz = 400, double maxMz = 1800, int minCharge = 1, int maxCharge = 5);
 
     void digest_all(const utils::FastaFile& fasta, const utils::Residues& residues, SeqListType& peptides, unsigned int nThread = 0,
         unsigned nMissedCleavages = 0, bool length_filter = true,
-        std::string cleavagePattern = "([RK])(?=[^P])",
+        std::string cleavagePattern = TRYPSIN_RE,
         double minMz = 400, double maxMz = 1800, int minCharge = 1, int maxCharge = 5);
 
     void digest_all(const utils::FastaFile& fasta, SeqListType& peptides, unsigned int nThread = 0,
         unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
-        std::string cleavagePattern = "([RK])(?=[^P])");
+        std::string cleavagePattern = TRYPSIN_RE);
 
     std::string getModLocs(std::string seq, std::vector<int>& modLocs);
     void seqToIons(const std::string& s, std::map<std::string, SizePair>& ions,

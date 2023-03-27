@@ -246,4 +246,3 @@ namespace utils{
 }
 
 #endif /* utils_hpp */
-
