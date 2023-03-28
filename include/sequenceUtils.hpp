@@ -45,7 +45,7 @@ namespace utils{
     const std::string MOD_CHARS = "*";
 
     //! Trypsin regex pattern
-    const std::string TRYPSIN_RE = "([RK])(?=[^P])"'
+    const std::string TRYPSIN_RE = "([RK])(?=[^P])";
 
     //!Maps 1 letter amino acids to 3.
     const std::map<char, std::string> _ONE_LETTER_TO_THREE_MAP = {{'A', "Ala"},
