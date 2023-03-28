@@ -93,7 +93,7 @@ bool utils::isFile(const char* path) {
     return stat(path, &buffer) == 0 && S_ISREG(buffer.st_mode);
 }
 
-//! sting overload of utils::isFile(const char*)
+//! string overload of utils::isFile(const char*)
 bool utils::isFile(const std::string& path) {
     return utils::isFile(path.c_str());
 }

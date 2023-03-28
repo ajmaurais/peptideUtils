@@ -361,7 +361,7 @@ std::string utils::getFormulaFromMap(const utils::AtomCountMapType& atomCountMap
         atomCountGraph[i].second = true;
     }
     
-    //next itterate through atomCountGraph and print atoms not added to formula
+    //next iterate through atomCountGraph and print atoms not added to formula
     for(auto & it : atomCountGraph)
     {
         if(it.second.second) //check if atom has already been added to formula

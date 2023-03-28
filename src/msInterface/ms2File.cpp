@@ -182,12 +182,12 @@ bool msInterface::Ms2File::getScan(size_t queryScan, Scan& scan) const
 }
 
 bool msInterface::Ms2File::read(std::string fname) {
-    bool sucess = MsInterface::read(fname);
-    return sucess && getMetaData();
+    bool success = MsInterface::read(fname);
+    return success && getMetaData();
 }
 
 bool msInterface::Ms2File::read() {
-    bool sucess = MsInterface::read();
-    return sucess && getMetaData();
+    bool success = MsInterface::read();
+    return success && getMetaData();
 }
 

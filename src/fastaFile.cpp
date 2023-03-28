@@ -136,7 +136,7 @@ std::string utils::FastaFile::getIndexID(size_t i) const
 /**
  \brief Search for \p proteinID in FastaFile::_buffer and extract protein sequence.
  \param proteinID uniprot ID of protein to search for.
- \param verbose Should detials of ids not found be printed to std::cerr?
+ \param verbose Should details of ids not found be printed to std::cerr?
  \return If found, parent protein sequence. If protein sequence is not found returns
  utils::PROT_SEQ_NOT_FOUND.
  */
@@ -157,7 +157,7 @@ std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose) c
 /**
  \brief Search for \p proteinID in FastaFile::_buffer and extract protein sequence.
  \param proteinID uniprot ID of protein to search for.
- \param verbose Should detials of ids not found be printed to std::cerr?
+ \param verbose Should details of ids not found be printed to std::cerr?
  \return If found, parent protein sequence. If protein sequence is not found returns
  utils::PROT_SEQ_NOT_FOUND.
  */
@@ -216,7 +216,7 @@ std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
  \param peptideSeq unmodified peptide sequence.
  \param modLoc location of modified residue in peptide
  (where 0 is the beginning of the peptide.)
- \param verbose Should detials of ids not found be printed to std::cerr?
+ \param verbose Should details of ids not found be printed to std::cerr?
  \param found set to false if first instance of searching for protein and it not being found
  \return string representation of modified residue.
  */

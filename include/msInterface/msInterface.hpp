@@ -54,7 +54,7 @@ namespace utils {
 
             //!Stores pairs of offset values for scans
             OffsetIndexType _offsetIndex;
-            //!Maps scan numbers to indecies in _offsetIndex
+            //!Maps scan numbers to indices in _offsetIndex
             std::map<size_t, size_t> _scanMap;
             //!Actual number of scans read from file
             size_t _scanCount;
