@@ -83,34 +83,36 @@ namespace utils{
     /*************/
     
     //file utils
-    void readBuffer(std::string fname, char** buffer, size_t& size);
+    void readBuffer(const std::string& fname, char** buffer, std::streamsize& size);
     bool dirExists(const char*);
-    bool dirExists(std::string);
+    bool dirExists(const std::string&);
     bool fileExists(const char*);
-    bool fileExists(std::string);
+    bool fileExists(const std::string&);
     bool isDir(const char*);
-    bool isDir(std::string);
+    bool isDir(const std::string&);
+    bool isFile(const std::string&);
+    bool isFile(const char*);
     std::string pwd();
-    std::string absPath(std::string);
+    std::string absPath(const std::string&);
     std::string absPath(const char*);
     bool ls(const char*, std::vector<std::string>&);
-    bool ls(const char*, std::vector<std::string>&, std::string);
-    bool mkdir(std::string path, std::string options = "");
-    bool mkdir(const char* path, std::string options = "");
-    void systemCommand(std::string command);
+    bool ls(const char*, std::vector<std::string>&, const std::string&);
+    bool mkdir(const std::string& path, const std::string& options = "");
+    bool mkdir(const char* path, const std::string& options = "");
+    void systemCommand(const std::string& command);
     std::string baseName(std::string path, const std::string& delims = "/\\");
-    std::string dirName(std::string path, const std::string& delims = "/\\");
-    std::string parentDir(std::string path, char delim = '/');
+    std::string dirName(const std::string& path, const std::string& delims = "/\\");
+    std::string parentDir(const std::string& path, char delim = '/');
     std::string removeExtension(const std::string&);
     std::string getExtension(const std::string&);
     std::istream& safeGetline(std::istream& is, std::string& t);
     std::istream& safeGetline(std::istream& is, std::string& t, std::streampos& oldPos);
         
     //string utils
-    bool strContains(std::string, std::string);
-    bool strContains(char, std::string);
-    bool startsWith(std::string whithinStr, std::string findStr);
-    bool endsWith(std::string whithinStr, std::string findStr);
+    bool strContains(const std::string&, const std::string&);
+    bool strContains(char, const std::string&);
+    bool startsWith(const std::string& whithinStr, const std::string& findStr);
+    bool endsWith(const std::string& whithinStr, const std::string& findStr);
     void split (const std::string&, const char, std::vector<std::string>&);
     std::string trimTraling(const std::string&);
     std::string trimLeading(const std::string&);
@@ -118,18 +120,18 @@ namespace utils{
     std::string removeWhitespace(const std::string&);
     void trimAll(std::vector<std::string>&);
     bool isCommentLine(std::string);
-    std::string removeSubstr(std::string findStr, std::string whithinStr);
-    std::string removeSubstrs(std::string findStr, std::string whithinStr, bool checkEmpty = true);
+    std::string removeSubstr(const std::string& findStr, std::string whithinStr);
+    std::string removeSubstrs(const std::string& findStr, std::string whithinStr, bool checkEmpty = true);
     std::string removeChars(char findChar, std::string whithinStr);
     std::string toLower(std::string);
-    std::string repeat(std::string, size_t);
+    std::string repeat(const std::string&, size_t);
     size_t offset(const char* buf, size_t len, const char* str);
     size_t offset(const char* buf, size_t len, std::string s);
     void removeEmptyStrings(std::vector<std::string>&);
     void getIdxOfSubstr(char*, const char*, std::vector<size_t>&);
     std::string toSubscript(int);
-    void addChar(std::string toAdd, std::string& s, std::string delim = "|");
-    void addChar(char toAdd, std::string& s, std::string delim = "|");
+    void addChar(const std::string& toAdd, std::string& s, const std::string& delim = "|");
+    void addChar(char toAdd, std::string& s, const std::string& delim = "|");
     
     //other
     bool isInteger(const std::string & s);
@@ -246,4 +248,3 @@ namespace utils{
 }
 
 #endif /* utils_hpp */
-

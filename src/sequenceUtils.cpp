@@ -73,7 +73,7 @@ std::string utils::getModLocs(std::string seq, std::vector<int>& modLocs)
  * @param s Peptide sequence.
  * @param ions Populated with the ion name mapped to the beginning index and length of fragment ions in \p s.
  * @param addB Add b ions?
- * @param addY Ass y ions?
+ * @param addY Add y ions?
  */
 void utils::seqToIons(const std::string& s, std::map<std::string, SizePair>& ions,
                       bool addB, bool addY)
