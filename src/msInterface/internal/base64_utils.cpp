@@ -593,12 +593,13 @@ void utils::internal::BinaryData::processBinaryArray(std::vector<double>& arr, r
     //iterate through cvParm(s)
     for (auto *cvParam = node->first_node("cvParam");
          cvParam; cvParam = cvParam->next_sibling("cvParam")) {
-        if(utils::internal::_getAttrValStr("accession", cvParam) == "MS:1000521") //32-bit float
+        if(utils::internal::_getAttrValStr("accession", cvParam) == "MS:1000521"){ //32-bit float
             dataType = DataType::FLOAT_32;
+        }
         else if(utils::internal::_getAttrValStr("accession", cvParam) == "MS:1000523") //64-bit float
             dataType = DataType::FLOAT_64;
         else if(utils::internal::_getAttrValStr("accession", cvParam) == "MS:1000574") //zlib compression
-          zlib = true;
+            zlib = true;
         else if(utils::internal::_getAttrValStr("accession", cvParam) == "MS:1002312") //MS-Numpress linear prediction compression
           numpressLinear = true;
         else if(utils::internal::_getAttrValStr("accession", cvParam) == "MS:1002313") //MS-Numpress positive integer compression
