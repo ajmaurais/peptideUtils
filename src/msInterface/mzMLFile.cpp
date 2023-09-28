@@ -151,7 +151,7 @@ bool msInterface::MzMLFile::getScan(size_t queryScan, msInterface::Scan& scan) c
         else if(acession == "MS:1000129") //negative mode scan
             scan.setPolarity(Polarity::NEGATIVE);
         else if(acession == "MS:1000128") //profile scan
-            throw InvalidXmlFile("Profile mode spectra not supported!");
+            throw InvalidXmlFile("Profile spectra are not supported!");
     }
 
     //get RT
@@ -204,6 +204,7 @@ bool msInterface::MzMLFile::getScan(size_t queryScan, msInterface::Scan& scan) c
     //decode scan ions
     auto* binaryDataArrayNode = internal::_getFirstChildNode("binaryDataArrayList", root);
     std::vector<double> mzArray, intensityArray;
+    bool parsed_mz = false, parsed_intensity = false;
     internal::BinaryData binaryParser;
     size_t defaultArrayLength = internal::_getAttrValInt("defaultArrayLength", root);
     binaryParser.setPeaksCount(defaultArrayLength);
@@ -211,20 +212,27 @@ bool msInterface::MzMLFile::getScan(size_t queryScan, msInterface::Scan& scan) c
         node; node = node->next_sibling("binaryDataArray")) {
         for(auto* cvParam = node->first_node("cvParam"); cvParam; cvParam = cvParam->next_sibling("cvParam")){
             std::string acession = internal::_getAttrValStr("accession", cvParam);
-            if(acession == "MS:1000523") { // m/z array
+            if(acession == "MS:1000514") { // m/z array
                 binaryParser.processBinaryArray(mzArray, node);
+                parsed_mz = true;
                 break;
             }
             else if(acession == "MS:1000515") { // intensity array
                 binaryParser.processBinaryArray(intensityArray, node);
+                parsed_intensity = true;
                 break;
             }
         }
     }
     size_t len = mzArray.size();
     if(len > 0) {
+        if(!(parsed_mz && parsed_intensity))
+            throw InvalidXmlFile("ERROR In scan: " + idLine +"\n\tNever found array(s) for: " +
+                                 (parsed_mz ? "" : "m/z") + (!parsed_intensity && !parsed_mz ? " or " : "") +
+                                 (parsed_intensity ? "" : "intensity"));
         if(len != intensityArray.size())
-            throw InvalidXmlFile("ERROR In scan: " + idLine +"\n\tMZ and intensity lengths do not match");
+            throw InvalidXmlFile("ERROR In scan: " + idLine +"\n\tMZ and intensity lengths do not match! m/z: " +
+                                  std::to_string(len) + ", int: " + std::to_string(intensityArray.size()));
         for(size_t i = 0; i < len; i++)
             scan.add(mzArray[i], intensityArray[i]);
     }
