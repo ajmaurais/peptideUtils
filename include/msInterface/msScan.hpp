@@ -241,6 +241,9 @@ namespace utils {
             //! ion injection time in millisecond
             double _ionInjectionTime;
 
+            double _ionMobilityCV;
+            bool _isIonMobilityScan;
+
             //! vector of Ion(s)
             IonsType _ions;
 
@@ -255,6 +258,8 @@ namespace utils {
                 _level = 0;
                 _polarity = Polarity::UNKNOWN;
                 _ionInjectionTime = 0;
+                _ionMobilityCV = 0;
+                _isIonMobilityScan = false;
                 precursorScan = PrecursorScan();
                 _ions = IonsType();
                 _scanNum = std::string::npos;
@@ -337,6 +342,18 @@ namespace utils {
             }
             void setIonInjectionTime(double t){
                 _ionInjectionTime = t;
+            }
+            void setIMCV(double cv) {
+                _ionMobilityCV = cv;
+            }
+            double getIMCV() const {
+                return _ionMobilityCV;
+            }
+            void setIsIonMobilityScan(bool ims) {
+                _isIonMobilityScan = ims;
+            }
+            bool isIonMobilityScan() const {
+                return _isIonMobilityScan;
             }
             void setScanNum(size_t scanNum) {
                 _scanNum = scanNum;

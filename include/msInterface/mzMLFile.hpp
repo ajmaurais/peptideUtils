@@ -43,7 +43,7 @@ namespace utils{
         private:
             void _buildIndex() override;
 
-            std::string _parseScan(std::string) const;
+            std::string _parseScan(const std::string&) const;
 
         public:
             MzMLFile(std::string fname = "") : MsInterface(fname){}

@@ -29,16 +29,16 @@
 
 using namespace utils;
 
-std::string msInterface::MzMLFile::_parseScan(std::string _idLine) const {
+std::string msInterface::MzMLFile::_parseScan(const std::string& _idLine) const {
     std::string newID = "";
     size_t scanStart = _idLine.find("scan");
-    _idLine = trim(_idLine.substr(scanStart + 4));
-    if(scanStart == std::string::npos || _idLine.empty() || _idLine[0] != '=')
-        throw InvalidXmlFile("Invalid spectrum ID: " + _idLine);
-    for(size_t j = 1; j < _idLine.size(); j++){
-        if(isspace(_idLine[j]))
+    std::string scanStr = trim(_idLine.substr(scanStart + 4));
+    if(scanStart == std::string::npos || scanStr.empty() || scanStr[0] != '=')
+        throw InvalidXmlFile("Invalid spectrum ID: " + scanStr);
+    for(size_t j = 1; j < scanStr.size(); j++){
+        if(isspace(scanStr[j]))
             break;
-        newID += _idLine[j];
+        newID += scanStr[j];
     }
     return newID;
 }
@@ -143,14 +143,19 @@ bool msInterface::MzMLFile::getScan(size_t queryScan, msInterface::Scan& scan) c
 
     //First parse the cvParams at the top of the scan
     for(auto *child = internal::_getFirstChildNode("cvParam", root); child; child = child->next_sibling("cvParam")) {
-        std::string acession = internal::_getAttrValStr("accession", child);
-        if(acession == "MS:1000511" ) //ms level
+        std::string accession = internal::_getAttrValStr("accession", child);
+        if(accession == "MS:1000511" ) //ms level
             scan.setLevel(internal::_getAttrValInt("value", child));
-        else if(acession == "MS:1000130") //positive mode scan
+        else if(accession == "MS:1000130") //positive mode scan
             scan.setPolarity(Polarity::POSITIVE);
-        else if(acession == "MS:1000129") //negative mode scan
+        else if(accession == "MS:1000129") //negative mode scan
             scan.setPolarity(Polarity::NEGATIVE);
-        else if(acession == "MS:1000128") //profile scan
+        else if(accession == "MS:1001581") // Ion mobility CV
+        {
+            scan.setIMCV(internal::_getAttrValdouble("value", child));
+            scan.setIsIonMobilityScan(true);
+        }
+        else if(accession == "MS:1000128") //profile scan
             throw InvalidXmlFile("Profile spectra are not supported!");
     }
 
@@ -166,6 +171,11 @@ bool msInterface::MzMLFile::getScan(size_t queryScan, msInterface::Scan& scan) c
                 else if(accession == "MS:1000927") // Ion injection time
                     scan.setIonInjectionTime(internal::_obo_to_seconds(internal::_getAttrValdouble("value", cvParam),
                                                                        internal::_getAttrValStr("unitAccession", cvParam)) * 1e3);
+                else if(accession == "MS:1001581") // Ion mobility CV
+                {
+                    scan.setIMCV(internal::_getAttrValdouble("value", cvParam));
+                    scan.setIsIonMobilityScan(true);
+                }
         }
     }
 
@@ -174,20 +184,26 @@ bool msInterface::MzMLFile::getScan(size_t queryScan, msInterface::Scan& scan) c
     if(precursorNode) {
         // precursor scan
         precursorNode = internal::_getFirstChildNode("precursor", precursorNode);
-        auto* spectruRef = precursorNode->first_attribute("spectrumRef");
-        if(spectruRef) scan.getPrecursor().setScan(_parseScan(spectruRef->value()));
+        std::string precursorScanName;
+        try {
+            precursorScanName = internal::_getAttrValStr("spectrumRef", precursorNode);
+        } catch (utils::InvalidXmlFile) {
+            precursorScanName = "";
+        }
+        // auto* spectruRef = precursorNode->first_attribute("spectrumRef");
+        scan.getPrecursor().setScan(_parseScan(precursorScanName));
 
         //selectedIon
         for(auto* iter = internal::_getFirstChildNode("cvParam",
                                                       internal::_getFirstChildNode("selectedIon",
                                                       internal::_getFirstChildNode("selectedIonList", precursorNode)));
             iter; iter = iter->next_sibling("cvParam")) {
-            std::string acession = internal::_getAttrValStr("accession", iter);
-            if(acession == "MS:1000744") //precursor m/z
+            std::string accession = internal::_getAttrValStr("accession", iter);
+            if(accession == "MS:1000744") //precursor m/z
                 scan.getPrecursor().setMZ(internal::_getAttrValStr("value", iter));
-            else if(acession == "MS:1000041") //precursor charge
+            else if(accession == "MS:1000041") //precursor charge
                 scan.getPrecursor().setCharge(internal::_getAttrValInt("value", iter));
-            else if(acession == "MS:1000042") //precursor intensity
+            else if(accession == "MS:1000042") //precursor intensity
                 scan.getPrecursor().setIntensity(internal::_getAttrValdouble("value", iter));
         }
 
@@ -211,13 +227,13 @@ bool msInterface::MzMLFile::getScan(size_t queryScan, msInterface::Scan& scan) c
     for(auto* node = binaryDataArrayNode->first_node("binaryDataArray");
         node; node = node->next_sibling("binaryDataArray")) {
         for(auto* cvParam = node->first_node("cvParam"); cvParam; cvParam = cvParam->next_sibling("cvParam")){
-            std::string acession = internal::_getAttrValStr("accession", cvParam);
-            if(acession == "MS:1000514") { // m/z array
+            std::string accession = internal::_getAttrValStr("accession", cvParam);
+            if(accession == "MS:1000514") { // m/z array
                 binaryParser.processBinaryArray(mzArray, node);
                 parsed_mz = true;
                 break;
             }
-            else if(acession == "MS:1000515") { // intensity array
+            else if(accession == "MS:1000515") { // intensity array
                 binaryParser.processBinaryArray(intensityArray, node);
                 parsed_intensity = true;
                 break;
