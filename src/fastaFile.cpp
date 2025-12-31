@@ -1,4 +1,4 @@
-// 
+//
 // fastaFile.cpp
 // utils
 // -----------------------------------------------------------------------------
@@ -10,10 +10,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 // -----------------------------------------------------------------------------
-// 
+//
 
 #include <fastaFile.hpp>
 
@@ -57,34 +57,15 @@ utils::FastaEntry& utils::FastaEntry::operator = (const FastaEntry& rhs)
 /**
 \brief Return protein sequence at index \p i. <br>
 
-If i > _indexOffsets.size(), an empty string is returned.
+If i > _sequences.size(), an empty string is returned.
 
 \return Protein sequence
 */
 std::string utils::FastaFile::operator [](size_t i) const
 {
-    if(i >= _indexOffsets.size())
+    if(i >= _sequences.size())
         return "";
-
-    std::string temp(_buffer + _indexOffsets[i].getBeg(),
-        _buffer + (_indexOffsets[i].getBeg() + (_indexOffsets[i].getEnd() - _indexOffsets[i].getBeg())));
-    std::stringstream ss(temp);
-    
-    std::string line;
-    std::string seq = "";
-    int begin_count = 0;
-    while(utils::safeGetline(ss, line))
-    {
-        if(line[0] == '>')
-        {
-            if(begin_count > 0)
-                break;
-            begin_count ++;
-            continue;
-        }
-        seq += line;
-    }
-    return seq;
+    return _sequences[i];
 }
 
 /**
@@ -107,6 +88,7 @@ void utils::FastaFile::_copyValues(const FastaFile& rhs)
     _indexOffsets = rhs._indexOffsets;
     _idIndex = rhs._idIndex;
     _foundSequences = rhs._foundSequences;
+    _sequences = rhs._sequences;
     _sequenceCount = rhs._sequenceCount;
     _storeFound = rhs._storeFound;
 }
@@ -150,7 +132,7 @@ std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose) c
         }
         return utils::PROT_SEQ_NOT_FOUND;
     }
-    
+
     return (*this)[proteinIndex_temp];
 }
 
@@ -169,7 +151,7 @@ std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose)
         if(foundIt != _foundSequences.end())
             return foundIt->second;
     }
-    
+
     //get offset of proteinID
     size_t proteinIndex_temp = getIdIndex(proteinID);
     if(proteinIndex_temp == utils::PROT_ID_NOT_FOUND){
@@ -178,7 +160,7 @@ std::string utils::FastaFile::getSequence(std::string proteinID, bool verbose)
         }
         return utils::PROT_SEQ_NOT_FOUND;
     }
-    
+
     std::string seq = (*this)[proteinIndex_temp];
     _foundSequences[proteinID] = seq;
     return seq;
@@ -190,7 +172,7 @@ std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
                                                  int modLoc) const
 {
     std::string seq = getSequence(proteinID);
-    return utils::getModifiedResidue(seq, peptideSeq, modLoc);  
+    return utils::getModifiedResidue(seq, peptideSeq, modLoc);
 }
 
 /**
@@ -206,7 +188,7 @@ std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
                                                  int modLoc)
 {
     std::string seq = getSequence(proteinID);
-    return utils::getModifiedResidue(seq, peptideSeq, modLoc);  
+    return utils::getModifiedResidue(seq, peptideSeq, modLoc);
 }
 
 /**
@@ -233,8 +215,44 @@ std::string utils::FastaFile::getModifiedResidue(std::string proteinID,
     //else seq = _foundSequences[proteinID];
     if(seq == utils::PROT_SEQ_NOT_FOUND)
         return utils::PROT_SEQ_NOT_FOUND;
-    
+
     return utils::getModifiedResidue(seq, peptideSeq, modLoc);
+}
+
+/**
+ \brief Parse sequence directly from buffer without intermediate copies.
+ \param beg Beginning offset in buffer.
+ \param end End offset in buffer.
+ \return Parsed protein sequence.
+ */
+std::string utils::FastaFile::_parseSequence(size_t beg, size_t end) const
+{
+    // Estimate sequence length (entry size minus header, typically ~80% is sequence)
+    size_t entrySize = end - beg;
+    std::string seq;
+    seq.reserve(entrySize);
+
+    // Skip first line (header starting with '>')
+    size_t pos = beg;
+    while(pos < end && _buffer[pos] != '\n' && _buffer[pos] != '\r')
+        ++pos;
+
+    // Skip newline character(s)
+    while(pos < end && (_buffer[pos] == '\n' || _buffer[pos] == '\r'))
+        ++pos;
+
+    // Parse sequence lines directly from buffer
+    while(pos < end)
+    {
+        char c = _buffer[pos];
+        if(c == '>')
+            break;  // Hit next entry
+        if(c != '\n' && c != '\r')
+            seq += c;
+        ++pos;
+    }
+
+    return seq;
 }
 
 /**
@@ -246,17 +264,21 @@ void utils::FastaFile::_buildIndex()
     std::vector<size_t> combined, trIdx;
     utils::getIdxOfSubstr(_buffer, ">sp", combined);
     utils::getIdxOfSubstr(_buffer, ">tr", trIdx);
-    
+
     //combine and sort vectors
     combined.insert(combined.end(), trIdx.begin(), trIdx.end());
     combined.push_back(_size); //add index to end of buffer
     std::sort(combined.begin(), combined.end());
-    
-    //build _indexOffsets
+
+    //build _indexOffsets and pre-parse sequences
     _sequenceCount = 0;
     int const scanLen = 20;
     std::string newID;
     size_t len = combined.size();
+
+    // Reserve space for sequences to avoid reallocations
+    _sequences.reserve(len > 0 ? len - 1 : 0);
+
     for(size_t i = 0; i < len - 1; i++) //for all but last index in combined
     {
         char* c = &_buffer[combined[i] + 4];
@@ -272,6 +294,10 @@ void utils::FastaFile::_buildIndex()
         //add sequence offset to class members
         _idIndex[newID] = _sequenceCount;
         _indexOffsets.push_back(utils::FastaEntry(newID, combined[i], combined.at(i + 1)));
+
+        // Parse and store sequence during index building
+        _sequences.push_back(_parseSequence(combined[i], combined[i + 1]));
+
         _sequenceCount++;
     }
 }
@@ -392,7 +418,7 @@ std::string utils::getModifiedResidue(const std::string& seq, const std::string&
 {
     if(seq == utils::PROT_SEQ_NOT_FOUND)
         return utils::PROT_SEQ_NOT_FOUND;
-    
+
     size_t begin = seq.find(peptideSeq);
     if(begin == std::string::npos)
         return utils::PEP_SEQ_NOT_FOUND;
@@ -400,7 +426,7 @@ std::string utils::getModifiedResidue(const std::string& seq, const std::string&
     if(modLoc > peptideSeq.length())
         throw std::runtime_error("modLoc is out of bounds!");
     std::string ret = std::string(1, peptideSeq[modLoc]) + std::to_string(modNum + 1);
-    
+
     return ret;
 }
 
@@ -418,10 +444,10 @@ bool utils::align(const std::string& query, const std::string& ref, size_t& beg,
 {
     size_t match = ref.find(query);
     if(match == std::string::npos) return false;
-    
+
     beg = match;
     end = match + query.length() - 1;
-    
+
     return true;
 }
 
@@ -446,7 +472,7 @@ std::string utils::nBefore(const std::string& query, const std::string& ref, uns
         if(noExcept) return "";
         else throw std::out_of_range("query:\n\t" + query + "\nnot in ref:\n\t" + ref);
     }
-    
+
     if(beg < n) n = beg;
 
     return ref.substr(beg - n, n);
@@ -473,7 +499,7 @@ std::string utils::nAfter(const std::string& query, const std::string& ref, unsi
         if(noExcept) return "";
         else throw std::out_of_range("query:\n\t" + query + "\nnot in ref:\n\t" + ref);
     }
-    
+
     end += 1;
     if(end + n > ref.length())
         n = ref.length() - end;
@@ -501,7 +527,7 @@ size_t utils::indexN(const std::string& query, const std::string& ref, size_t n,
         if(noExcept) return std::string::npos;
         else throw std::out_of_range("query not in ref");
     }
-    
+
     if(n == std::string::npos)
         n = query.length() - 1;
     if(beg + n > ref.length())
