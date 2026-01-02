@@ -179,11 +179,19 @@ namespace utils{
             unsigned nMissedCleavages = 0, bool length_filter = true,
             std::string cleavagePattern = "([RK])(?=[^P])",
             double minMz = 400, double maxMz = 1800, unsigned minCharge = 1, unsigned maxCharge = 5) const;
+        // Overload accepting pre-compiled regex for better performance
+        void digest(std::string seq, std::vector<std::string>& peptides,
+            unsigned nMissedCleavages, bool length_filter, const std::regex& re,
+            double minMz = 400, double maxMz = 1800, unsigned minCharge = 1, unsigned maxCharge = 5) const;
     };
 
     void digest(std::string seq, std::vector<std::string>& peptides,
         unsigned nMissedCleavages = 0, size_t minLen = 6, size_t maxLen = std::string::npos,
         std::string cleavagePattern = "([RK])(?=[^P])");
+    // Overload accepting pre-compiled regex for better performance
+    void digest(std::string seq, std::vector<std::string>& peptides,
+        unsigned nMissedCleavages, size_t minLen, size_t maxLen,
+        const std::regex& re);
 }
 
 /* molecularFormula_hpp */

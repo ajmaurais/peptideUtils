@@ -380,30 +380,28 @@ std::string utils::getFormulaFromMap(const utils::AtomCountMapType& atomCountMap
 }
 
 /**
-\brief Perform a virtual protease digest of a protein.
+\brief Perform a virtual protease digest of a protein using pre-compiled regex.
 
 \param seq Protein sequence.
 \param peptides Populated with digested peptides.
-\param missedCleavages Number of missed cleavages to allow.
+\param nMissedCleavages Number of missed cleavages to allow.
 \param minLen Minimum peptide length.
 \param maxLen Maximum peptide length. Set to std::string::npos for no upper bound on length.
-\param cleavagePattern RegEx for protease cleavage pattern.
+\param re Pre-compiled regex for protease cleavage pattern.
 */
 void utils::digest(std::string seq, std::vector<std::string>& peptides,
                  unsigned nMissedCleavages, size_t minLen, size_t maxLen,
-                 std::string cleavagePattern)
+                 const std::regex& re)
 {
-    std::regex re(cleavagePattern);
-    std::smatch m;
     std::vector<size_t> index_matches;
     peptides.clear();
-        
+
     //Get indices of cleavage sites
     for(auto it = std::sregex_iterator(seq.begin(), seq.end(), re); it != std::sregex_iterator(); ++it){
         index_matches.push_back(it->position() + 1);
     }
     index_matches.push_back(0); //add beginning of sequence
-    
+
     //Get unique values and sort
     utils::unique(index_matches);
     std::sort(index_matches.begin(), index_matches.end());
@@ -418,17 +416,35 @@ void utils::digest(std::string seq, std::vector<std::string>& peptides,
                 pLen = seq.length() - index_matches[i];
             else
                 pLen = index_matches.at(i+j+1) - index_matches.at(i);
-            
+
             std::string seq_temp = seq.substr(index_matches[i], pLen);
             size_t len_temp = seq_temp.length();
             if(len_temp >= minLen && (maxLen == std::string::npos ? true : len_temp <= maxLen))
                 peptides.push_back(seq_temp);
         }
     }
-    
+
     //get unique values and sort by peptide length.
     utils::unique(peptides);
     std::sort(peptides.begin(), peptides.end(), utils::strLenCompare());
+}
+
+/**
+\brief Perform a virtual protease digest of a protein.
+
+\param seq Protein sequence.
+\param peptides Populated with digested peptides.
+\param nMissedCleavages Number of missed cleavages to allow.
+\param minLen Minimum peptide length.
+\param maxLen Maximum peptide length. Set to std::string::npos for no upper bound on length.
+\param cleavagePattern RegEx for protease cleavage pattern.
+*/
+void utils::digest(std::string seq, std::vector<std::string>& peptides,
+                 unsigned nMissedCleavages, size_t minLen, size_t maxLen,
+                 std::string cleavagePattern)
+{
+    std::regex re(cleavagePattern);
+    utils::digest(seq, peptides, nMissedCleavages, minLen, maxLen, re);
 }
 
 /**
@@ -455,17 +471,43 @@ void utils::Residues::digest(std::string seq, std::vector<std::string>& peptides
         unsigned missedCleavages, bool length_filter, std::string cleavagePattern,
         double minMz, double maxMz, unsigned minCharge, unsigned maxCharge) const
 {
+    std::regex re(cleavagePattern);
+    digest(seq, peptides, missedCleavages, length_filter, re, minMz, maxMz, minCharge, maxCharge);
+}
+
+/**
+\brief Perform a virtual protease digest of a protein using pre-compiled regex.
+
+The function uses charge and m/z filters to remove peptides which would not be
+observable by MS.
+
+\param seq Protein sequence.
+\param peptides Populated with digested peptides which meet filter criteria.
+\param missedCleavages number of missed cleavages to allow.
+\param length_filter Should peptides with less than 6 amino acids be automatically excluded?
+\param re Pre-compiled regex for protease cleavage pattern.
+\param minMz Minimum m/z to allow in peptides.
+\param maxMz Maximum m/z to allow in peptides.
+\param minCharge Minimum charge to consider when calculating m/z.
+\param maxCharge Maximum charge to consider when calculating m/z.
+
+\pre (minMz >= 0 && maxMz >= 0)
+*/
+void utils::Residues::digest(std::string seq, std::vector<std::string>& peptides,
+        unsigned missedCleavages, bool length_filter, const std::regex& re,
+        double minMz, double maxMz, unsigned minCharge, unsigned maxCharge) const
+{
     //check precondition
     assert(minMz >= 0 && maxMz >= 0);
     peptides.clear();
 
     //first get tryptic peptides
     std::vector<std::string> peptides_temp;
-    utils::digest(seq, peptides_temp, missedCleavages, (length_filter ? 6 : 0), 
-        std::string::npos, cleavagePattern);
+    utils::digest(seq, peptides_temp, missedCleavages, (length_filter ? 6 : 0),
+        std::string::npos, re);
 
     //iterate through peptides
-    for(auto & it : peptides_temp)
+    for(const auto& it : peptides_temp)
     {
         //calculate peptide mono masses
         double mono_temp = calcMono(it);
@@ -473,13 +515,14 @@ void utils::Residues::digest(std::string seq, std::vector<std::string>& peptides
         //iterate through charge range
         for(unsigned z = minCharge; z <= maxCharge; z++)
         {
-            //double mz_temp = (mono_temp + z) / (z == 0 ? z : z); //calc mz
             double mz_temp = (mono_temp + z) / z; //calc mz
-            if(mz_temp >= minMz && mz_temp <= maxMz)
+            if(mz_temp >= minMz && mz_temp <= maxMz) {
                 peptides.push_back(it); //add peptides in mz range to peptides
+                break; // Only add once per peptide
+            }
         }
     }
-    
+
     utils::unique(peptides);
     std::sort(peptides.begin(), peptides.end(), utils::strLenCompare());
 }
