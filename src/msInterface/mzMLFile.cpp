@@ -190,8 +190,8 @@ bool msInterface::MzMLFile::getScan(size_t queryScan, msInterface::Scan& scan) c
         } catch (utils::InvalidXmlFile) {
             precursorScanName = "";
         }
-        // auto* spectruRef = precursorNode->first_attribute("spectrumRef");
-        scan.getPrecursor().setScan(_parseScan(precursorScanName));
+        if(!precursorScanName.empty())
+            scan.getPrecursor().setScan(_parseScan(precursorScanName));
 
         //selectedIon
         for(auto* iter = internal::_getFirstChildNode("cvParam",
