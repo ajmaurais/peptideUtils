@@ -63,6 +63,8 @@ void msInterface::PrecursorScan::clear() {
     _file.clear();
     _charge = 0;
     _intensity = 0;
+    _isoWindowLowerOffset = 0;
+    _isoWindowUpperOffset = 0;
 }
 
 bool msInterface::PrecursorScan::operator==(const msInterface::PrecursorScan &rhs) const {
@@ -71,7 +73,9 @@ bool msInterface::PrecursorScan::operator==(const msInterface::PrecursorScan &rh
          _file == rhs._file &&
          _sample == rhs._sample &&
          _charge == rhs._charge &&
-         _activationMethod == rhs._activationMethod))
+         _activationMethod == rhs._activationMethod &&
+         _isoWindowLowerOffset == rhs._isoWindowLowerOffset &&
+         _isoWindowUpperOffset == rhs._isoWindowUpperOffset))
         return false;
     return true;
 }
@@ -84,7 +88,9 @@ bool msInterface::PrecursorScan::almostEqual(const msInterface::PrecursorScan &r
          _activationMethod == rhs._activationMethod))
         return false;
 
-    if(!(utils::almostEqual(_rt, rhs._rt, epsilon)))
+    if(!(utils::almostEqual(_rt, rhs._rt, epsilon) &&
+         utils::almostEqual(_isoWindowLowerOffset, rhs._isoWindowLowerOffset, epsilon) &&
+         utils::almostEqual(_isoWindowUpperOffset, rhs._isoWindowUpperOffset, epsilon)))
         return false;
 
     return true;

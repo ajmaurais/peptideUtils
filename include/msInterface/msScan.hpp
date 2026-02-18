@@ -147,6 +147,8 @@ namespace utils {
             std::string _sample;
             ActivationMethod _activationMethod;
             int _charge;
+            double _isoWindowLowerOffset;
+            double _isoWindowUpperOffset;
 
         public:
             PrecursorScan() : Ion("", 0) {
@@ -156,6 +158,8 @@ namespace utils {
                 _sample = "";
                 _charge = 0;
                 _activationMethod = ActivationMethod::UNKNOWN;
+                _isoWindowLowerOffset = 0;
+                _isoWindowUpperOffset = 0;
             }
 
             PrecursorScan(const PrecursorScan &rhs) : Ion(rhs) {
@@ -165,6 +169,8 @@ namespace utils {
                 _sample = rhs._sample;
                 _charge = rhs._charge;
                 _activationMethod = rhs._activationMethod;
+                _isoWindowLowerOffset = rhs._isoWindowLowerOffset;
+                _isoWindowUpperOffset = rhs._isoWindowUpperOffset;
             }
 
             PrecursorScan &operator=(const PrecursorScan &rhs) {
@@ -175,6 +181,8 @@ namespace utils {
                 _sample = rhs._sample;
                 _charge = rhs._charge;
                 _activationMethod = rhs._activationMethod;
+                _isoWindowLowerOffset = rhs._isoWindowLowerOffset;
+                _isoWindowUpperOffset = rhs._isoWindowUpperOffset;
                 return *this;
             }
             bool operator==(const PrecursorScan& rhs) const;
@@ -198,6 +206,12 @@ namespace utils {
             void setCharge(int charge) {
                 _charge = charge;
             }
+            void setIsoWindowLowerOffset(double offset) {
+                _isoWindowLowerOffset = offset;
+            }
+            void setIsoWindowUpperOffset(double offset) {
+                _isoWindowUpperOffset = offset;
+            }
             void clear();
 
             //properties
@@ -220,6 +234,12 @@ namespace utils {
             }
             ActivationMethod getActivationMethod() const {
                 return _activationMethod;
+            }
+            double getIsoWindowLowerOffset() const {
+                return _isoWindowLowerOffset;
+            }
+            double getIsoWindowUpperOffset() const {
+                return _isoWindowUpperOffset;
             }
         };
 

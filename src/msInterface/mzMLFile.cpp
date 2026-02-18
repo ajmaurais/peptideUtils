@@ -193,6 +193,18 @@ bool msInterface::MzMLFile::getScan(size_t queryScan, msInterface::Scan& scan) c
         if(!precursorScanName.empty())
             scan.getPrecursor().setScan(_parseScan(precursorScanName));
 
+        //isolationWindow
+        auto* isoWindowNode = precursorNode->first_node("isolationWindow");
+        if(isoWindowNode) {
+            for(auto* cvParam = isoWindowNode->first_node("cvParam"); cvParam; cvParam = cvParam->next_sibling("cvParam")) {
+                std::string accession = internal::_getAttrValStr("accession", cvParam);
+                if(accession == "MS:1000828") //isolation window lower offset
+                    scan.getPrecursor().setIsoWindowLowerOffset(internal::_getAttrValdouble("value", cvParam));
+                else if(accession == "MS:1000829") //isolation window upper offset
+                    scan.getPrecursor().setIsoWindowUpperOffset(internal::_getAttrValdouble("value", cvParam));
+            }
+        }
+
         //selectedIon
         for(auto* iter = internal::_getFirstChildNode("cvParam",
                                                       internal::_getFirstChildNode("selectedIon",
